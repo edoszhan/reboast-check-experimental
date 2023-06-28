@@ -1,4 +1,3 @@
-import * as ROUTES from './routes';
-// import ROUTES from './routes';
-// import COLORS from './colors';
-export {ROUTES};
+import ROUTES from '../constants/routes';
+import COLORS from '../constants/colors';
+export {ROUTES, COLORS};

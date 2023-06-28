@@ -10,7 +10,7 @@ const HomeScreen = () => {
         justifyContent: 'center',
         alignItems: 'center',
       }}>
-      <Text>Login 2</Text>
+      <Text>Home Screen</Text>
     </SafeAreaView>
   );
 };

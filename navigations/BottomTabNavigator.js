@@ -1,55 +1,54 @@
-import React from "react";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { HomeScreen, TimerScreen, CalendarScreen, ProfileScreen } from "../screens";
-import { Ionicons } from "@expo/vector-icons";
+import React from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { ROUTES } from '../constants';
+import { Home, Timer, Calendar, Profile } from '../screens';
+import { Ionicons, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 
-const Tabs = createBottomTabNavigator();
+const Tab = createBottomTabNavigator();
 
-const BottomTabNavigator = ({ navigation }) => {
+function BottomTabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarActiveTintColor: "blue",
-        tabBarInactiveTintColor: "gray",
-        tabBarStyle: {
-          display: "flex",
-        },
-        headerRight: () => (
-          <Ionicons
-            name="settings-outline"
-            size={24}
-            color="black"
-            style={{ marginRight: 10 }}
-            onPress={() => navigation.navigate("Profile")}
-          />
-        ),
-        tabBarIcon: ({ color, size }) => {
+        tabBarActiveTintColor: 'green',
+        tabBarInactiveTintColor: 'gray',
+        tabBarStyle: [
+            {
+              display: "flex"
+            },
+            null
+          ],
+        tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-
-          if (route.name === "Home") {
-            iconName = "home";
-          } else if (route.name === "Timer") {
-            iconName = "timer";
-          } else if (route.name === "Calendar") {
-            iconName = "calendar";
-          } else if (route.name === "Profile") {
-            iconName = "person";
+          switch (route.name) {
+            case ROUTES.HOME_TAB:
+              iconName = focused ? 'home' : 'home-outline';
+              return <Ionicons name={iconName} size={size} color={color} />;
+            case ROUTES.TIMER:
+              iconName = focused ? 'timer' : 'timer-outline';
+              return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
+            case ROUTES.CALENDAR:
+              iconName = focused ? 'calendar' : 'calendar-outline';
+              return <Ionicons name={iconName} size={size} color={color} />;
+            case ROUTES.PROFILE:
+              iconName = focused ? 'user' : 'user-o';
+              return <FontAwesome name={iconName} size={size} color={color} />;
+            default:
+              return null;
           }
-
-          return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}
-      tabBarOptions={{
-        activeTintColor: "blue",
-        inactiveTintColor: "gray",
-      }}
+    //   tabBarOptions={{
+    //     tabBarActiveTintColor: 'green',
+    //     tabBarInactiveTintColor: 'gray',
+    //   }}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Timer" component={TimerScreen} />
-      <Tab.Screen name="Calendar" component={CalendarScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name={ROUTES.HOME_TAB} component={Home} />
+      <Tab.Screen name={ROUTES.TIMER} component={Timer} />
+      <Tab.Screen name={ROUTES.CALENDAR} component={Calendar} />
+      <Tab.Screen name={ROUTES.PROFILE} component={Profile} />
     </Tab.Navigator>
   );
-};
+}
 
 export default BottomTabNavigator;

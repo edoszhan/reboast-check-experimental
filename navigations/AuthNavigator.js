@@ -3,34 +3,37 @@ import ROUTES from "../constants/routes";
 import ForgotPassword from "../screens/auth/ForgotPassword";
 import Login from "../screens/auth/Login";
 import Register from "../screens/auth/Register";
+import { useNavigation } from "@react-navigation/native";
+import BottomTabNavigator from "./BottomTabNavigator";
 
-import CalendarScreen from "../screens/home/CalendarScreen";
-// import BottomTabNavigator from "./BottomTabNavigator";
-import TimerScreen from "../screens/home/TimerScreen";
-import { Text } from 'react-native';
+import COLORS from "../constants/colors";
 import HomeScreen from "../screens/home/HomeScreen";
 
 const Stack = createStackNavigator();
 
-function AuthNavigator(navigation) {
-    console.log(4),
-    console.log(ROUTES.FORGOT_PASSWORD)
+function AuthNavigator() {
+    const navigation = useNavigation();
     return (
     <Stack.Navigator initialRouteName={ROUTES.LOGIN} 
     screenOptions={ {
-        headerTintColor: 'black',
+        headerTintColor: COLORS.white,
+        headerBackTitleVisible: false,
         headerStyle: {
-            backgroundColor: 'green',
+            backgroundColor: COLORS.primary,
         }
     }
     } >
-    <Stack.Screen name={ROUTES.FORGOT_PASSWORD} component={ForgotPassword} />
+    <Stack.Screen 
+    name={ROUTES.FORGOT_PASSWORD} 
+    component={ForgotPassword} 
+    options={ ({route}) => ({
+        title: route.params.userID,
+    }) }
+    />
       <Stack.Screen name={ROUTES.LOGIN}  component={Login}/>
-      <Stack.Screen name={ROUTES.HOME_TAB}  component={TimerScreen} />
       <Stack.Screen name={ROUTES.REGISTER} component={Register} />
-      {/* <Stack.Screen name={ROUTES.HOME} component={BottomTabNavigator} /> */}
+      <Stack.Screen name={ROUTES.HOME} component={BottomTabNavigator} />
     </Stack.Navigator>
-    // <Text>AuthNavigator</Text>  
   );
 }   
 

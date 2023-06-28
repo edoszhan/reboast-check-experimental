@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "rough-app",
+    "slug": "rough-app",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "rough-app"
+}

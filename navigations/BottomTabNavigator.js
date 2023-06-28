@@ -10,6 +10,7 @@ function BottomTabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
+        headerShown: false,
         tabBarActiveTintColor: 'green',
         tabBarInactiveTintColor: 'gray',
         tabBarStyle: [
@@ -38,10 +39,6 @@ function BottomTabNavigator() {
           }
         },
       })}
-    //   tabBarOptions={{
-    //     tabBarActiveTintColor: 'green',
-    //     tabBarInactiveTintColor: 'gray',
-    //   }}
     >
       <Tab.Screen name={ROUTES.HOME_TAB} component={Home} />
       <Tab.Screen name={ROUTES.TIMER} component={Timer} />

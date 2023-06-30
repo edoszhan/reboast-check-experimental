@@ -6,23 +6,76 @@ import {
   TextInput,
   SafeAreaView,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {COLORS, ROUTES} from '../../constants';
 
+// import Logo from '../../icons/LOGO.svg';
+import {FIREBASE_AUTH} from '../../config/firebase';
+import { Button } from 'react-native';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+
+
 const Login = (props) => {
-    const {navigation} = props;
+
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+  const auth = FIREBASE_AUTH;
+
+  const signIn = async () => {
+    setLoading(true);
+    try {
+      const response = await signInWithEmailAndPassword(auth, email, password);
+      console.log(response);
+      alert("Login Success");
+      navigation.replace(ROUTES.HOME);
+    } catch (error) {
+      console.log(error);
+      alert("Login Failed" + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signUp = async () => {
+    setLoading(true);
+    try {
+      const response = await createUserWithEmailAndPassword(auth, email,password);
+      console.log(response);
+      alert("Sign Up Success");
+    } catch (error) {
+      console.log(error);
+      alert("Sign Up Failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const {navigation} = props;
   return (
     <SafeAreaView style={styles.main}>
       <View style={styles.container}>
         <View style={styles.wFull}>
           <View style={styles.row}>
+             {/* <Logo width={55} height={55} style={styles.mr7} /> */}
             <Text style={styles.brandName}>Rough</Text>
           </View>
 
           <Text style={styles.loginContinueTxt}>Login in to continue</Text>
-          <TextInput style={styles.input} placeholder="Email" />
-          <TextInput style={styles.input} placeholder="Password" />
+          <TextInput style={styles.input} value={email} placeholder="Email" autoCapitalize="none" onChangeText={(text) => setEmail(text)} />
+          <TextInput secureTextEntry={true}
+          style={styles.input} value={password} placeholder="Password" autoCapitalize="none" onChangeText={(text) => setPassword(text)}/>
+
+          {loading ? (
+            <ActivityIndicator size="large" color={COLORS.primary} />
+          ) : (
+            <>
+              <Button title="Sign In" onPress={signIn} />
+              <Button title="Sign Up" onPress={signUp} />
+            </>
+          )}
 
           <View style={styles.loginBtnWrapper}>
             <LinearGradient

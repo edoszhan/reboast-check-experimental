@@ -7,12 +7,42 @@ import { useNavigation } from "@react-navigation/native";
 import BottomTabNavigator from "./BottomTabNavigator";
 
 import COLORS from "../constants/colors";
-import HomeScreen from "../screens/home/HomeScreen";
+import { User } from "../config/firebase"
+import { FIREBASE_AUTH } from "../config/firebase";
+import { useState } from "react";
+import { useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
+import Timer from "../screens/";
 
 const Stack = createStackNavigator();
 
+// const InsideStack = createNativeStackNavigator();
+
+// function InsideLayout () {
+//   return (
+//     <InsideStack.Navigator>
+//       <InsideStack.Screen name={ROUTES.TIMER} component={Timer} />
+//     </InsideStack.Navigator>
+//   );
+// }
+
 function AuthNavigator() {
+    const [user, setUser] = useState(User);
+
+
     const navigation = useNavigation();
+    // console.log('user',user);
+
+    useEffect(() => {
+      onAuthStateChanged(FIREBASE_AUTH, (user) => {
+        console.log('user',user);
+        setUser(user);
+      });
+    }, []);
+
+
     return (
     <Stack.Navigator initialRouteName={ROUTES.LOGIN} 
     screenOptions={ {
@@ -23,6 +53,15 @@ function AuthNavigator() {
         }
     }
     } >
+      {user ? (
+        // <Stack.Screen name={ROUTES.LOGIN}  component={Login} options={{headerShown: true }}/>
+        <Stack.Screen name={ROUTES.HOME} component={BottomTabNavigator} options={{headerShown: false }}  />
+      ) : (
+        <>
+        <Stack.Screen name={ROUTES.LOGIN}  component={Login} options={{headerShown: true }}/>
+        <Stack.Screen name={ROUTES.REGISTER} component={Register} />
+        </>
+      )} 
     <Stack.Screen 
     name={ROUTES.FORGOT_PASSWORD} 
     component={ForgotPassword} 
@@ -30,9 +69,9 @@ function AuthNavigator() {
         title: route.params.userID,
     }) }
     />
-      <Stack.Screen name={ROUTES.LOGIN}  component={Login}/>
-      <Stack.Screen name={ROUTES.REGISTER} component={Register} />
-      <Stack.Screen name={ROUTES.HOME} component={BottomTabNavigator} />
+      {/* <Stack.Screen name={ROUTES.LOGIN}  component={Login}/> */}
+      {/* <Stack.Screen name={ROUTES.REGISTER} component={Register} /> */}
+      {/* <Stack.Screen name={ROUTES.HOME} component={BottomTabNavigator} /> */}
     </Stack.Navigator>
   );
 }   

@@ -1,16 +1,18 @@
 import React from 'react';
-import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
+import {SafeAreaView, Settings, StyleSheet, Text, View} from 'react-native';
+import { FIREBASE_AUTH } from '../../config/firebase';
+import { Button } from 'react-native';
+import { ROUTES } from '../../constants';
 
-const ProfileScreen = () => {
+
+
+const ProfileScreen = (props) => {
+  const {navigation} = props;
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}>
-      <Text>Profile Screen</Text>
-    </SafeAreaView>
+    <View style= {{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Button onPress={() => navigation.navigate(ROUTES.SETTINGS)} title="Go to Settings"/>
+      <Button onPress={() => FIREBASE_AUTH.signOut()} title="Logout from account" />
+    </View>
   );
 };
 

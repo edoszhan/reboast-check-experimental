@@ -1,6 +1,6 @@
 export default {
-  gradientForm: '#A376F1',
-  primary: '#7d5fff',
+  gradientForm: '#1f1fff',
+  primary: blue = '#1E90FF',
   white: '#FFFFFF',
   dark: '#444',
   bgColor: '#82ccdd',

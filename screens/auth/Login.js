@@ -72,14 +72,14 @@ const Login = (props) => {
           <TextInput secureTextEntry={true}
           style={styles.input} value={password} placeholder="Password" autoCapitalize="none" onChangeText={(text) => setPassword(text)}/>
 
-          {loading ? (
+          {/* {loading ? (
             <ActivityIndicator size="large" color={COLORS.primary} />
           ) : (
             <>
               <Button title="Sign In" onPress={signIn} />
               <Button title="Sign Up" onPress={signUp} />
             </>
-          )}
+          )} */}
 
           <View style={styles.loginBtnWrapper}>
             <LinearGradient
@@ -92,6 +92,7 @@ const Login = (props) => {
               onPress={signIn}>
                 <Text style={styles.loginText}>Log In</Text>
               </TouchableOpacity>
+              
             </LinearGradient>
           </View>
 

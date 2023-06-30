@@ -35,15 +35,19 @@ const Register = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Register</Text>
-
+      <Text style={styles.inputLabel}>Email 
+      
+      <Text style={styles.mandatoryApostrophe}>*</Text></Text>
       <TextInput
         style={styles.input}
         value={email}
-        placeholder="Email"
+        placeholder="Enter email"
         autoCapitalize="none"
         onChangeText={(text) => setEmail(text)}
       />
 
+      <Text style={styles.inputLabel}>Password 
+      <Text style={styles.mandatoryApostrophe}>*</Text></Text>
       <TextInput
         style={styles.input}
         value={password}
@@ -51,7 +55,8 @@ const Register = ({ navigation }) => {
         secureTextEntry={true}
         onChangeText={(text) => setPassword(text)}
       />
-
+      <Text style={styles.inputLabel}>Confirm Password
+      <Text style={styles.mandatoryApostrophe}>*</Text></Text>
       <TextInput
         style={styles.input}
         value={repeatPassword}
@@ -59,26 +64,35 @@ const Register = ({ navigation }) => {
         secureTextEntry={true}
         onChangeText={(text) => setRepeatPassword(text)}
       />
-
-      <TouchableOpacity
-        style={styles.checkBoxContainer}
-        onPress={() => setAgreed(!agreed)}
-      >
-        {agreed ? (
-          <Text style={styles.checkBoxText}>✓</Text>
-        ) : (
-          <Text style={styles.checkBoxText}></Text>
-        )}
+      <View style={styles.checkBoxContainer}>
+        <TouchableOpacity
+          style={styles.checkBox}
+          onPress={() => setAgreed(!agreed)}
+        >
+          {!agreed ? (
+            <View style={styles.checkBoxBox} />
+          ) : (
+            <Text style={styles.checkBoxTick}>✓</Text>
+          )}
+        </TouchableOpacity>
         <Text style={styles.checkBoxLabel}>I agree to the terms and conditions</Text>
-      </TouchableOpacity>
+      </View>
 
       <TouchableOpacity style={styles.button} onPress={signUp}>
         <Text style={styles.buttonText}>Register</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate(ROUTES.LOGIN)}>
+      {/* <TouchableOpacity onPress={() => navigation.navigate(ROUTES.LOGIN)}>
         <Text style={styles.loginLink}>Already have an account? Log in</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+
+      <View style={styles.footer}>
+          <Text style={styles.footerText}> Already have an account? </Text>
+          {/******************** LOG IN BUTTON *********************/}
+          <TouchableOpacity onPress={() => navigation.navigate(ROUTES.LOGIN)}>
+            <Text style={styles.logInBtn}>Login</Text>
+          </TouchableOpacity>
+        </View>
     </View>
   );
 };
@@ -93,7 +107,7 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 24,
+    marginBottom: 30,
   },
   input: {
     borderWidth: 1,
@@ -105,18 +119,12 @@ const styles = StyleSheet.create({
     height: 55,
     width: '100%',
   },
-  checkBoxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 24,
-  },
-  checkBoxText: {
-    fontSize: 20,
-    marginRight: 10,
-  },
-  checkBoxLabel: {
+  inputLabel: {
     fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    marginRight: 'auto',
+    marginLeft: 4,
   },
   button: {
     backgroundColor: COLORS.primary,
@@ -134,7 +142,55 @@ const styles = StyleSheet.create({
   loginLink: {
     fontSize: 14,
     color: COLORS.primary,
-    marginTop: 10,
+    marginTop: 20,
+  },
+  mandatoryApostrophe: {
+    color: "red",
+    fontSize: 20,
+    marginLeft: 5,
+  },
+  checkBoxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  checkBox: {
+    width: 24,
+    height: 24,
+    borderWidth: 1,
+    borderColor: COLORS.grayLight,
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  checkBoxBox: {
+    width: 16,
+    height: 16,
+    borderWidth: 1,
+    borderColor: COLORS.grayLight,
+    borderRadius: 2,
+  },
+  checkBoxTick: {
+    fontSize: 16,
+    color: COLORS.primary,
+  },
+  checkBoxLabel: {
+    fontSize: 16,
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 55,
+    textAlign: 'center',
+    flexDirection: 'row',
+  },
+  footerText: {
+    color: COLORS.gray,
+    fontWeight: 'bold',
+  },
+  logInBtn: {
+    color: COLORS.primary,
+    fontWeight: 'bold',
   },
 });
 

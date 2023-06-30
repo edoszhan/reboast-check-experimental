@@ -101,6 +101,7 @@ const TimerScreen = () => {
             >
               <Text style={styles.buttonText}>Stop</Text>
             </TouchableOpacity>
+            
             <TouchableOpacity
               style={[styles.button, styles.pauseButton]}
               onPress={handlePause}

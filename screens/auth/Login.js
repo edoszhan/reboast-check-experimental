@@ -11,11 +11,14 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import {COLORS, ROUTES} from '../../constants';
 
-// import Logo from '../../icons/LOGO.svg';
+import Logo from '../../assets/icons/LOGO.svg';
 import {FIREBASE_AUTH} from '../../config/firebase';
 import { Button } from 'react-native';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
+
+
+// Inside the component
 
 const Login = (props) => {
 
@@ -59,7 +62,8 @@ const Login = (props) => {
       <View style={styles.container}>
         <View style={styles.wFull}>
           <View style={styles.row}>
-             {/* <Logo width={55} height={55} style={styles.mr7} /> */}
+            <Logo width={60} height={55} style={styles.mr7} />
+             {/* <SvgUri  width={55} height={55} uri={require('../../assets/icons/LOGO.svg')} style={styles.mr7}/> */}
             <Text style={styles.brandName}>Rough</Text>
           </View>
 
@@ -85,7 +89,7 @@ const Login = (props) => {
               end={{y: 1.0, x: 0.0}}>
               {/******************** LOGIN BUTTON *********************/}
               <TouchableOpacity activeOpacity={0.7} style={styles.loginBtn}
-              onPress={() => navigation.navigate(ROUTES.HOME)}>
+              onPress={signIn}>
                 <Text style={styles.loginText}>Log In</Text>
               </TouchableOpacity>
             </LinearGradient>

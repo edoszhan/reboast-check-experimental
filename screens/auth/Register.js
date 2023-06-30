@@ -1,14 +1,69 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { FIREBASE_AUTH } from '../../config/firebase';
+import { FIREBASE_AUTH, FIREBASE_DB } from '../../config/firebase';
 import { COLORS, ROUTES } from '../../constants';
+import { doc, setDoc } from 'firebase/firestore';
+
+import uuid from 'react-native-uuid';
 
 const Register = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [repeatPassword, setRepeatPassword] = useState('');
   const [agreed, setAgreed] = useState(false);
+
+  const [name, setName] = useState('');
+  const userId_random = uuid.v4();
+
+  // function create () {
+  //   setDoc(doc(FIREBASE_DB, "users-info", userId_random), {
+  //     name: name,
+  //     email: email,
+  // }).then(() => {
+  //     console.log("Document successfully written!");
+
+  // }).catch((error) => {
+  //   console.log("Error writing document: ", error);
+  // });
+  // }
+
+
+  // const signUp = async () => {
+  //   if (password !== repeatPassword) {
+  //     Alert.alert('Passwords do not match');
+  //     return;
+  //   }
+
+  //   if (!agreed) {
+  //     Alert.alert('Please agree to the terms and conditions');
+  //     return;
+  //   }
+
+  //   try {
+  //     const response = await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password);
+  //     console.log(response);
+  //     Alert.alert('Registration Success');
+
+  //     create();
+
+  //     navigation.replace(ROUTES.HOME);
+  //   } catch (error) {
+  //     console.log(error);
+  //     Alert.alert('Registration Failed');
+  //   }
+  // };
+  const create = async (uid) => {
+    try {
+      await setDoc(doc(FIREBASE_DB, "users-info", uid), {
+        name: name,
+        email: email,
+      });
+      console.log("Document successfully written!");
+    } catch (error) {
+      console.log("Error writing document: ", error);
+    }
+  };
 
   const signUp = async () => {
     if (password !== repeatPassword) {
@@ -22,9 +77,13 @@ const Register = ({ navigation }) => {
     }
 
     try {
-      const response = await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password);
-      console.log(response);
+      const { user } = await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password);
+      console.log(user);
       Alert.alert('Registration Success');
+
+      const uid = user.uid;
+      await create(uid);
+
       navigation.replace(ROUTES.HOME);
     } catch (error) {
       console.log(error);
@@ -32,9 +91,23 @@ const Register = ({ navigation }) => {
     }
   };
 
+
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Register</Text>
+
+      <Text style={styles.inputLabel}>Name
+      
+      <Text style={styles.mandatoryApostrophe}>*</Text></Text>
+      <TextInput
+        style={styles.input}
+        value={name}
+        placeholder="Enter your name"
+        autoCapitalize="none"
+        onChangeText={(name) => setName(name)}
+        />
+
       <Text style={styles.inputLabel}>Email 
       
       <Text style={styles.mandatoryApostrophe}>*</Text></Text>
@@ -43,7 +116,7 @@ const Register = ({ navigation }) => {
         value={email}
         placeholder="Enter email"
         autoCapitalize="none"
-        onChangeText={(text) => setEmail(text)}
+        onChangeText={(email) => setEmail(email)}
       />
 
       <Text style={styles.inputLabel}>Password 
@@ -81,10 +154,6 @@ const Register = ({ navigation }) => {
       <TouchableOpacity style={styles.button} onPress={signUp}>
         <Text style={styles.buttonText}>Register</Text>
       </TouchableOpacity>
-
-      {/* <TouchableOpacity onPress={() => navigation.navigate(ROUTES.LOGIN)}>
-        <Text style={styles.loginLink}>Already have an account? Log in</Text>
-      </TouchableOpacity> */}
 
       <View style={styles.footer}>
           <Text style={styles.footerText}> Already have an account? </Text>

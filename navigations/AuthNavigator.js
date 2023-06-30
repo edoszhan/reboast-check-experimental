@@ -61,7 +61,7 @@ function AuthNavigator() {
         <>
         <Stack.Screen name={ROUTES.LOGIN}  component={Login} options={{headerShown: true }}/>
         <Stack.Screen name={ROUTES.REGISTER} component={Register} />
-        <Stack.Screen name={ROUTES.SETTINGS} component={Settings} options={{headerShown: false }}  />
+        {/* <Stack.Screen name={ROUTES.SETTINGS} component={Settings} options={{headerShown: false }}  /> */}
         </>
       )} 
     <Stack.Screen 

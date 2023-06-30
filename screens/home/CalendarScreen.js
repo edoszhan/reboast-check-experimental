@@ -3,7 +3,8 @@ import { View, Text, StyleSheet, Button } from "react-native";
 import { Calendar } from 'react-native-calendars';
 import { ROUTES } from "../../constants";
 
-const CalendarScreen = (navigation) => {
+const CalendarScreen = (props) => {
+  const {navigation} = props;
   const [selected, setSelected] = useState('');
   const [showTasks, setShowTasks] = useState(false);
 
@@ -26,8 +27,7 @@ const CalendarScreen = (navigation) => {
           {tasksForSelectedDay.map((task) => (
             <Text key={task.id} style={styles.taskItem}>{task.title}</Text>
           ))}
-           <Text> Login Screen </Text>
-        <Button title="Go to Details" onPress={() => navigation.navigate(ROUTES.LOGIN)} />
+        <Button title="Go to Timer" onPress={() => navigation.navigate(ROUTES.TIMER)} />
     
         </View>
 

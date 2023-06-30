@@ -1,10 +1,23 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { BottomTabView, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ROUTES } from '../constants';
 import { Home, Timer, Calendar, Profile } from '../screens';
 import { Ionicons, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
+import Settings from '../screens/home/Settings';
+import { createStackNavigator } from '@react-navigation/stack';
+import ProfileScreen from '../screens/home/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
+const ProfileStack = createStackNavigator();
+
+function ProfileStackScreen() {
+  return (
+    <ProfileStack.Navigator>
+      <ProfileStack.Screen name="Profile" component={ProfileScreen} />
+      <ProfileStack.Screen name="Settings" component={Settings}/>
+    </ProfileStack.Navigator>
+  );
+}
 
 function BottomTabNavigator() {
   return (
@@ -43,7 +56,7 @@ function BottomTabNavigator() {
       <Tab.Screen name={ROUTES.HOME_TAB} component={Home} />
       <Tab.Screen name={ROUTES.TIMER} component={Timer} />
       <Tab.Screen name={ROUTES.CALENDAR} component={Calendar} />
-      <Tab.Screen name={ROUTES.PROFILE} component={Profile} />
+      <Tab.Screen name={ROUTES.PROFILE} component={ProfileStackScreen} />
     </Tab.Navigator>
   );
 }

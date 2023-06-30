@@ -6,8 +6,10 @@ const ForgotPassword = () => {
   const route = useRoute();
   return (
     <View style={styles.container}>
-      <Text>ForgotPassword</Text>
-      <Text> Params: {route.params.userID}</Text>
+      <Text>ForgotPassword  </Text>
+      <Text>  </Text>
+      {/* <Text> Params: {route.params.userID}</Text> */}
+      <Text> N/A </Text>
     </View>
   );
 };

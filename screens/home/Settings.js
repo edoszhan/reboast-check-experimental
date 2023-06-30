@@ -9,7 +9,7 @@ const Settings = () => {
         justifyContent: 'center',
         alignItems: 'center',
       }}>
-      <Text>Home Screen</Text>
+      <Text>Settings</Text>
     </SafeAreaView>
   );
 };

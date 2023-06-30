@@ -15,6 +15,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import Timer from "../screens/";
+import Settings from "../screens/home/Settings";
 
 const Stack = createStackNavigator();
 
@@ -60,6 +61,7 @@ function AuthNavigator() {
         <>
         <Stack.Screen name={ROUTES.LOGIN}  component={Login} options={{headerShown: true }}/>
         <Stack.Screen name={ROUTES.REGISTER} component={Register} />
+        <Stack.Screen name={ROUTES.SETTINGS} component={Settings} options={{headerShown: false }}  />
         </>
       )} 
     <Stack.Screen 

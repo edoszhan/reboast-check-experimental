@@ -40,7 +40,7 @@ const HomeScreen = () => {
 
           if (userDocSnapshot.exists()) {
             const userData = userDocSnapshot.data();
-            setUserName(userData.name);
+            setUserName(userData.name);   // Hello message is here -> Hello {userName}
           } else {
             console.log('User document not found');
           }

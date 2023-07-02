@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput } from "react-native";
+import { Button } from 'react-native';
+import { ROUTES } from '../../constants';
 
-
-const TimerScreen = () => {
+const TimerScreen = (props) => {
+  const { navigation } = props;
   const [time, setTime] = useState(1500); // 25 minutes in seconds ~ pomodoro style
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [sessionCount, setSessionCount] = useState(0);
-
+  const [sessionTopic, setSessionTopic] = useState("");
   const intervalRef = useRef(null);
 
   useEffect(() => {
@@ -22,7 +24,8 @@ const TimerScreen = () => {
       setIsActive(false);
       setIsPaused(false);
       setSessionCount((prevCount) => prevCount + 1);
-      setTime(1500); // Reset time to 25 minutes for the next session
+      setTime(prevTime => (prevTime === 1500 ? 300 : 1500)); // Switch between 25 minutes and 5 minutes
+      setSessionTopic(""); // Clear the session topic input
     }
 
     return () => {
@@ -45,6 +48,7 @@ const TimerScreen = () => {
     setIsPaused(false);
     setSessionCount((prevCount) => prevCount + 1);
     setTime(1500); // Reset time to 25 minutes for the next session
+    setSessionTopic(""); // Clear the session topic input
   };
 
   const handleReset = () => {
@@ -53,6 +57,7 @@ const TimerScreen = () => {
     setIsPaused(false);
     setSessionCount(0);
     setTime(1500);
+    setSessionTopic(""); // Clear the session topic input
   };
 
   const formatTime = () => {
@@ -67,6 +72,18 @@ const TimerScreen = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.buttonContainer}>
+        <Button onPress={() => navigation.navigate(ROUTES.TIMER_LOGS)} title="Go to History"/>
+      </View>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={[styles.input, isActive && styles.disabledInput]}
+          value={sessionTopic}
+          onChangeText={setSessionTopic}
+          placeholder="Enter session topic"
+          editable={!isActive}
+        />
+      </View>
       <TouchableOpacity
         style={styles.timerContainer}
         onPress={handleStart}
@@ -130,6 +147,27 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "#fff",
   },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginBottom: 10,
+    marginTop: 30,
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  input: {
+    width: 300,
+    height: 40,
+    borderWidth: 1,
+    borderColor: "black",
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    fontSize: 16,
+  },
+  disabledInput: {
+    backgroundColor: "#e3e3e3",
+  },
   timerContainer: {
     alignItems: "center",
     justifyContent: "center",
@@ -146,11 +184,6 @@ const styles = StyleSheet.create({
   timerText: {
     fontSize: 48,
     fontWeight: "bold",
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginBottom: 10,
   },
   button: {
     paddingVertical: 10,
@@ -179,5 +212,6 @@ const styles = StyleSheet.create({
   },
   sessionCount: {
     fontSize: 16,
+    marginTop: 20,
   }
 });

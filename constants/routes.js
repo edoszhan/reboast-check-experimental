@@ -10,6 +10,7 @@ export default {
     PROFILE: 'Profile',
     CALENDAR: 'Calendar',
     TIMER: 'Timer',
+    TIMER_LOGS: 'History',
   
     SETTINGS: 'Settings',
     ACCOUNT_SETTINGS: 'Account Settings',

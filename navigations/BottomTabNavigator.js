@@ -6,9 +6,12 @@ import { Ionicons, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icon
 import Settings from '../screens/home/Settings';
 import { createStackNavigator } from '@react-navigation/stack';
 import ProfileScreen from '../screens/home/ProfileScreen';
+import TimerLogs from '../screens/home/TimerLogs';
+import TimerScreen from '../screens/home/TimerScreen';
 
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
+const TimerStack = createStackNavigator();
 
 function ProfileStackScreen() {
   return (
@@ -16,6 +19,15 @@ function ProfileStackScreen() {
       <ProfileStack.Screen name="Profile" component={ProfileScreen} />
       <ProfileStack.Screen name="Settings" component={Settings}/>
     </ProfileStack.Navigator>
+  );
+}
+
+function TimerStackScreen() {
+  return (
+    <TimerStack.Navigator>
+      <TimerStack.Screen name="Timer" component={Timer} />
+      <TimerStack.Screen name="History" component={TimerLogs}/>
+    </TimerStack.Navigator>
   );
 }
 
@@ -54,7 +66,7 @@ function BottomTabNavigator() {
       })}
     >
       <Tab.Screen name={ROUTES.HOME_TAB} component={Home} />
-      <Tab.Screen name={ROUTES.TIMER} component={Timer} />
+      <Tab.Screen name={ROUTES.TIMER} component={TimerStackScreen} />
       <Tab.Screen name={ROUTES.CALENDAR} component={Calendar} />
       <Tab.Screen name={ROUTES.PROFILE} component={ProfileStackScreen} />
     </Tab.Navigator>

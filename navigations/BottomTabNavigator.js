@@ -1,137 +1,153 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BottomTabView, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ROUTES } from '../constants';
-import { Home, Timer, Calendar, Profile} from '../screens';
+import { Home, Timer, Calendar, Profile } from '../screens';
 import { Ionicons, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import Settings from '../screens/home/Settings';
 import { createStackNavigator } from '@react-navigation/stack';
 import ProfileScreen from '../screens/home/ProfileScreen';
 import TimerLogs from '../screens/home/TimerLogs';
-import TimerScreen from '../screens/home/TimerScreen';
-import BottomDrawerScreen from '../screens/home/BottomDrawerScreen';
-import { View, Text } from 'react-native';
-
-// import Animated from 'react-native-reanimated';
-// import BottomSheet from 'reanimated-bottom-sheet';
+import { TouchableOpacity, View, Text, Modal, StyleSheet } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
 const TimerStack = createStackNavigator();
 
-import { StyleSheet, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { Dimensions } from 'react-native';
+const { height } = Dimensions.get('window');
 
-
-
-function ProfileStackScreen() {
+const ProfileStackScreen = () => {
   return (
     <ProfileStack.Navigator>
       <ProfileStack.Screen name="Profile" component={ProfileScreen} />
-      <ProfileStack.Screen name="Settings" component={Settings}/>
-      {/* <ProfileStack.Screen name="Add tasks" component={BottomDrawerScreen}/> */}
+      <ProfileStack.Screen name="Settings" component={Settings} />
     </ProfileStack.Navigator>
   );
-}
+};
 
-function TimerStackScreen() {
+const TimerStackScreen = () => {
   return (
     <TimerStack.Navigator>
       <TimerStack.Screen name="Timer" component={Timer} />
-      <TimerStack.Screen name="History" component={TimerLogs}/>
+      <TimerStack.Screen name="History" component={TimerLogs} />
     </TimerStack.Navigator>
   );
-}
+};
 
+const BottomTabNavigator = () => {
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
 
-// function CustomHeader() {
-//   // const navigation = useNavigation();
-
-//   // const handleSettingsPress = () => {
-//   //   navigation.navigate(ROUTES.SETTINGS);
-//   // };
-
-//   return (
-//     <TouchableOpacity style={styles.settingsButton} onPress={handleSettingsPress}>
-//       <Ionicons name="settings-outline" size={24} color="black" />
-//     </TouchableOpacity>
-//   );
-// }
-
-
-function BottomTabNavigator() {
-  // const renderContent = () => (
-  //   <View
-  //     style={{
-  //       backgroundColor: 'white',
-  //       padding: 16,
-  //       height: 450,
-  //     }}
-  //   >
-  //     <Text>Swipe down to close</Text>
-  //   </View>
-  // );
-
-  // const sheetRef = React.useRef(null);
+  const togglePopup = () => {
+    setIsPopupVisible(!isPopupVisible);
+  };
 
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        // header: () => <CustomHeader />,
-        headerShown: false,
-        tabBarActiveTintColor: 'green',
-        tabBarInactiveTintColor: 'gray',
-        tabBarStyle: [
+    <View style={{ flex: 1 }}>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          headerShown: false,
+          tabBarActiveTintColor: 'green',
+          tabBarInactiveTintColor: 'gray',
+          tabBarStyle: [
             {
-              display: "flex"
+              display: 'flex',
             },
-            null
+            null,
           ],
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-          switch (route.name) {
-            case ROUTES.HOME_TAB:
-              iconName = focused ? 'home' : 'home-outline';
-              return <Ionicons name={iconName} size={size} color={color} />;
-            case ROUTES.TIMER:
-              iconName = focused ? 'timer' : 'timer-outline';
-              return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
-            case ROUTES.CALENDAR:
-              iconName = focused ? 'calendar' : 'calendar-outline';
-              return <Ionicons name={iconName} size={size} color={color} />;
-            case ROUTES.PROFILE:  
-              iconName = focused ? 'chatbubble-sharp' : 'chatbubble-outline';  //technically commuunity chats will be here; profile changes are not updated
-              return <Ionicons name={iconName} size={size} color={color} />;
-            case ROUTES.BOTTOM_DRAWER:  
-              iconName = focused ? 'add-circle' : 'add-circle-outline';  //technically commuunity chats will be here; profile changes are not updated
-              return <Ionicons name={iconName} size={size} color={color} />;
-            default:
-              return null;
-          }
-        },
-      })}
-    >
-      <Tab.Screen name={ROUTES.HOME_TAB} component={Home} />
-      {/* <BottomSheet
-        ref={sheetRef}
-        snapPoints={[450, 300, 0]}
-        borderRadius={10}
-        renderContent={renderContent}
-      /> */}
-      <Tab.Screen name={ROUTES.TIMER} component={TimerStackScreen}/>
-      <Tab.Screen name={ROUTES.BOTTOM_DRAWER} component={BottomDrawerScreen}/>
-      <Tab.Screen name={ROUTES.CALENDAR} component={Calendar} />
-      <Tab.Screen name={ROUTES.PROFILE} component={ProfileStackScreen}/>
-    </Tab.Navigator>
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName;
+            switch (route.name) {
+              case ROUTES.HOME_TAB:
+                iconName = focused ? 'home' : 'home-outline';
+                return <Ionicons name={iconName} size={size} color={color} />;
+              case ROUTES.TIMER:
+                iconName = focused ? 'timer' : 'timer-outline';
+                return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
+              case ROUTES.CALENDAR:
+                iconName = focused ? 'calendar' : 'calendar-outline';
+                return <Ionicons name={iconName} size={size} color={color} />;
+              case ROUTES.PROFILE:
+                iconName = focused ? 'chatbubble-sharp' : 'chatbubble-outline';
+                return <Ionicons name={iconName} size={size} color={color} />;
+              case ROUTES.BOTTOM_DRAWER:
+                iconName = focused ? 'add-circle' : 'add-circle-outline';
+                return <Ionicons name={iconName} size={size} color={color} />;
+              default:
+                return null;
+            }
+          },
+        })}
+      >
+        <Tab.Screen name={ROUTES.HOME_TAB} component={Home} />
+        <Tab.Screen name={ROUTES.TIMER} component={TimerStackScreen} />
+        <Tab.Screen
+          name={ROUTES.BOTTOM_DRAWER}
+          component={Calendar}
+          options={{
+            tabBarButton: () => (
+              <TouchableOpacity onPress={togglePopup} style={styles.tabBarButton}>
+                <Ionicons name='add-circle-outline' color='black' size={40} />
+              </TouchableOpacity>
+            ),
+          }}
+        />
+        <Tab.Screen name={ROUTES.CALENDAR} component={Calendar} />
+        <Tab.Screen name={ROUTES.PROFILE} component={ProfileStackScreen} />
+      </Tab.Navigator>
+      {isPopupVisible && (
+        <Modal animationType="slide" transparent={true} visible={isPopupVisible} onRequestClose={togglePopup}>
+          <View style={styles.modalContainer}>
+            <View style={styles.popup}>
+              <Text style={styles.popupText}>Popup Content</Text>
+              <TouchableOpacity style={styles.closeButton} onPress={togglePopup}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
+    </View>
   );
-}
-
-export default BottomTabNavigator;
+};
 
 const styles = StyleSheet.create({
-  settingsButton: {
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(100,100,100, 0.5)',
+  },
+  popup: {
+    backgroundColor: 'white',
+    padding: 110,
+    borderRadius: 10,
+    alignItems: 'center',
     position: 'absolute',
-    top: 40,
-    right: 20,
+    // bottom: 0,
+    left: 0,
+    right: 0,
+    maxHeight: height / 3,
+  },
+  popupText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  closeButton: {
+    marginTop: 20,
     padding: 10,
+    backgroundColor: 'gray',
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  tabBarButton: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
+
+export default BottomTabNavigator;

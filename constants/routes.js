@@ -7,7 +7,8 @@ export default {
     HOME_TAB: 'Home Tab',
     HOME_DRAWER: 'Home Drawer',
   
-    PROFILE: 'Profile',
+    // PROFILE: 'Profile',
+    PROFILE: 'Community',
     CALENDAR: 'Calendar',
     TIMER: 'Timer',
     TIMER_LOGS: 'History',
@@ -17,4 +18,5 @@ export default {
     SETTINGS_NAVIGATOR: 'Settings Navigator',
   
     SETTINGS_DETAIL: 'Settings Detail',
+    BOTTOM_DRAWER: 'Add tasks',   //make sure that routes names are similar to name of the screen -> remember Add tasks example
   };

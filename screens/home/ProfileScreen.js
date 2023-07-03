@@ -12,6 +12,7 @@ const ProfileScreen = (props) => {
   return (
     <View style= {{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Button onPress={() => navigation.navigate(ROUTES.SETTINGS)} title="Go to Settings"/>
+      {/* <Button onPress={() => navigation.navigate(ROUTES.BOTTOM_DRAWER)} title="Add tasks"/> */}
       <Button onPress={() => FIREBASE_AUTH.signOut()} title="Logout from account" />
     </View>
   );

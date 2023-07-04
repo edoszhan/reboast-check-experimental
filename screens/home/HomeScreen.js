@@ -23,6 +23,11 @@ import { SafeAreaView, StyleSheet, Text } from 'react-native';
 import { getAuth } from 'firebase/auth';
 import { getDoc, doc } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
+import { ROUTES } from '../../constants';
+import UserProfile from './UserProfile';
+
+import { Button } from 'react-native';
+
 
 import {
   ScrollView,
@@ -30,7 +35,9 @@ import {
 } from 'react-native';
 import { Agenda } from 'react-native-calendars';
 
-const HomeScreen = () => {
+
+const HomeScreen = (props) => {
+  const {navigation} = props;
   const [userName, setUserName] = useState('');
 
   useEffect(() => {
@@ -64,7 +71,8 @@ const HomeScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* <Text style={styles.text}>Home Screen</Text> */}
-      <Text style={styles.text} >Hello {userName}</Text>
+      <Button color="white" onPress={() => navigation.navigate(ROUTES.USER_PROFILE)} title="User Profile"/>
+      {/* <Text style={styles.text} >Hello {userName}</Text> */}
       <Agenda
         selected="2023-10-13"
 

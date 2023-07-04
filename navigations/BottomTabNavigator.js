@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BottomTabView, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ROUTES } from '../constants';
-import { Home, Timer, Calendar, Profile } from '../screens';
+import { Home, Timer, Calendar, Profile, UserProfile } from '../screens';
 import { Ionicons, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import Settings from '../screens/home/Settings';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -12,11 +12,20 @@ import { TouchableOpacity, View, Text, Modal, StyleSheet } from 'react-native';
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
 const TimerStack = createStackNavigator();
-
+const HomeStack = createStackNavigator();
 import { Dimensions } from 'react-native';
 const { height } = Dimensions.get('window');
 
 import { SelectList } from 'react-native-dropdown-select-list'
+
+const HomeStackScreen = () => {
+  return (
+    <HomeStack.Navigator>
+      <HomeStack.Screen name="Home" component={Home} />
+      <HomeStack.Screen name="User Profile" component={UserProfile} />
+    </HomeStack.Navigator>
+  );
+};
 
 const ProfileStackScreen = () => {
   return (
@@ -80,7 +89,7 @@ const BottomTabNavigator = () => {
           },
         })}
       >
-        <Tab.Screen name={ROUTES.HOME_TAB} component={Home} />
+        <Tab.Screen name={ROUTES.HOME_TAB} component={HomeStackScreen} />
         <Tab.Screen name={ROUTES.TIMER} component={TimerStackScreen} />
         <Tab.Screen
           name={ROUTES.BOTTOM_DRAWER}
@@ -142,7 +151,6 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: 'gray',
     borderRadius: 5,
-    marginLeft: 110,
   },
   closeButtonText: {
     color: 'white',

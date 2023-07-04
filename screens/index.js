@@ -4,6 +4,7 @@ export {default as Calendar} from './home/CalendarScreen';
 export {default as Profile} from './home/ProfileScreen';
 export {default as Settings} from './home/Settings';
 export {default as TimerLogs} from './home/TimerLogs';
+export {default as UserProfile} from './home/UserProfile';
 // Auth Screens
 export {default as Login} from './auth/Login';
 export {default as Register} from './auth/Register';

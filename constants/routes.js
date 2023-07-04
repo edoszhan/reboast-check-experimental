@@ -12,6 +12,7 @@ export default {
     CALENDAR: 'Calendar',
     TIMER: 'Timer',
     TIMER_LOGS: 'History',
+    USER_PROFILE: 'User Profile',
   
     SETTINGS: 'Settings',
     ACCOUNT_SETTINGS: 'Account Settings',

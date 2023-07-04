@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from "react-native";
 import { Button } from 'react-native';
 import { ROUTES } from '../../constants';
+import { Dimensions } from 'react-native';
+import { Modal } from 'react-native';
+const { height } = Dimensions.get('window');
 
 const TimerScreen = (props) => {
   const { navigation } = props;
@@ -42,8 +45,10 @@ const TimerScreen = (props) => {
     setIsPaused(!isPaused);
   };
 
-  const handleStop = () => {
-    console.log("Minutes: " + Math.floor((1500-time)/60));
+  const handleStop = (props) => {
+    navigation.navigate(ROUTES.TIMER_LOGS); //we should switch to logs page once the timer is stopped, user is greeted with popup
+    togglePopup(); //the popup should be displayed, over logs page from here
+    console.log("Minutes: " + Math.floor((1500-time)/60)); //displays correctly for 300 seconds, but it is irrelevant for our case
     console.log("Seconds: " + (1500-time)%60);
     clearInterval(intervalRef.current);
     setIsActive(false);
@@ -58,7 +63,8 @@ const TimerScreen = (props) => {
     setIsActive(false);
     setIsPaused(false);
     setTime(300); // Reset time to 5 minutes for the next session
-    setSessionTopic("Break"); // Clear the session topic input 
+    setSessionTopic("Break");
+    setIsActive(true) // Clear the session topic input 
   };
 
 
@@ -72,6 +78,7 @@ const TimerScreen = (props) => {
   };
 
   const formatTime = () => {
+
     const minutes = Math.floor(time / 60);
     const seconds = time % 60;
 
@@ -79,6 +86,12 @@ const TimerScreen = (props) => {
     const formattedSeconds = String(seconds).padStart(2, "0");
 
     return `${formattedMinutes}:${formattedSeconds}`;
+  };
+
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+
+  const togglePopup = () => {
+    setIsPopupVisible(!isPopupVisible);
   };
 
   return (
@@ -125,7 +138,7 @@ const TimerScreen = (props) => {
               style={[styles.button, styles.startButton]}
               onPress={handle5Min}
             >
-              <Text style={styles.buttonText}>Switch</Text>
+              <Text style={styles.buttonText}>Start</Text>
               <Text style={styles.buttonText}> 5 min</Text>
             </TouchableOpacity>
           </>
@@ -153,6 +166,19 @@ const TimerScreen = (props) => {
       <Text style={styles.sessionCount}>
         Session Count: {sessionCount}
       </Text>
+      {isPopupVisible && (
+        <Modal animationType="slide" transparent={true} visible={isPopupVisible} onRequestClose={togglePopup}>
+          <View style={styles.modalContainer}>
+            <View style={styles.popup}>
+              <Text style={styles.popupText}>Popup Content</Text>
+              <TouchableOpacity style={styles.closeButton} onPress={togglePopup}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+              {/* <SelectList /> */}
+            </View>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 };
@@ -232,5 +258,43 @@ const styles = StyleSheet.create({
   sessionCount: {
     fontSize: 16,
     marginTop: 20,
-  }
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(100,100,100, 0.5)',
+  },
+  popup: {   //some changes are needed to adjust the size
+    backgroundColor: 'white',
+    padding: 110,
+    borderRadius: 10,
+    alignItems: 'center',
+    position: 'absolute',
+    // bottom: 0,
+    left: 0,
+    right: 0,
+    maxHeight: height / 3,
+  },
+  popupText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  closeButton: {
+    marginTop: 20,
+    // marginBottom: 1,
+    padding: 10,
+    backgroundColor: 'gray',
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  tabBarButton: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });

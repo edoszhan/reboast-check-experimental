@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from "react-native";
 import { Button } from 'react-native';
 import { ROUTES } from '../../constants';
+import TimerLogs from "./TimerLogs";
 
 const TimerScreen = (props) => {
   const { navigation } = props;

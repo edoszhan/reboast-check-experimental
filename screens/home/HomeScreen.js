@@ -24,6 +24,8 @@ import { getAuth } from 'firebase/auth';
 import { getDoc, doc } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 
+import TodoList from '../../todos/TodoList';
+
 const HomeScreen = () => {
   const [userName, setUserName] = useState('');
 

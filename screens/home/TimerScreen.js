@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from "react-native";
 import { Button } from 'react-native';
 import { ROUTES } from '../../constants';
-import TimerLogs from "./TimerLogs";
 
 const TimerScreen = (props) => {
   const { navigation } = props;
@@ -44,6 +43,8 @@ const TimerScreen = (props) => {
   };
 
   const handleStop = () => {
+    console.log("Minutes: " + Math.floor((1500-time)/60));
+    console.log("Seconds: " + (1500-time)%60);
     clearInterval(intervalRef.current);
     setIsActive(false);
     setIsPaused(false);
@@ -51,6 +52,15 @@ const TimerScreen = (props) => {
     setTime(1500); // Reset time to 25 minutes for the next session
     setSessionTopic(""); // Clear the session topic input
   };
+
+  const handle5Min = () => {  
+    clearInterval(intervalRef.current);
+    setIsActive(false);
+    setIsPaused(false);
+    setTime(300); // Reset time to 5 minutes for the next session
+    setSessionTopic("Break"); // Clear the session topic input 
+  };
+
 
   const handleReset = () => {
     clearInterval(intervalRef.current);
@@ -102,13 +112,21 @@ const TimerScreen = (props) => {
               style={[styles.button, styles.startButton]}
               onPress={handleStart}
             >
-              <Text style={styles.buttonText}>Start</Text>
+              <Text style={styles.buttonText}> Start</Text>
+              <Text style={styles.buttonText}>25 min</Text>
             </TouchableOpacity>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={[styles.button, styles.resetButton]}
               onPress={handleReset}
             >
               <Text style={styles.buttonText}>Reset</Text>
+            </TouchableOpacity> */}
+            <TouchableOpacity
+              style={[styles.button, styles.startButton]}
+              onPress={handle5Min}
+            >
+              <Text style={styles.buttonText}>Switch</Text>
+              <Text style={styles.buttonText}> 5 min</Text>
             </TouchableOpacity>
           </>
         ) : (

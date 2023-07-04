@@ -66,9 +66,11 @@ const HomeScreen = () => {
       {/* <Text style={styles.text}>Home Screen</Text> */}
       <Text style={styles.text} >Hello {userName}</Text>
       <Agenda
-        selected="2023-10-12"
+        selected="2023-10-13"
+
         items={{
           '2023-10-12': [{name: 'Coding'}, {name: 'Workout'}, {name: 'Dinner'}],
+          '2023-10-13': [{name: 'Coding'}, {name: 'Workout'}, {name: 'Dinner'}],
         }}
         renderItem={(item, isFirst) => (
           <TouchableOpacity style={styles.item}>

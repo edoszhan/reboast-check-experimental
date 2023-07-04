@@ -16,6 +16,8 @@ const TimerStack = createStackNavigator();
 import { Dimensions } from 'react-native';
 const { height } = Dimensions.get('window');
 
+import { SelectList } from 'react-native-dropdown-select-list'
+
 const ProfileStackScreen = () => {
   return (
     <ProfileStack.Navigator>
@@ -71,7 +73,7 @@ const BottomTabNavigator = () => {
                 return <Ionicons name={iconName} size={size} color={color} />;
               case ROUTES.BOTTOM_DRAWER:
                 iconName = focused ? 'add-circle' : 'add-circle-outline';
-                return <Ionicons name={iconName} size={size} color={color} />;
+                 return <Ionicons name={iconName} size={size} color={color} />;
               default:
                 return null;
             }
@@ -102,6 +104,7 @@ const BottomTabNavigator = () => {
               <TouchableOpacity style={styles.closeButton} onPress={togglePopup}>
                 <Text style={styles.closeButtonText}>Close</Text>
               </TouchableOpacity>
+              {/* <SelectList /> */}
             </View>
           </View>
         </Modal>
@@ -117,7 +120,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(100,100,100, 0.5)',
   },
-  popup: {
+  popup: {   //some changes are needed to adjust the size
     backgroundColor: 'white',
     padding: 110,
     borderRadius: 10,
@@ -135,9 +138,11 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     marginTop: 20,
+    // marginBottom: 1,
     padding: 10,
     backgroundColor: 'gray',
     borderRadius: 5,
+    marginLeft: 110,
   },
   closeButtonText: {
     color: 'white',

@@ -24,7 +24,11 @@ import { getAuth } from 'firebase/auth';
 import { getDoc, doc } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 
-import TodoList from '../../todos/TodoList';
+import {
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import { Agenda } from 'react-native-calendars';
 
 const HomeScreen = () => {
   const [userName, setUserName] = useState('');
@@ -59,8 +63,19 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.text}>Home Screen</Text>
-      <Text style={styles.text}>Hello {userName}</Text>
+      {/* <Text style={styles.text}>Home Screen</Text> */}
+      <Text style={styles.text} >Hello {userName}</Text>
+      <Agenda
+        selected="2023-10-12"
+        items={{
+          '2023-10-12': [{name: 'Coding'}, {name: 'Workout'}, {name: 'Dinner'}],
+        }}
+        renderItem={(item, isFirst) => (
+          <TouchableOpacity style={styles.item}>
+            <Text style={styles.itemText}>{item.name}</Text>
+          </TouchableOpacity>
+        )}
+      />
     </SafeAreaView>
   );
 };
@@ -69,13 +84,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: '#0a8faf',
   },
   text: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginBottom: 10,
+    justifyContent: 'center',
   },
+  item: {
+    backgroundColor: 'white',
+    flex: 1,
+    borderRadius: 5,
+    padding: 10,
+    marginRight: 10,
+    marginTop: 17,
+  },
+  itemText: {
+    color: '#888',
+    fontSize: 16,
+  }
 });
 
 export default HomeScreen;

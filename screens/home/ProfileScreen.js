@@ -1,41 +1,74 @@
 import React from 'react';
-import {SafeAreaView, Settings, StyleSheet, Text, View} from 'react-native';
-import { FIREBASE_AUTH } from '../../config/firebase';
-import { Button } from 'react-native';
+import { SafeAreaView, StyleSheet, View, Text } from 'react-native';
+import { Button } from 'react-native-elements';
+import { Ionicons } from '@expo/vector-icons';
 import { ROUTES } from '../../constants';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 
-
-
-
-const ProfileScreen = (props) => {
-  const {navigation} = props;
+const ProfileScreen = ({ route, navigation }) => {
+  const { posts } = route.params ?? { posts: [] };
+  console.log('ProfileScreen posts:', posts);
   return (
-    <View style= {{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Button onPress={() => navigation.navigate(ROUTES.SETTINGS)} title="Go to Settings"/>
-      {/* <Button onPress={() => navigation.navigate(ROUTES.BOTTOM_DRAWER)} title="Add tasks"/> */}
-      <Button onPress={() => FIREBASE_AUTH.signOut()} title="Logout from account" />
-    </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.postListContainer}>
+        {posts && posts.length > 0 ? (
+          posts.map((post, index) => (
+            <View style={styles.postBlock} key={index}>
+              <Text style={styles.postTopic}>Hello</Text>
+              <Text style={styles.postContent}>Bye</Text>
+            </View>
+          ))
+        ) : (
+          <Text style={styles.noPostsText}>No posts yet</Text>
+        )}
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button
+          icon={<Ionicons name="pencil" size={24} color="white" />}
+          onPress={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)}
+          buttonStyle={styles.button}
+        />
+      </View>
+    </SafeAreaView>
   );
 };
 
-export default ProfileScreen;
-
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  postListContainer: {
+    paddingHorizontal: 16,
+  },
+  postBlock: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
+  },
+  postTopic: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  postContent: {
+    fontSize: 16,
+  },
+  noPostsText: {
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  buttonContainer: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+  },
   button: {
+    backgroundColor: 'blue',
+    borderRadius: 30,
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 5,
-    marginBottom: 10,
-    marginTop: 30,
-  },
-  startButton: {
-    backgroundColor: "#32CD32",
-    marginRight: 10,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#fff",
   },
 });
+
+export default ProfileScreen;

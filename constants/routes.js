@@ -23,5 +23,5 @@ export default {
 
     // Community screens
     NOTICE_SCREEN: 'Notice Screen',
-    ADD_POST_SCREEN: 'Add Post Screen',
+    ADD_POST_SCREEN: 'Add Post',
   };

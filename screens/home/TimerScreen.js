@@ -95,9 +95,15 @@ const TimerScreen = (props) => {
   return (
     <View style={styles.container}>
       <View style={styles.buttonContainer}>
-        <Button onPress={() => navigation.navigate(ROUTES.TIMER_LOGS)} title="Go to History"/>
+        {/* <Button onPress={() => navigation.navigate(ROUTES.TIMER_LOGS)} title="Go to History"/> */}
+        <TouchableOpacity
+          style={styles.roundButton}
+          onPress={() => navigation.navigate(ROUTES.TIMER_LOGS)}
+        >
+          <Text style={styles.buttonText}>History</Text>
+        </TouchableOpacity>
       </View>
-      <View style={styles.inputContainer}>
+      {/* <View style={styles.inputContainer}>
         <TextInput
           style={[styles.input, isActive && styles.disabledInput]}
           value={sessionTopic}
@@ -105,7 +111,7 @@ const TimerScreen = (props) => {
           placeholder="Enter session topic"
           editable={!isActive}
         />
-      </View>
+      </View> */}
       <TouchableOpacity
         style={styles.timerContainer}
         onPress={handleStart}
@@ -161,9 +167,9 @@ const TimerScreen = (props) => {
         )}
       </View>
 
-      <Text style={styles.sessionCount}>
+      {/* <Text style={styles.sessionCount}>
         Session Count: {sessionCount}
-      </Text>
+      </Text> */}
       {isPopupVisible && (
         <Modal animationType="slide" transparent={true} visible={isPopupVisible} onRequestClose={togglePopup}>
           <View style={styles.modalContainer}>
@@ -294,5 +300,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  roundButton: {
+    backgroundColor: 'gray',
+    borderRadius: 50, // Adjust the value as needed to make the button more or less round
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginBottom: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'flex-end',
   },
 });

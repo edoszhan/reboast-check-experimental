@@ -38,7 +38,8 @@ const TimerLogs = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Topic: {topic}</Text>
+      <Text style={styles.title}>Timer Logs</Text>
+      {/* <Text style={styles.title}>Topic: {topic}</Text>
       <TextInput
         style={[styles.input, isSaved && styles.disabledInput]}
         placeholder="Enter topic"
@@ -53,7 +54,7 @@ const TimerLogs = () => {
        />
       {!isSaved && (
         <Button title="Save" onPress={saveTopic} />
-      )}
+      )} */}
       {/* <Button title="Add Category" onPress={addCategory} disabled={isSaved} />
       <ScrollView style={styles.categoryList}>
         {categories.map((category, index) => (

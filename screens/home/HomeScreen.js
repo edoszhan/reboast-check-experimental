@@ -51,7 +51,7 @@ const HomeScreen = (props) => {
   return (
     <SafeAreaView style={styles.container}>
       {/* <Text style={styles.text}>Home Screen</Text> */}
-      <Button color="white" onPress={() => navigation.navigate(ROUTES.USER_PROFILE)} title="User Profile"/>
+      {/* <Button color="white" onPress={() => navigation.navigate(ROUTES.USER_PROFILE)} title="User Profile"/> */}
       {/* <Text style={styles.text} >Hello {userName}</Text> */}
       <Agenda
         selected="2023-10-13"

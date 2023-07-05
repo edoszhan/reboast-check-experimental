@@ -1,27 +1,25 @@
 import React, { useState } from 'react';
 import { BottomTabView, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ROUTES } from '../constants';
-import { Home, Timer, Calendar, Profile, UserProfile } from '../screens';
+import { Home, Timer, Calendar, Profile, UserProfile, AddPost } from '../screens';
 import { Ionicons, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import Settings from '../screens/home/Settings';
 import { createStackNavigator } from '@react-navigation/stack';
 import ProfileScreen from '../screens/home/ProfileScreen';
 import TimerLogs from '../screens/home/TimerLogs';
 import { TouchableOpacity, View, Text, Modal, StyleSheet } from 'react-native';
-
-
+import { createDrawerNavigator } from '@react-navigation/drawer';
 
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
 const TimerStack = createStackNavigator();
 const HomeStack = createStackNavigator();
-
-
+const Drawer = createDrawerNavigator();
+const Stack = createStackNavigator();
 
 import { Dimensions } from 'react-native';
 const { height } = Dimensions.get('window');
 
-import { SelectList } from 'react-native-dropdown-select-list'
 
 const HomeStackScreen = () => {
   return (
@@ -34,24 +32,79 @@ const HomeStackScreen = () => {
 
 const ProfileStackScreen = () => {
   return (
-    <ProfileStack.Navigator>
+    <ProfileStack.Navigator
+    screenOptions={{ headerTitle: "" }}>
       <ProfileStack.Screen name="Profile" component={ProfileScreen} />
-      <ProfileStack.Screen name="Settings" component={Settings} />
+      {/* <ProfileStack.Screen name="Settings" component={Settings} /> */}
+      <ProfileStack.Screen name="Add Post" component={AddPost} />
     </ProfileStack.Navigator>
   );
 };
 
 const TimerStackScreen = () => {
   return (
-    <TimerStack.Navigator>
+    <TimerStack.Navigator
+    screenOptions={{ headerTitle: "" }} >
       <TimerStack.Screen name="Timer" component={Timer} />
       <TimerStack.Screen name="History" component={TimerLogs} />
     </TimerStack.Navigator>
   );
 };
 
+// function DrawerRoutes() {
+//   return (
+//     <Drawer.Navigator
+//       initialRouteName="Home"
+//       screenOptions={{ headerTitle: "" }}
+//     >
+//       <Drawer.Screen name="Home" component={Home} />
+//       <Drawer.Screen name="Profile" component={UserProfile} />
+//     </Drawer.Navigator>
+//   );
+// }
+
+function StackRoutes() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen
+        name="home"
+        component={Home}
+        options={({ navigation }) => ({
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
+              <MaterialIcons name="menu" size={25} />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+
+      <Stack.Screen name="User Profile" component={UserProfile} />
+    </Stack.Navigator>
+  );
+}
+
+
 
 const BottomTabNavigator = () => {
+  return (
+    <Drawer.Navigator
+      initialRouteName="Home"
+      screenOptions={{ headerTitle: "" }}
+    >
+      <Drawer.Screen name="Home" component={BottomTabNavigator2} />
+      <Drawer.Screen name="Profile" component={UserProfile} />
+    </Drawer.Navigator>
+  );
+
+
+};
+
+
+
+// const BottomTabNavigator2 = () => {
+
+function BottomTabNavigator2() {
+
   const [isPopupVisible, setIsPopupVisible] = useState(false);
 
   const togglePopup = () => {
@@ -95,8 +148,9 @@ const BottomTabNavigator = () => {
           },
         })}
       >
-        <Tab.Screen name={ROUTES.HOME_TAB} component={HomeStackScreen} />
-        <Tab.Screen name={ROUTES.TIMER} component={TimerStackScreen} />
+        <Tab.Screen component={StackRoutes} name={ROUTES.HOME_TAB}  />
+        <Tab.Screen 
+          name={ROUTES.TIMER} component={TimerStackScreen} />
         <Tab.Screen
           name={ROUTES.BOTTOM_DRAWER}
           component={Calendar}

@@ -15,13 +15,6 @@ const ProfileScreen = (props) => {
       <Button onPress={() => navigation.navigate(ROUTES.SETTINGS)} title="Go to Settings"/>
       {/* <Button onPress={() => navigation.navigate(ROUTES.BOTTOM_DRAWER)} title="Add tasks"/> */}
       <Button onPress={() => FIREBASE_AUTH.signOut()} title="Logout from account" />
-      <Button
-              style={[styles.button, styles.startButton]}
-              onPress={navigation.navigate(ROUTES.TIMER)}
-              title="Timer"
-            >
-              <Text style={styles.buttonText}>Add post</Text>
-            </Button>
     </View>
   );
 };

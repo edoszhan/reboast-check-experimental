@@ -9,5 +9,9 @@ export {default as UserProfile} from './home/UserProfile';
 export {default as Login} from './auth/Login';
 export {default as Register} from './auth/Register';
 export {default as ForgotPassword} from './auth/ForgotPassword';
+// Community Screens
+export {default as NoticeScreen} from './community/NoticeScreen';  //recent changes
+export {default as AddPostScreen} from './community/AddPostScreen';
+
 
 

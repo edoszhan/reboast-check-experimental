@@ -1,23 +1,3 @@
-// import React from 'react';
-// import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
-
-// const HomeScreen = () => {
-//   return (
-//     <SafeAreaView
-//       style={{
-//         flex: 1,
-//         justifyContent: 'center',
-//         alignItems: 'center',
-//       }}>
-//       <Text>Home Screen</Text>
-//     </SafeAreaView>
-//   );
-// };
-
-// export default HomeScreen;
-
-// const styles = StyleSheet.create({});
-
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, StyleSheet, Text } from 'react-native';
 import { getAuth } from 'firebase/auth';

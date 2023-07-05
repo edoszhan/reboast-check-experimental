@@ -20,4 +20,8 @@ export default {
   
     SETTINGS_DETAIL: 'Settings Detail',
     BOTTOM_DRAWER: 'Add tasks',   //make sure that routes names are similar to name of the screen -> remember Add tasks example
+
+    // Community screens
+    NOTICE_SCREEN: 'Notice Screen',
+    ADD_POST_SCREEN: 'Add Post Screen',
   };

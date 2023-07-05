@@ -50,7 +50,6 @@ const TimerScreen = (props) => {
     togglePopup(); //the popup should be displayed, over logs page from here
     console.log("Minutes: " + Math.floor((1500-time)/60)); //displays correctly for 300 seconds, but it is irrelevant for our case
     console.log("Seconds: " + (1500-time)%60);
-    clearInterval(intervalRef.current);
     setIsActive(false);
     setIsPaused(false);
     setSessionCount((prevCount) => prevCount + 1);
@@ -84,7 +83,7 @@ const TimerScreen = (props) => {
 
     const formattedMinutes = String(minutes).padStart(2, "0");
     const formattedSeconds = String(seconds).padStart(2, "0");
-
+    console.log(`${formattedMinutes}:${formattedSeconds}`);
     return `${formattedMinutes}:${formattedSeconds}`;
   };
 

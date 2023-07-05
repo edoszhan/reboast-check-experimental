@@ -9,10 +9,15 @@ import ProfileScreen from '../screens/home/ProfileScreen';
 import TimerLogs from '../screens/home/TimerLogs';
 import { TouchableOpacity, View, Text, Modal, StyleSheet } from 'react-native';
 
+
+
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
 const TimerStack = createStackNavigator();
 const HomeStack = createStackNavigator();
+
+
+
 import { Dimensions } from 'react-native';
 const { height } = Dimensions.get('window');
 
@@ -44,6 +49,7 @@ const TimerStackScreen = () => {
     </TimerStack.Navigator>
   );
 };
+
 
 const BottomTabNavigator = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);

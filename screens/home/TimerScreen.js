@@ -46,10 +46,28 @@ const TimerScreen = (props) => {
   };
 
   const handleStop = (props) => {
+    if (isFiveActive) {
+      handleStop5Min();
+    } else {
+      handleStop25Min();
+    }
+  };
+
+  const handleStop25Min = (props) => {
     navigation.navigate(ROUTES.TIMER_LOGS); //we should switch to logs page once the timer is stopped, user is greeted with popup
     togglePopup(); //the popup should be displayed, over logs page from here
     console.log("Minutes: " + Math.floor((1500-time)/60)); //displays correctly for 300 seconds, but it is irrelevant for our case
     console.log("Seconds: " + (1500-time)%60);
+    setIsActive(false);
+    setIsPaused(false);
+    setSessionCount((prevCount) => prevCount + 1);
+    setTime(300); // Reset time to 25 minutes for the next session
+    setSessionTopic(""); // Clear the session topic input
+  };
+
+  const handleStop5Min = (props) => { //we should switch to logs page once the timer is stopped, user is greeted with popup//the popup should be displayed, over logs page from here
+    console.log("Minutes: " + Math.floor((300-time)/60)); //displays correctly for 300 seconds, but it is irrelevant for our case
+    console.log("Seconds: " + (300-time)%60);
     setIsActive(false);
     setIsPaused(false);
     setSessionCount((prevCount) => prevCount + 1);
@@ -61,6 +79,8 @@ const TimerScreen = (props) => {
     clearInterval(intervalRef.current);
     setIsActive(false);
     setIsPaused(false);
+    setIsFiveActive(true);
+    console.log("working")
     setTime(300); // Reset time to 5 minutes for the next session
     setSessionTopic("Break");
     setIsActive(true) // Clear the session topic input 
@@ -88,6 +108,8 @@ const TimerScreen = (props) => {
   };
 
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+
+  const [isFiveActive, setIsFiveActive] = useState(false);
 
   const togglePopup = () => {
     setIsPopupVisible(!isPopupVisible);

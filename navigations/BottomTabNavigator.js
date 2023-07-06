@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { BottomTabView, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ROUTES } from '../constants';
-import { Home, Timer, Calendar, Profile, UserProfile, AddPost } from '../screens';
+import { Home, Timer, Calendar, Community, UserProfile, AddPost } from '../screens';
 import { Ionicons, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
-import Settings from '../screens/home/Settings';
 import { createStackNavigator } from '@react-navigation/stack';
-import ProfileScreen from '../screens/home/ProfileScreen';
 import TimerLogs from '../screens/home/TimerLogs';
 import { TouchableOpacity, View, Text, Modal, StyleSheet } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+
 
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
@@ -18,6 +17,7 @@ const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
 import { Dimensions } from 'react-native';
+import CommunityScreen from '../screens/home/CommunityScreen';
 const { height } = Dimensions.get('window');
 
 
@@ -30,11 +30,11 @@ const HomeStackScreen = () => {
   );
 };
 
-const ProfileStackScreen = () => {
+const CommunityStackScreen = () => {
   return (
     <ProfileStack.Navigator
     screenOptions={{ headerTitle: "" }}>
-      <ProfileStack.Screen name="Profile" component={ProfileScreen} />
+      <ProfileStack.Screen name="Community" component={CommunityScreen} />
       {/* <ProfileStack.Screen name="Settings" component={Settings} /> */}
       <ProfileStack.Screen name="Add Post" component={AddPost} />
     </ProfileStack.Navigator>
@@ -136,7 +136,7 @@ function BottomTabNavigator2() {
               case ROUTES.CALENDAR:
                 iconName = focused ? 'calendar' : 'calendar-outline';
                 return <Ionicons name={iconName} size={size} color={color} />;
-              case ROUTES.PROFILE:
+              case ROUTES.COMMUNITY:
                 iconName = focused ? 'chatbubble-sharp' : 'chatbubble-outline';
                 return <Ionicons name={iconName} size={size} color={color} />;
               case ROUTES.BOTTOM_DRAWER:
@@ -163,7 +163,7 @@ function BottomTabNavigator2() {
           }}
         />
         <Tab.Screen name={ROUTES.CALENDAR} component={Calendar} />
-        <Tab.Screen name={ROUTES.PROFILE} component={ProfileStackScreen} />
+        <Tab.Screen name={ROUTES.COMMUNITY} component={CommunityStackScreen} />
       </Tab.Navigator>
       {isPopupVisible && (
         <Modal animationType="slide" transparent={true} visible={isPopupVisible} onRequestClose={togglePopup}>

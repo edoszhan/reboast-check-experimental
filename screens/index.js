@@ -1,7 +1,7 @@
 export {default as Home} from './home/HomeScreen';
 export {default as Timer} from './home/TimerScreen';
 export {default as Calendar} from './home/CalendarScreen';
-export {default as Profile} from './home/ProfileScreen';
+export {default as Community} from './home/CommunityScreen';
 export {default as Settings} from './home/Settings';
 export {default as TimerLogs} from './home/TimerLogs';
 export {default as UserProfile} from './home/UserProfile';

@@ -13,7 +13,7 @@ const AddPost = () => {
       const newPost = { topic: postTopic, content: postContent };
       console.log('newPost', newPost);
       // Navigate to ProfileScreen with post data
-      navigation.navigate(ROUTES.PROFILE, { posts: [newPost] });
+      navigation.navigate(ROUTES.COMMUNITY, { posts: [newPost] });
     }
   };
 

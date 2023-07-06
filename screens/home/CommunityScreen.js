@@ -1,47 +1,47 @@
-import React, { useState } from 'react';
-import { Text, View, StyleSheet, Button, FlatList } from 'react-native';
+import React from 'react';
+import { SafeAreaView, StyleSheet, View, Text, Button } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { ROUTES } from '../../constants';
 
-export default function CommunityScreen({ route }) {
-  const { posts: initialPosts } = route.params ? route.params : { posts: [] };
-  const [posts, setPosts] = useState(initialPosts);
+const CommunityScreen = ({ route }) => {
+  const { posts } = route.params ? route.params : { posts: [] };
+  const navigation = useNavigation();
 
-  const addPost = () => {
-    const newPost = { topic: 'New Post', content: 'New Post Content' };
-    const updatedPosts = [newPost, ...posts];
-    setPosts(updatedPosts);
+  const navigateToAddPost = () => {
+    navigation.navigate(ROUTES.ADD_POST_SCREEN);
   };
 
-  const renderItem = ({ item }) => (
-    <View style={styles.postBlock}>
-      <Text style={styles.postTopic}>{item.topic}</Text>
-      <Text style={styles.postContent}>{item.content}</Text>
-    </View>
-  );
-
   return (
-    <View style={styles.container}>
-      {posts.length > 0 ? (
-        <FlatList
-          data={posts}
-          renderItem={renderItem}
-          keyExtractor={(item, index) => index.toString()}
-        />
-      ) : (
-        <Text style={styles.noPostsText}>No posts yet</Text>
-      )}
-      <Button title="Add Post" onPress={addPost} />
-    </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.postListContainer}>
+        {posts.length > 0 ? (
+          posts.map((post, index) => (
+            <View style={styles.postBlock} key={index}>
+              <Text style={styles.postTopic}>{post.topic}</Text>
+              <Text style={styles.postContent}>{post.content}</Text>
+            </View>
+          ))
+        ) : (
+          <Text style={styles.noPostsText}>No posts yet</Text>
+        )}
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button onPress={navigateToAddPost} title="Add Post" />
+      </View>
+    </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    padding: 16,
+    justifyContent: 'center',
+  },
+  postListContainer: {
+    paddingHorizontal: 16,
   },
   postBlock: {
-    backgroundColor: '#f2f2f2',
+    backgroundColor: '#fff',
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
@@ -58,4 +58,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
   },
+  buttonContainer: {
+    paddingHorizontal: 16,
+  },
 });
+
+export default CommunityScreen;

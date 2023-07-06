@@ -1,20 +1,24 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet, View, Text } from 'react-native';
-import { Button } from 'react-native-elements';
-import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView, StyleSheet, View, Text, Button } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
 
-const ProfileScreen = ({ route, navigation }) => {
-  const { posts } = route.params ?? { posts: [] };
-  console.log('ProfileScreen posts:', posts);
+const ProfileScreen = ({ route }) => {
+  const { posts } = route.params;
+  const navigation = useNavigation();
+
+  const navigateToAddPost = () => {
+    navigation.navigate(ROUTES.ADD_POST_SCREEN);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.postListContainer}>
-        {posts && posts.length > 0 ? (
+        {posts.length > 0 ? (
           posts.map((post, index) => (
             <View style={styles.postBlock} key={index}>
-              <Text style={styles.postTopic}>Hello</Text>
-              <Text style={styles.postContent}>Bye</Text>
+              <Text style={styles.postTopic}>{post.topic}</Text>
+              <Text style={styles.postContent}>{post.content}</Text>
             </View>
           ))
         ) : (
@@ -22,11 +26,7 @@ const ProfileScreen = ({ route, navigation }) => {
         )}
       </View>
       <View style={styles.buttonContainer}>
-        <Button
-          icon={<Ionicons name="pencil" size={24} color="white" />}
-          onPress={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)}
-          buttonStyle={styles.button}
-        />
+        <Button onPress={navigateToAddPost} title="Add Post" />
       </View>
     </SafeAreaView>
   );
@@ -59,15 +59,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonContainer: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-  },
-  button: {
-    backgroundColor: 'blue',
-    borderRadius: 30,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
 });
 

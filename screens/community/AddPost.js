@@ -1,21 +1,19 @@
 import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, TextInput, TouchableOpacity, View, Text } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
 
-const AddPost = ({navigation}) => {
+const AddPost = () => {
   const [postContent, setPostContent] = useState('');
   const [postTopic, setPostTopic] = useState('');
+  const navigation = useNavigation();
 
   const handlePostCreation = () => {
     if (postTopic && postContent) {
-      // Perform post creation logic heres
-      console.log('Creating post...');
-      console.log('Post Topic:', postTopic);
-      console.log('Post Content:', postContent);
-
+      const newPost = { topic: postTopic, content: postContent };
+      console.log('newPost', newPost);
       // Navigate to ProfileScreen with post data
-      navigation.navigate(ROUTES.PROFILE, { posts: [{ topic: postTopic, content: postContent }] });
-      navigation.goBack();
+      navigation.navigate(ROUTES.PROFILE, { posts: [newPost] });
     }
   };
 

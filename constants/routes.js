@@ -7,8 +7,8 @@ export default {
     HOME_TAB: 'Home Tab',
     HOME_DRAWER: 'Home Drawer',
   
-    // PROFILE: 'Profile',
-    PROFILE: 'Community',
+    PROFILE: 'Profile',
+    // PROFILE: 'Community',
     CALENDAR: 'Calendar',
     TIMER: 'Timer',
     TIMER_LOGS: 'History',

@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
 
 const ProfileScreen = ({ route }) => {
-  const { posts } = route.params;
+  const { posts } = route.params ? route.params : { posts: [] };
   const navigation = useNavigation();
 
   const navigateToAddPost = () => {

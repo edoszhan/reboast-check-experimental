@@ -67,18 +67,22 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { collection, query, getDocs } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
-
+import { where } from 'firebase/firestore';
+import {FIREBASE_AUTH} from '../../config/firebase';
 const TimerLogs = () => {
   const [sessions, setSessions] = useState([]);
+  const uid = FIREBASE_AUTH.currentUser.uid;
 
   useEffect(() => {
     const fetchSessions = async () => {
       const q = query(collection(FIREBASE_DB, 'timer-logs'));
       const querySnapshot = await getDocs(q);
-      const sessionData = [];
+      const sessionData = [];  
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        sessionData.push(data);
+        if (data.userId === uid) {
+          sessionData.push(data);
+        }
       });
       setSessions(sessionData);
     };

@@ -21,6 +21,7 @@ const TimerScreen = () => {
         sessionMemo: sessionMemo,
         sessionDuration: sessionDuration,
         sessionFinishTime: sessionFinishTime,
+        userId: uid,
       });
     } catch (error) {
       console.log("Error writing document: ", error);
@@ -30,10 +31,6 @@ const TimerScreen = () => {
   const sendData = async () => {
     await create(uid);
   };
-
-
-
-
 
   const navigation = useNavigation();
   const [time, setTime] = useState(1500); // 25 minutes in seconds ~ pomodoro style

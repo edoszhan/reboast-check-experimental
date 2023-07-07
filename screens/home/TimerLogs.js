@@ -3,8 +3,8 @@ import { View, Text, StyleSheet } from 'react-native';
 
 
 const TimerLogs = ({ route }) => {
+
     const params = route.params ? route.params : {};
-  
     const sessionData = [
       {
         title: 'Topic',
@@ -17,6 +17,10 @@ const TimerLogs = ({ route }) => {
       {
         title: 'Duration',
         value: `${Math.floor(params.sessionDuration / 60)} minutes ${params.sessionDuration % 60} seconds`,
+      },
+      {
+        title: 'Finished time',
+        value: params.sessionFinishTime,
       },
     ];
   

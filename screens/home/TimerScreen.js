@@ -5,7 +5,36 @@ import { Dimensions } from 'react-native';
 const { height } = Dimensions.get('window');
 import { useNavigation } from '@react-navigation/native';
 
+import { FIREBASE_AUTH, FIREBASE_DB } from '../../config/firebase';
+import { doc, setDoc } from 'firebase/firestore';
+
+
 const TimerScreen = () => {
+
+  const auth = FIREBASE_AUTH;
+  uid = auth.currentUser.uid;
+
+  const create = async (uid) => {
+    try {
+      await setDoc(doc(FIREBASE_DB, "timer-logs", uid), {
+        sessionTopic: sessionTopic,
+        sessionMemo: sessionMemo,
+        sessionDuration: sessionDuration,
+        sessionFinishTime: sessionFinishTime,
+      });
+    } catch (error) {
+      console.log("Error writing document: ", error);
+    }
+  };
+
+  const sendData = async () => {
+    await create(uid);
+  };
+
+
+
+
+
   const navigation = useNavigation();
   const [time, setTime] = useState(1500); // 25 minutes in seconds ~ pomodoro style
   const [isActive, setIsActive] = useState(false);
@@ -18,6 +47,13 @@ const TimerScreen = () => {
 
   const [sessionDuration, setSessionDuration] = useState(0);
   const intervalRef = useRef(null);
+
+  const now = new Date();
+  const currentDay = now.toLocaleDateString('en-US', {weekday: "long"});
+  const currentTime = now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+
+  const currentDayTime = currentDay + " " + currentTime;  //we might change the formatting later
+  const sessionFinishTime = currentDayTime;
 
   useEffect(() => {
     if (isActive && !isPaused) {
@@ -52,6 +88,7 @@ const TimerScreen = () => {
 
   const handleStop = () => {
     togglePopup(); // Display the popup when the session is stopped
+
     clearInterval(intervalRef.current);
     setIsActive(false);
     setIsPaused(false);
@@ -68,7 +105,8 @@ const TimerScreen = () => {
     console.log('sessionTopic', sessionTopic);  //data that we want to save on DB and fetch in Timerlogs
     console.log('sessionMemo', sessionMemo);   //data that we want to save on DB and fetch in Timerlogs
     console.log('sessionDuration', sessionDuration);  //data that we want to save on DB and fetch in Timerlogs
-    navigation.navigate(ROUTES.TIMER_LOGS, {sessionTopic, sessionMemo, sessionDuration});
+    sendData();
+    navigation.navigate(ROUTES.TIMER_LOGS, {sessionTopic, sessionMemo, sessionDuration, sessionFinishTime});
     setIsSaveDisabled(true);
   };
 

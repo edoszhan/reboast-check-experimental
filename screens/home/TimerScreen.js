@@ -7,21 +7,40 @@ import { useNavigation } from '@react-navigation/native';
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '../../config/firebase';
 import { doc, setDoc } from 'firebase/firestore';
-
+import uuid from 'react-native-uuid'; //for generating random id, and it does not really matter for us
 
 const TimerScreen = () => {
 
   const auth = FIREBASE_AUTH;
+
   uid = auth.currentUser.uid;
+  const session_random = uuid.v4();
+
+
+
+  // const create = async (uid) => {
+  //   try {
+  //     await setDoc(doc(FIREBASE_DB, "timer-logs", "sessions"), {
+  //       sessionTopic: sessionTopic,
+  //       sessionMemo: sessionMemo,
+  //       sessionDuration: sessionDuration,
+  //       sessionFinishTime: sessionFinishTime,
+  //       userId: uid,
+  //     });
+  //   } catch (error) {
+  //     console.log("Error writing document: ", error);
+  //   }
+  // };
 
   const create = async (uid) => {
     try {
-      await setDoc(doc(FIREBASE_DB, "timer-logs", uid), {
+      await setDoc(doc(FIREBASE_DB, "timer-logs", uid, "sessions",session_random), {  //session3 should not be manually entered, we need to update number of sessions
+        sessionLog: session_random,  
         sessionTopic: sessionTopic,
         sessionMemo: sessionMemo,
+        userId: uid,
         sessionDuration: sessionDuration,
         sessionFinishTime: sessionFinishTime,
-        userId: uid,
       });
     } catch (error) {
       console.log("Error writing document: ", error);

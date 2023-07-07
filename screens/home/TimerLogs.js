@@ -69,13 +69,15 @@ import { collection, query, getDocs } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { where } from 'firebase/firestore';
 import {FIREBASE_AUTH} from '../../config/firebase';
+
+import { ScrollView } from 'react-native-gesture-handler';
 const TimerLogs = () => {
   const [sessions, setSessions] = useState([]);
   const uid = FIREBASE_AUTH.currentUser.uid;
 
   useEffect(() => {
     const fetchSessions = async () => {
-      const q = query(collection(FIREBASE_DB, 'timer-logs'));
+      const q = query(collection(FIREBASE_DB, 'timer-logs', uid, 'sessions'));
       const querySnapshot = await getDocs(q);
       const sessionData = [];  
       querySnapshot.forEach((doc) => {
@@ -91,6 +93,7 @@ const TimerLogs = () => {
   }, []);
 
   return (
+    <ScrollView style={styles.container}>
     <View style={styles.container}>
       <Text style={styles.title}>History of Timer Sessions</Text>
       {sessions.map((session, index) => (
@@ -120,6 +123,7 @@ const TimerLogs = () => {
         </View>
       ))}
     </View>
+    </ScrollView>
   );
 };
 

@@ -1,70 +1,129 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView, Alert } from 'react-native';
-import { SelectList } from 'react-native-dropdown-select-list'
-
-const TimerLogs = () => {
-  const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [topic, setTopic] = useState('');
-  const [isSaved, setIsSaved] = useState(false);
+// import React from 'react';
+// import { View, Text, StyleSheet } from 'react-native';
 
 
-  const [selected, setSelected] = React.useState("");
+// const TimerLogs = ({ route }) => {
+
+//     const params = route.params ? route.params : {};
+//     const sessionData = [
+//       {
+//         title: 'Topic',
+//         value: params.sessionTopic,
+//       },
+//       {
+//         title: 'Memo',
+//         value: params.sessionMemo ? params.sessionMemo : 'No memo',
+//       },
+//       {
+//         title: 'Duration',
+//         value: `${Math.floor(params.sessionDuration / 60)} minutes ${params.sessionDuration % 60} seconds`,
+//       },
+//       {
+//         title: 'Finished time',
+//         value: params.sessionFinishTime,
+//       },
+//     ];
   
-  const data = [
-      {key:'1', value:'Spanish', disabled:false},
-      {key:'2', value:'Coding'},
-      {key:'3', value:'Sports'},
-      {key:'4', value:'Free time', disabled:false},
-      {key:'5', value:'Hobbie'},
-  ]
+//     return (
+//       <View style={styles.container}>
+//         <Text style={styles.title}>History of Timer Sessions</Text>
+//         {sessionData.map((session, index) => (
+//           <View key={index} style={styles.sessionBlock}>
+//             <Text style={styles.sessionTitle}>{session.title}:</Text>
+//             <Text style={styles.sessionText}>{session.value}</Text>
+//           </View>
+//         ))}
+//       </View>
+//     );
+//   };
 
-  const addCategory = () => {
-    if (selectedCategory) {
-      const newCategory = {
-        name: selectedCategory,
-      };
-      setCategories([...categories, newCategory]);
-      setSelectedCategory('');
-    }
-  };
+// export default TimerLogs;
+//   const styles = StyleSheet.create({
+//     container: {
+//       flex: 1,
+//       padding: 20,
+//     },
+//     title: {
+//       fontSize: 24,
+//       fontWeight: 'bold',
+//       marginBottom: 20,
+//     },
+//     sessionBlock: {
+//       flexDirection: 'row',
+//       alignItems: 'center',
+//       marginBottom: 10,
+//     },
+//     sessionTitle: {
+//       fontSize: 16,
+//       fontWeight: 'bold',
+//       marginRight: 10,
+//     },
+//     sessionText: {
+//       fontSize: 16,
+//     },
+//   });
 
-  const saveTopic = () => {
-    if (topic.trim() !== '') {
-      setIsSaved(true);
-      Alert.alert('Topic Saved', 'The topic has been saved successfully.');
-    }
-  };
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { collection, query, getDocs } from 'firebase/firestore';
+import { FIREBASE_DB } from '../../config/firebase';
+import { where } from 'firebase/firestore';
+import {FIREBASE_AUTH} from '../../config/firebase';
+
+import { ScrollView } from 'react-native-gesture-handler';
+const TimerLogs = () => {
+  const [sessions, setSessions] = useState([]);
+  const uid = FIREBASE_AUTH.currentUser.uid;
+
+  useEffect(() => {
+    const fetchSessions = async () => {
+      const q = query(collection(FIREBASE_DB, 'timer-logs', uid, 'sessions'));
+      const querySnapshot = await getDocs(q);
+      const sessionData = [];  
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.userId === uid) {
+          sessionData.push(data);
+        }
+      });
+      setSessions(sessionData);
+    };
+
+    fetchSessions();
+  }, []);
 
   return (
+    <ScrollView style={styles.container}>
     <View style={styles.container}>
-      <Text style={styles.title}>Timer Logs</Text>
-      {/* <Text style={styles.title}>Topic: {topic}</Text>
-      <TextInput
-        style={[styles.input, isSaved && styles.disabledInput]}
-        placeholder="Enter topic"
-        value={topic}
-        onChangeText={value => !isSaved && setTopic(value)}
-        editable={!isSaved}
-      />
-      <SelectList 
-        setSelected={(val) => setSelected(val)} 
-        data={data} 
-        save="value"
-       />
-      {!isSaved && (
-        <Button title="Save" onPress={saveTopic} />
-      )} */}
-      {/* <Button title="Add Category" onPress={addCategory} disabled={isSaved} />
-      <ScrollView style={styles.categoryList}>
-        {categories.map((category, index) => (
-          <View key={index} style={styles.category}>
-            <Text style={styles.categoryText}>{category.name}</Text>
+      <Text style={styles.title}>History of Timer Sessions</Text>
+      {sessions.map((session, index) => (
+        <View key={index} style={styles.sessionContainer}>
+          <View style={styles.sessionBlock}>
+            <Text style={styles.sessionTitle}>Topic:</Text>
+            <Text style={styles.sessionText}>{session.sessionTopic}</Text>
           </View>
-        ))}
-      </ScrollView> */}
-  
+          <View style={styles.sessionBlock}>
+            <Text style={styles.sessionTitle}>Memo:</Text>
+            <Text style={styles.sessionText}>
+              {session.sessionMemo ? session.sessionMemo : 'No memo'}
+            </Text>
+          </View>
+          <View style={styles.sessionBlock}>
+            <Text style={styles.sessionTitle}>Duration:</Text>
+            <Text style={styles.sessionText}>
+              {`${Math.floor(session.sessionDuration / 60)} minutes ${
+                session.sessionDuration % 60
+              } seconds`}
+            </Text>
+          </View>
+          <View style={styles.sessionBlock}>
+            <Text style={styles.sessionTitle}>Finished time:</Text>
+            <Text style={styles.sessionText}>{session.sessionFinishTime}</Text>
+          </View>
+        </View>
+      ))}
     </View>
+    </ScrollView>
   );
 };
 
@@ -80,28 +139,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
   },
-  input: {
-    height: 40,
-    borderColor: 'gray',
+  sessionContainer: {
+    marginBottom: 20,
     borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-  },
-  disabledInput: {
-    backgroundColor: '#e3e3e3',
-  },
-  categoryList: {
-    marginTop: 20,
-    maxHeight: 200,
-  },
-  category: {
+    borderColor: '#ccc',
     padding: 10,
-    marginBottom: 10,
     borderRadius: 5,
-    backgroundColor: '#e3e3e3',
   },
-  categoryText: {
-    color: 'black',
+  sessionBlock: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  sessionTitle: {
+    fontSize: 16,
     fontWeight: 'bold',
+    marginRight: 10,
+  },
+  sessionText: {
+    fontSize: 16,
   },
 });

@@ -6,7 +6,6 @@ import {
   TextInput,
   SafeAreaView,
   TouchableOpacity,
-  ActivityIndicator,
 } from 'react-native';
 // import LinearGradient from 'react-native-linear-gradient';
 import {LinearGradient} from 'expo-linear-gradient';
@@ -14,8 +13,7 @@ import {COLORS, ROUTES} from '../../constants';
 
 import Logo from '../../assets/icons/LOGO.svg';
 import {FIREBASE_AUTH} from '../../config/firebase';
-import { Button } from 'react-native';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import {signInWithEmailAndPassword } from 'firebase/auth';
 
 
 
@@ -42,21 +40,6 @@ const Login = (props) => {
       setLoading(false);
     }
   };
-
-  const signUp = async () => {
-    setLoading(true);
-    try {
-      const response = await createUserWithEmailAndPassword(auth, email,password);
-      console.log(response);
-      alert("Sign Up Success");
-    } catch (error) {
-      console.log(error);
-      alert("Sign Up Failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const {navigation} = props;
   return (
     <SafeAreaView style={styles.main}>
@@ -64,7 +47,6 @@ const Login = (props) => {
         <View style={styles.wFull}>
           <View style={styles.row}>
             <Logo width={60} height={55} style={styles.mr7} />
-             {/* <SvgUri  width={55} height={55} uri={require('../../assets/icons/LOGO.svg')} style={styles.mr7}/> */}
             <Text style={styles.brandName}>Rough</Text>
           </View>
 
@@ -72,15 +54,6 @@ const Login = (props) => {
           <TextInput style={styles.input} value={email} placeholder="Email" autoCapitalize="none" onChangeText={(text) => setEmail(text)} />
           <TextInput secureTextEntry={true}
           style={styles.input} value={password} placeholder="Password" autoCapitalize="none" onChangeText={(text) => setPassword(text)}/>
-
-          {/* {loading ? (
-            <ActivityIndicator size="large" color={COLORS.primary} />
-          ) : (
-            <>
-              <Button title="Sign In" onPress={signIn} />
-              <Button title="Sign Up" onPress={signUp} />
-            </>
-          )} */}
 
           <View style={styles.loginBtnWrapper}>
             <LinearGradient

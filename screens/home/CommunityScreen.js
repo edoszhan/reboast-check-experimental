@@ -1,25 +1,51 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, View, Text, Button } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
 
-const ProfileScreen = ({ route }) => {
+const createPostArray = (posts) => {
+  return posts.map((post, index) => ({ ...post, id: index.toString() }));
+};
+
+const PostItem = ({ post }) => {
+  return (
+    <View style={styles.postBlock}>
+      <Text style={styles.postTopic}>{post.topic}</Text>
+      <Text style={styles.postContent}>{post.content}</Text>
+    </View>
+  );
+};
+
+const CommunityScreen = ({ route }) => {
   const { posts } = route.params ? route.params : { posts: [] };
+  const [postArray, setPostArray] = useState([]);
+
+  useEffect(() => {
+    if (posts.length > 0) {
+      const updatedPostArray = createPostArray(posts);
+      setPostArray(updatedPostArray);
+    }
+  }, [posts]);
+
   const navigation = useNavigation();
 
   const navigateToAddPost = () => {
-    navigation.navigate(ROUTES.ADD_POST_SCREEN);
+    navigation.navigate(ROUTES.ADD_POST_SCREEN, { onPostCreated: addNewPost });
+  };
+
+  const addNewPost = (post) => {
+    setPostArray((prevPostArray) => {
+      const updatedPosts = [...posts, post];
+      return createPostArray(updatedPosts);
+    });
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.postListContainer}>
-        {posts.length > 0 ? (
-          posts.map((post, index) => (
-            <View style={styles.postBlock} key={index}>
-              <Text style={styles.postTopic}>{post.topic}</Text>
-              <Text style={styles.postContent}>{post.content}</Text>
-            </View>
+        {postArray.length > 0 ? (
+          postArray.map((post) => (
+            <PostItem key={post.id} post={post} />
           ))
         ) : (
           <Text style={styles.noPostsText}>No posts yet</Text>
@@ -63,4 +89,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfileScreen;
+export default CommunityScreen;

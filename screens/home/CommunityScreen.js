@@ -21,8 +21,10 @@ const CommunityScreen = ({ route }) => {
   const [postArray, setPostArray] = useState([]);
 
   useEffect(() => {
-    const updatedPostArray = createPostArray(posts);
-    setPostArray(updatedPostArray);
+    if (posts.length > 0) {
+      const updatedPostArray = createPostArray(posts);
+      setPostArray(updatedPostArray);
+    }
   }, [posts]);
 
   const navigation = useNavigation();
@@ -32,8 +34,10 @@ const CommunityScreen = ({ route }) => {
   };
 
   const addNewPost = (post) => {
-    const updatedPosts = [...posts, post];
-    setPostArray(createPostArray(updatedPosts));
+    setPostArray((prevPostArray) => {
+      const updatedPosts = [...posts, post];
+      return createPostArray(updatedPosts);
+    });
   };
 
   return (

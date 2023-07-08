@@ -31,7 +31,7 @@ const Login = (props) => {
     try {
       const response = await signInWithEmailAndPassword(auth, email, password);
       console.log(response);
-      alert("Login Success");
+      // alert("Login Success");
       navigation.replace(ROUTES.HOME);
     } catch (error) {
       console.log(error);
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.4,
+    // shadowOpacity: 0.4,
     shadowRadius: 3,
     elevation: 5,
   },

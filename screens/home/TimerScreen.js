@@ -82,7 +82,7 @@ const TimerScreen = () => {
       clearInterval(intervalRef.current);
       setIsActive(false);
       setIsPaused(false);
-      setTime(prevTime => (prevTime === 1500 ? 300 : 1500)); // Switch between 25 minutes and 5 minutes
+      setTime(prevTime => (prevTime === 1500));  //reset the time to 25 minutes
       setSessionTopic(""); // Clear the session topic input
       setSessionMemo(""); // Clear the session memo input
       togglePopup(); // Display the popup after the session ends
@@ -117,12 +117,9 @@ const TimerScreen = () => {
 
   const handleSave = () => {  
     // Save the session details to the database
-    togglePopup(); // Close the popup
-    console.log('sessionTopic', sessionTopic);  //data that we want to save on DB and fetch in Timerlogs
-    console.log('sessionMemo', sessionMemo);   //data that we want to save on DB and fetch in Timerlogs
-    console.log('sessionDuration', sessionDuration);  //data that we want to save on DB and fetch in Timerlogs
+    togglePopup(); // Close the popup 
     sendData();
-    navigation.navigate(ROUTES.TIMER_LOGS, {sessionTopic, sessionMemo, sessionDuration, sessionFinishTime});
+    navigation.navigate(ROUTES.TIMER_LOGS);
     setIsSaveDisabled(true);
   };
 
@@ -173,13 +170,13 @@ const TimerScreen = () => {
               <Text style={styles.buttonText}>25 min</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={[styles.button, styles.startButton]}
               onPress={handleStart}
             >
               <Text style={styles.buttonText}>Start</Text>
               <Text style={styles.buttonText}> 5 min</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </>
         ) : (
           <>
@@ -353,4 +350,3 @@ const styles = StyleSheet.create({
     backgroundColor: '#ccc',
   },
 });
-

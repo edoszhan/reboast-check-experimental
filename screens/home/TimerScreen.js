@@ -82,7 +82,7 @@ const TimerScreen = () => {
       clearInterval(intervalRef.current);
       setIsActive(false);
       setIsPaused(false);
-      setTime(prevTime => (prevTime === 1500));  //reset the time to 25 minutes
+      setTime(prevTime => (prevTime === 1500)); // Switch between 25 minutes and 5 minutes
       setSessionTopic(""); // Clear the session topic input
       setSessionMemo(""); // Clear the session memo input
       togglePopup(); // Display the popup after the session ends
@@ -110,6 +110,7 @@ const TimerScreen = () => {
     setIsPaused(false);
 
     setSessionDuration(1500 - time); // Calculate the session duration
+    
     setTime(1500); // Reset time to 25 minutes for the next session
     setSessionTopic(""); // Clear the session topic input
     setSessionMemo(""); // Clear the session memo input
@@ -117,7 +118,7 @@ const TimerScreen = () => {
 
   const handleSave = () => {  
     // Save the session details to the database
-    togglePopup(); // Close the popup 
+    togglePopup(); // Close the popup
     sendData();
     navigation.navigate(ROUTES.TIMER_LOGS);
     setIsSaveDisabled(true);
@@ -170,13 +171,13 @@ const TimerScreen = () => {
               <Text style={styles.buttonText}>25 min</Text>
             </TouchableOpacity>
 
-            {/* <TouchableOpacity
+            <TouchableOpacity
               style={[styles.button, styles.startButton]}
               onPress={handleStart}
-            >
+            > 
               <Text style={styles.buttonText}>Start</Text>
               <Text style={styles.buttonText}> 5 min</Text>
-            </TouchableOpacity> */}
+            </TouchableOpacity>
           </>
         ) : (
           <>

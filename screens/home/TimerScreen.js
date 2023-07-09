@@ -16,31 +16,15 @@ const TimerScreen = () => {
   uid = auth.currentUser.uid;
   const session_random = uuid.v4();
 
-
-
-  // const create = async (uid) => {
-  //   try {
-  //     await setDoc(doc(FIREBASE_DB, "timer-logs", "sessions"), {
-  //       sessionTopic: sessionTopic,
-  //       sessionMemo: sessionMemo,
-  //       sessionDuration: sessionDuration,
-  //       sessionFinishTime: sessionFinishTime,
-  //       userId: uid,
-  //     });
-  //   } catch (error) {
-  //     console.log("Error writing document: ", error);
-  //   }
-  // };
-
   const create = async (uid) => {
     try {
-      await setDoc(doc(FIREBASE_DB, "timer-logs", uid, "sessions",session_random), {  //session3 should not be manually entered, we need to update number of sessions
-        sessionLog: session_random,  
+      await setDoc(doc(FIREBASE_DB, "timer-logs", uid, "sessions",session_random), {  //session3 should not be manually entered, we need to update number of sessions  
         sessionTopic: sessionTopic,
         sessionMemo: sessionMemo,
         userId: uid,
         sessionDuration: sessionDuration,
         sessionFinishTime: sessionFinishTime,
+        sessionId: session_random,
       });
     } catch (error) {
       console.log("Error writing document: ", error);
@@ -199,6 +183,7 @@ const TimerScreen = () => {
           </>
         )}
       </View>
+
 
       {isPopupVisible && (
         <Modal animationType="slide" transparent={true} visible={isPopupVisible} onRequestClose={togglePopup}>

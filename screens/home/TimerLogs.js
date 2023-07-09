@@ -107,6 +107,8 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     padding: 10,
     borderRadius: 5,
+    width: '110%',    //change the sessioncontainer width because finished time was cut off
+    marginLeft: -10,  //change the marginleft because finished time was cut off
   },
   sessionBlock: {
     flexDirection: 'row',

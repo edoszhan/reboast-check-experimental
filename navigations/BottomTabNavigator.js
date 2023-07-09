@@ -33,10 +33,9 @@ const HomeStackScreen = () => {
 const CommunityStackScreen = () => {
   return (
     <ProfileStack.Navigator
-    screenOptions={{ headerTitle: "" }}>
-      <ProfileStack.Screen name="Community" component={CommunityScreen} />
-      {/* <ProfileStack.Screen name="Settings" component={Settings} /> */}
-      <ProfileStack.Screen name="Add Post" component={AddPost} />
+    screenOptions={{ headerShown: true  }}>
+      <ProfileStack.Screen name={ROUTES.COMMUNITY} component={CommunityScreen} />
+      <ProfileStack.Screen name={ROUTES.ADD_POST_SCREEN} component={AddPost} />
     </ProfileStack.Navigator>
   );
 };
@@ -44,24 +43,13 @@ const CommunityStackScreen = () => {
 const TimerStackScreen = () => {
   return (
     <TimerStack.Navigator
-    screenOptions={{ headerTitle: "" }} >
+    screenOptions={{ headerShown: true }} >
       <TimerStack.Screen name="Timer" component={Timer} />
       <TimerStack.Screen name="History" component={TimerLogs} />
     </TimerStack.Navigator>
   );
 };
 
-// function DrawerRoutes() {
-//   return (
-//     <Drawer.Navigator
-//       initialRouteName="Home"
-//       screenOptions={{ headerTitle: "" }}
-//     >
-//       <Drawer.Screen name="Home" component={Home} />
-//       <Drawer.Screen name="Profile" component={UserProfile} />
-//     </Drawer.Navigator>
-//   );
-// }
 
 function StackRoutes() {
   return (
@@ -89,7 +77,7 @@ const BottomTabNavigator = () => {
   return (
     <Drawer.Navigator
       initialRouteName="Home"
-      screenOptions={{ headerTitle: "" }}
+      screenOptions={{ headerShown: false }}
     >
       <Drawer.Screen name="Home" component={BottomTabNavigator2} />
       <Drawer.Screen name="Profile" component={UserProfile} />
@@ -148,7 +136,7 @@ function BottomTabNavigator2() {
           },
         })}
       >
-        <Tab.Screen component={StackRoutes} name={ROUTES.HOME_TAB}  />
+        <Tab.Screen component={StackRoutes} name={ROUTES.HOME_TAB}/>
         <Tab.Screen 
           name={ROUTES.TIMER} component={TimerStackScreen} />
         <Tab.Screen
@@ -162,7 +150,7 @@ function BottomTabNavigator2() {
             ),
           }}
         />
-        <Tab.Screen name={ROUTES.CALENDAR} component={Calendar} />
+        <Tab.Screen name={ROUTES.CALENDAR} component={Calendar}/>
         <Tab.Screen name={ROUTES.COMMUNITY} component={CommunityStackScreen} />
       </Tab.Navigator>
       {isPopupVisible && (

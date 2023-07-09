@@ -74,7 +74,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: '#0a8faf',
+    // backgroundColor: '#0a8faf',
+    backgroundColor: 'white',
   },
   text: {
     fontSize: 24,

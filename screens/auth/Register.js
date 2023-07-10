@@ -54,10 +54,12 @@ const Register = ({ navigation }) => {
   //   }
   // };
   const create = async (uid) => {
+    console.log("uid", uid);
     try {
       await setDoc(doc(FIREBASE_DB, "users-info", uid), {
         name: name,
         email: email,
+        userId: uid,
       });
       console.log("Document successfully written!");
     } catch (error) {

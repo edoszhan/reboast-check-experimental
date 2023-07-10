@@ -3,10 +3,7 @@ import { SafeAreaView, StyleSheet, Text } from 'react-native';
 import { getAuth } from 'firebase/auth';
 import { getDoc, doc } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
-import { ROUTES } from '../../constants';
-import UserProfile from './UserProfile';
 
-import { Button } from 'react-native';
 
 
 import {

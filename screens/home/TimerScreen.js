@@ -154,14 +154,14 @@ const TimerScreen = () => {
               <Text style={styles.buttonText}> Start</Text>
               <Text style={styles.buttonText}>25 min</Text>
             </TouchableOpacity>
-
+{/* 
             <TouchableOpacity
               style={[styles.button, styles.startButton]}
               onPress={handleStart}
             > 
               <Text style={styles.buttonText}>Start</Text>
               <Text style={styles.buttonText}> 5 min</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </>
         ) : (
           <>

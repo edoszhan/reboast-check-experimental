@@ -14,6 +14,7 @@ const TimerLogs = () => {
   const [sessions, setSessions] = useState([]);
   const uid = FIREBASE_AUTH.currentUser.uid;
 
+
   const fetchSessions = async () => {
     const q = query(collection(FIREBASE_DB, 'timer-logs', uid, 'sessions'));
     const querySnapshot = await getDocs(q);

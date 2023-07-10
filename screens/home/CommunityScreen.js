@@ -11,10 +11,38 @@ import { deleteDoc, doc } from 'firebase/firestore';
 import { Button } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
+import { Positions } from 'react-native-calendars/src/expandableCalendar';
 
 const CommunityScreen = () => {
   const navigation = useNavigation();
   const [sessions, setSessions] = useState([]);
+  const [postName, setPostName] = useState([]); //post authors will be stored here
+
+  // const fetchSessionsName = async () => {
+  //   const q = query(collection(FIREBASE_DB, 'users-info'));
+  //   const querySnapshot = await getDocs(q);
+  //   const sessionData = [];
+  //   querySnapshot.forEach((doc) => {
+  //     const data = doc.data();
+  //     console.log(data.name)
+  //     sessionData.push({ id: doc.id, ...data });
+  //   });
+  //   setSessions(sessionData);
+  // };
+
+  // const findName = async (uid) => {
+  //   const q = query(collection(FIREBASE_DB, 'users-info'));
+  //   const querySnapshot = await getDocs(q);
+  //   const sessionData = [];
+  //   querySnapshot.forEach((doc) => {
+  //     const data = doc.data();
+  //     if (data.userId === uid) {
+  //       sessionData.push(data.name);
+  //       console.log(sessionData);
+  //     }
+  //   });
+  //   setPostName(sessionData);
+  // };
 
   const fetchSessions = async () => {
     const q = query(collection(FIREBASE_DB, 'community-chat'));
@@ -28,8 +56,9 @@ const CommunityScreen = () => {
   };
 
   useEffect(() => {
-    console.log('useEffect is working');
     fetchSessions();
+    // findName();
+    // fetchSessionsName();
   }, []);
 
   // const deleteSession = async (postId) => {
@@ -43,7 +72,13 @@ const CommunityScreen = () => {
 
   return (
     <ScrollView style={styles.container}>
-    <View style={styles.container}>
+        <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)} 
+              >
+                <Text style={styles.deleteButtonText}>Add post</Text>
+      </TouchableOpacity>
+      <View style={styles.container}>
       {sessions.map((session, index) => (
         <View key={index} style={styles.sessionContainer}>
           <View style={styles.sessionBlock}>
@@ -57,11 +92,27 @@ const CommunityScreen = () => {
             </Text>
           </View>
           <View style={styles.sessionBlock}>
-            <Text style={styles.sessionTitle}>Author author:</Text>
+            <Text style={styles.sessionTitle}>Author email:</Text>
             <Text style={styles.sessionText}>
               {session.postAuthor ? session.postAuthor : 'No email'}
             </Text>
           </View>
+          {/* <View style={styles.sessionBlock}>
+            <Text style={styles.sessionTitle}>Author name:</Text>
+            <Text style={styles.sessionText}>
+              {session.name ? session.name : 'No name'}
+            </Text>
+          </View> */}
+          {/* <View style={styles.sessionBlock}>
+            {postName.map((post, index) => (
+              <View key={index} style={styles.sessionContainer}>
+                <View style={styles.sessionBlock}>
+                  <Text style={styles.sessionTitle}>Author name:</Text>
+                  <Text style={styles.sessionText}>{post.name}</Text>
+                </View>
+              </View>
+            ))}
+          </View> */}
           {/* <TouchableOpacity
               style={styles.deleteButton}
               onPress={() => deleteSession(session.postId)} // Call deleteSession function with session ID
@@ -73,12 +124,12 @@ const CommunityScreen = () => {
         
       ))}
     </View>
-    <TouchableOpacity
+    {/* <TouchableOpacity
               style={styles.addButton}
               onPress={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)} 
             >
               <Text style={styles.deleteButtonText}>Add post</Text>
-    </TouchableOpacity>
+    </TouchableOpacity> */}
     {/* <View style={styles.buttonContainer}>
               <Button onPress={navigation.navigate(ROUTES.ADD_POST_SCREEN)} title="Add Post" />
     </View> */}

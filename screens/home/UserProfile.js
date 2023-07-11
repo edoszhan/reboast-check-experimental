@@ -39,9 +39,8 @@ const UserProfile = () => {
   const handleSettingsPress = () => {
     navigation.navigate(ROUTES.USER_PROFILE_SETTINGS);
   };
-
   const user = {
-    name: info.length > 0 ? info[0].name : 'Not found',
+    name: info.length > 0 ? info[0].displayName : 'Not found',
   };
 
   return (

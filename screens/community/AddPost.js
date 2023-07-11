@@ -18,18 +18,19 @@ const AddPost = () => {
   const currentTime = now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
 
   const postCreatedDateTime = currentDay + " " + currentTime;  //we might change the formatting later
-
   const handlePostCreation = async () => {
     if (postTopic && postContent) {
       const auth = FIREBASE_AUTH;
       const uid = auth.currentUser.uid;
       const postId = uuid.v4();
-
+      // const user = auth.currentUser;
+      // console.log(user);
+      // console.log("here", auth.currentUser);
       try {
         await setDoc(doc(FIREBASE_DB, 'community-chat', postId), {
           postTopic: postTopic,
           postContent: postContent,
-          postAuthor: auth.currentUser.email,
+          postAuthor: auth.currentUser.displayName,
           postCreatedDateTime: postCreatedDateTime,
           userId: uid,
           postId: postId,

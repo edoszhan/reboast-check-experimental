@@ -16,7 +16,8 @@ import { Agenda } from 'react-native-calendars';
 const HomeScreen = (props) => {
   const {navigation} = props;
   const [userName, setUserName] = useState('');
-
+  const auth = getAuth();
+  const user = auth.currentUser;
   useEffect(() => {
     const fetchUserName = async () => {
       try {

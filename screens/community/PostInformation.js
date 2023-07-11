@@ -9,7 +9,7 @@ const PostInformation = () => {
         justifyContent: 'center',
         alignItems: 'center',
       }}>
-      <Text>Settings</Text>
+      <Text>Post Information</Text>
     </SafeAreaView>
   );
 };

@@ -14,6 +14,7 @@ export default {
     TIMER_LOGS: 'History',
     USER_PROFILE: 'User Profile',
     USER_PROFILE_SETTINGS: 'User Profile Settings',
+    POST_INFORMATION: 'Post Information',
   
     SETTINGS: 'Settings',
     ACCOUNT_SETTINGS: 'Account Settings',

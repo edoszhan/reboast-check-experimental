@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BottomTabView, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ROUTES } from '../constants';
-import { Home, Timer, Calendar, Community, UserProfile, AddPost } from '../screens';
+import { Home, Timer, Calendar, Community, UserProfile, AddPost, PostInformation } from '../screens';
 import { Ionicons, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import TimerLogs from '../screens/home/TimerLogs';
@@ -39,6 +39,7 @@ const CommunityStackScreen = () => {
     screenOptions={{ headerShown: true  }}>
       <ProfileStack.Screen name={ROUTES.COMMUNITY} component={CommunityScreen} />
       <ProfileStack.Screen name={ROUTES.ADD_POST_SCREEN} component={AddPost} />
+      <ProfileStack.Screen name={ROUTES.POST_INFORMATION} component={PostInformation} />
     </ProfileStack.Navigator>
   );
 };
@@ -88,7 +89,7 @@ const BottomTabNavigator = () => {
   return (
     <Drawer.Navigator
       initialRouteName="Home"
-      screenOptions={{ headerShown: true }}
+      screenOptions={{ headerTitle: '' }}
     >
       <Drawer.Screen name="Home" component={BottomTabNavigator2} />
       <Drawer.Screen name="Profile" component={UserProfileStackScreen} />

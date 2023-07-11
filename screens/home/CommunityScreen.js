@@ -36,10 +36,10 @@ const CommunityScreen = () => {
 
   const deleteSession = async (postId, userId) => {
     try {
-      if (FIREBASE_AUTH.currentUser.uid !== userId) {  //this will be in the form of button 
-        alert('You can only delete your own post');
-        return;
-      }
+      // if (FIREBASE_AUTH.currentUser.uid !== userId) {  //this will be in the form of button 
+      //   alert('You can only delete your own post');
+      //   return;
+      // }
       await deleteDoc(doc(FIREBASE_DB, 'community-chat', postId));
       await fetchSessions();
     } catch (error) {
@@ -59,19 +59,18 @@ const CommunityScreen = () => {
       {reversedSessions.map((session, index) => (
         <View key={index} style={styles.sessionContainer}>
           <View style={styles.sessionBlock}>
-            <Text style={styles.sessionTitle}>Topic:</Text>
-            <Text style={styles.sessionText}>{session.postTopic}</Text>
-          </View>
-          <View style={styles.sessionBlock}>
-            <Text style={styles.sessionTitle}>Post content:</Text>
             <Text style={styles.sessionText}>
-              {session.postContent ? session.postContent : 'No content'}
+             u/{session.postAuthor ? session.postAuthor : 'No name'}
             </Text>
           </View>
           <View style={styles.sessionBlock}>
-            <Text style={styles.sessionTitle}>Author name:</Text>
+            {/* <Text style={styles.sessionTitle}>Topic:</Text> */}
+            <Text style={{fontWeight:'bold', fontSize: 20}}>{session.postTopic}</Text>
+          </View>
+          <View style={styles.sessionBlock}>
+            {/* <Text style={styles.sessionTitle}>Post content:</Text> */}
             <Text style={styles.sessionText}>
-              {session.postAuthor ? session.postAuthor : 'No email'}
+              {session.postContent ? session.postContent : 'No content'}
             </Text>
           </View>
           <TouchableOpacity

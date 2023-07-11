@@ -61,14 +61,18 @@ const CommunityScreen = () => {
     // fetchSessionsName();
   }, []);
 
-  // const deleteSession = async (postId) => {
-  //   try {
-  //     await deleteDoc(doc(FIREBASE_DB, 'community-chat', postId));
-  //     await fetchSessions();
-  //   } catch (error) {
-  //     console.log('Error deleting document: ', error);
-  //   }
-  // };
+  const deleteSession = async (postId, userId) => {
+    try {
+      if (FIREBASE_AUTH.currentUser.uid !== userId) {
+        alert('You can only delete your own post');
+        return;
+      }
+      await deleteDoc(doc(FIREBASE_DB, 'community-chat', postId));
+      await fetchSessions();
+    } catch (error) {
+      console.log('Error deleting document: ', error);
+    }
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -113,12 +117,12 @@ const CommunityScreen = () => {
               </View>
             ))}
           </View> */}
-          {/* <TouchableOpacity
+          <TouchableOpacity
               style={styles.deleteButton}
-              onPress={() => deleteSession(session.postId)} // Call deleteSession function with session ID
+              onPress={() => deleteSession(session.postId, session.userId)} // Call deleteSession function with session ID
             >
               <Text style={styles.deleteButtonText}>Delete</Text>
-            </TouchableOpacity> */}
+            </TouchableOpacity>
 
         </View>
         

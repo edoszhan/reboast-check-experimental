@@ -7,7 +7,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import TimerLogs from '../screens/home/TimerLogs';
 import { TouchableOpacity, View, Text, Modal, StyleSheet } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-
+import ProfileSettings from '../screens/home/ProfileSettings';
 
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
@@ -15,6 +15,9 @@ const TimerStack = createStackNavigator();
 const HomeStack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
+const UserProfileStack = createStackNavigator();
+
+
 
 import { Dimensions } from 'react-native';
 import CommunityScreen from '../screens/home/CommunityScreen';
@@ -25,7 +28,7 @@ const HomeStackScreen = () => {
   return (
     <HomeStack.Navigator>
       <HomeStack.Screen name="Home" component={Home} />
-      <HomeStack.Screen name="User Profile" component={UserProfile} />
+      <HomeStack.Screen name="User Profile" component={Profile} />
     </HomeStack.Navigator>
   );
 };
@@ -50,6 +53,14 @@ const TimerStackScreen = () => {
   );
 };
 
+const UserProfileStackScreen = () => {
+  return (
+    <UserProfileStack.Navigator>
+      <UserProfileStack.Screen name="User Profile" component={UserProfile} />
+      <UserProfileStack.Screen name="User Profile Settings" component={ProfileSettings} />
+    </UserProfileStack.Navigator>
+  );
+};
 
 function StackRoutes() {
   return (
@@ -80,7 +91,7 @@ const BottomTabNavigator = () => {
       screenOptions={{ headerShown: true }}
     >
       <Drawer.Screen name="Home" component={BottomTabNavigator2} />
-      <Drawer.Screen name="Profile" component={UserProfile} />
+      <Drawer.Screen name="Profile" component={UserProfileStackScreen} />
     </Drawer.Navigator>
   );
 

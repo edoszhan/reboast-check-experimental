@@ -5,8 +5,11 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { FIREBASE_AUTH } from '../../config/firebase';
 import { FIREBASE_DB } from '../../config/firebase';
 import { collection, query, getDocs, where } from 'firebase/firestore';
+import { useNavigation } from '@react-navigation/native';
+import { ROUTES } from '../../constants';
 
 const UserProfile = () => {
+  const navigation = useNavigation();
   const auth = FIREBASE_AUTH;
   const uid = auth.currentUser.uid;
 
@@ -34,7 +37,7 @@ const UserProfile = () => {
   };
 
   const handleSettingsPress = () => {
-    console.log('Profile Settings button pressed');
+    navigation.navigate(ROUTES.USER_PROFILE_SETTINGS);
   };
 
   const user = {

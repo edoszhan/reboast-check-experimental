@@ -2,18 +2,44 @@ import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, TextInput, TouchableOpacity, View, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
+import { doc, setDoc } from 'firebase/firestore';
+import { FIREBASE_DB } from '../../config/firebase';
+import { FIREBASE_AUTH } from '../../config/firebase';
+import uuid from 'react-native-uuid';
+
 
 const AddPost = () => {
   const [postContent, setPostContent] = useState('');
   const [postTopic, setPostTopic] = useState('');
   const navigation = useNavigation();
 
-  const handlePostCreation = () => {
+  const now = new Date();
+  const currentDay = now.toLocaleDateString('en-US', {weekday: "long"});
+  const currentTime = now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+
+  const postCreatedDateTime = currentDay + " " + currentTime;  //we might change the formatting later
+  const handlePostCreation = async () => {
     if (postTopic && postContent) {
-      const newPost = { topic: postTopic, content: postContent };
-      console.log('newPost', newPost);
-      // Navigate to ProfileScreen with post data
-      navigation.navigate(ROUTES.COMMUNITY, { posts: [newPost] });
+      const auth = FIREBASE_AUTH;
+      const uid = auth.currentUser.uid;
+      const postId = uuid.v4();
+      // const user = auth.currentUser;
+      // console.log(user);
+      // console.log("here", auth.currentUser);
+      try {
+        await setDoc(doc(FIREBASE_DB, 'community-chat', postId), {
+          postTopic: postTopic,
+          postContent: postContent,
+          postAuthor: auth.currentUser.displayName,
+          postCreatedDateTime: postCreatedDateTime,
+          userId: uid,
+          postId: postId,
+        });
+      } catch (error) {
+        console.log("Error writing document: ", error);
+      }
+      // navigation.navigate(ROUTES.COMMUNITY);
+      navigation.goBack();
     }
   };
 
@@ -29,7 +55,7 @@ const AddPost = () => {
           onChangeText={setPostTopic}
         />
         <TextInput
-          style={styles.textInput}
+          style={styles.contentTextInput}
           multiline
           placeholder="Enter post content..."
           value={postContent}
@@ -67,6 +93,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 4,
+  },
+  contentTextInput: {
+    fontSize: 16,
+    marginBottom: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 4,
+    paddingBottom: 100,
   },
   postButton: {
     backgroundColor: '#007AFF',

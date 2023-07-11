@@ -1,91 +1,122 @@
-import React, { useState, useEffect } from 'react';
-import { SafeAreaView, StyleSheet, View, Text, Button } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { collection, query, getDocs } from 'firebase/firestore';
+import { FIREBASE_DB } from '../../config/firebase';
+import { FIREBASE_AUTH } from '../../config/firebase';
+import { deleteDoc, doc } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
+import { orderBy } from 'firebase/firestore';
 
-const createPostArray = (posts) => {
-  return posts.map((post, index) => ({ ...post, id: index.toString() }));
-};
+const CommunityScreen = () => {
+  const navigation = useNavigation();
+  const [sessions, setSessions] = useState([]);
 
-const PostItem = ({ post }) => {
-  return (
-    <View style={styles.postBlock}>
-      <Text style={styles.postTopic}>{post.topic}</Text>
-      <Text style={styles.postContent}>{post.content}</Text>
-    </View>
-  );
-};
-
-const CommunityScreen = ({ route }) => {
-  const { posts } = route.params ? route.params : { posts: [] };
-  const [postArray, setPostArray] = useState([]);
+  const fetchSessions = async () => {
+    const q = query(collection(FIREBASE_DB, 'community-chat'), orderBy('postCreatedDateTime', 'desc'));
+    const querySnapshot = await getDocs(q);
+    const sessionData = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      sessionData.push({ id: doc.id, ...data });
+    });
+    setSessions(sessionData);
+  };
 
   useEffect(() => {
-    if (posts.length > 0) {
-      const updatedPostArray = createPostArray(posts);
-      setPostArray(updatedPostArray);
+    fetchSessions();
+  }, []);
+
+  const deleteSession = async (postId, userId) => {
+    try {
+      if (FIREBASE_AUTH.currentUser.uid !== userId) {
+        alert('You can only delete your own post');
+        return;
+      }
+      await deleteDoc(doc(FIREBASE_DB, 'community-chat', postId));
+      await fetchSessions();
+    } catch (error) {
+      console.log('Error deleting document: ', error);
     }
-  }, [posts]);
-
-  const navigation = useNavigation();
-
-  const navigateToAddPost = () => {
-    navigation.navigate(ROUTES.ADD_POST_SCREEN, { onPostCreated: addNewPost });
-  };
-
-  const addNewPost = (post) => {
-    setPostArray((prevPostArray) => {
-      const updatedPosts = [...posts, post];
-      return createPostArray(updatedPosts);
-    });
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.postListContainer}>
-        {postArray.length > 0 ? (
-          postArray.map((post) => (
-            <PostItem key={post.id} post={post} />
-          ))
-        ) : (
-          <Text style={styles.noPostsText}>No posts yet</Text>
-        )}
+    <ScrollView style={styles.container}>
+      <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)}>
+        <Text style={styles.deleteButtonText}>Add post</Text>
+      </TouchableOpacity> 
+      <View style={styles.container}>
+        {sessions.map((session, index) => (
+            <View style={styles.sessionContainer}>
+              <View style={styles.sessionBlock}>
+                <Text style={styles.sessionText}>u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
+              </View>
+              <TouchableOpacity
+            key={index}
+            onPress={() => navigation.navigate(ROUTES.POST_INFORMATION, { postId: session.id })}
+          >
+              <View style={styles.sessionBlock}>
+              <Text style={{fontWeight:'bold', fontSize: 18}}>{session.postTopic}</Text>
+              </View>
+              <View style={styles.sessionBlock}>
+                <Text style={styles.sessionText}>{session.postContent ? session.postContent : 'No content'}</Text>
+              </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => deleteSession(session.postId, session.userId)}
+              >
+                <Text style={styles.deleteButtonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+        ))}
       </View>
-      <View style={styles.buttonContainer}>
-        <Button onPress={navigateToAddPost} title="Add Post" />
-      </View>
-    </SafeAreaView>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    padding: 5,  //can be used effficiently to adjust size of the posts
   },
-  postListContainer: {
-    paddingHorizontal: 16,
+  sessionContainer: {
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    borderRadius: 5,
   },
-  postBlock: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
+  sessionBlock: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
   },
-  postTopic: {
-    fontSize: 18,
+  sessionTitle: {
+    fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginRight: 10,
   },
-  postContent: {
+  sessionText: {
     fontSize: 16,
   },
-  noPostsText: {
-    fontSize: 16,
-    textAlign: 'center',
+  deleteButton: {
+    marginTop: 10,
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
   },
-  buttonContainer: {
-    paddingHorizontal: 16,
+  deleteButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  addButton: {
+    marginTop: 10,
+    backgroundColor: 'green',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
   },
 });
 

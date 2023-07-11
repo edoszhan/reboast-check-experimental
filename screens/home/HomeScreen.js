@@ -3,10 +3,7 @@ import { SafeAreaView, StyleSheet, Text } from 'react-native';
 import { getAuth } from 'firebase/auth';
 import { getDoc, doc } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
-import { ROUTES } from '../../constants';
-import UserProfile from './UserProfile';
 
-import { Button } from 'react-native';
 
 
 import {
@@ -19,7 +16,8 @@ import { Agenda } from 'react-native-calendars';
 const HomeScreen = (props) => {
   const {navigation} = props;
   const [userName, setUserName] = useState('');
-
+  const auth = getAuth();
+  const user = auth.currentUser;
   useEffect(() => {
     const fetchUserName = async () => {
       try {
@@ -74,7 +72,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: '#0a8faf',
+    // backgroundColor: '#0a8faf',
+    backgroundColor: 'white',
   },
   text: {
     fontSize: 24,

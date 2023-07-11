@@ -16,31 +16,15 @@ const TimerScreen = () => {
   uid = auth.currentUser.uid;
   const session_random = uuid.v4();
 
-
-
-  // const create = async (uid) => {
-  //   try {
-  //     await setDoc(doc(FIREBASE_DB, "timer-logs", "sessions"), {
-  //       sessionTopic: sessionTopic,
-  //       sessionMemo: sessionMemo,
-  //       sessionDuration: sessionDuration,
-  //       sessionFinishTime: sessionFinishTime,
-  //       userId: uid,
-  //     });
-  //   } catch (error) {
-  //     console.log("Error writing document: ", error);
-  //   }
-  // };
-
   const create = async (uid) => {
     try {
-      await setDoc(doc(FIREBASE_DB, "timer-logs", uid, "sessions",session_random), {  //session3 should not be manually entered, we need to update number of sessions
-        sessionLog: session_random,  
+      await setDoc(doc(FIREBASE_DB, "timer-logs", uid, "sessions",session_random), {  //session3 should not be manually entered, we need to update number of sessions  
         sessionTopic: sessionTopic,
         sessionMemo: sessionMemo,
         userId: uid,
         sessionDuration: sessionDuration,
         sessionFinishTime: sessionFinishTime,
+        sessionId: session_random,
       });
     } catch (error) {
       console.log("Error writing document: ", error);
@@ -65,8 +49,8 @@ const TimerScreen = () => {
   const intervalRef = useRef(null);
 
   const now = new Date();
-  const currentDay = now.toLocaleDateString('en-US', {weekday: "long"});
-  const currentTime = now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+  const currentDay = now.toLocaleDateString('ko-KR');  //korean date format
+  const currentTime = now.toLocaleTimeString('ko-KR', {hour: '2-digit', minute:'2-digit'});
 
   const currentDayTime = currentDay + " " + currentTime;  //we might change the formatting later
   const sessionFinishTime = currentDayTime;
@@ -82,7 +66,7 @@ const TimerScreen = () => {
       clearInterval(intervalRef.current);
       setIsActive(false);
       setIsPaused(false);
-      setTime(prevTime => (prevTime === 1500 ? 300 : 1500)); // Switch between 25 minutes and 5 minutes
+      setTime(prevTime => (prevTime === 1500)); // Switch between 25 minutes and 5 minutes
       setSessionTopic(""); // Clear the session topic input
       setSessionMemo(""); // Clear the session memo input
       togglePopup(); // Display the popup after the session ends
@@ -110,6 +94,7 @@ const TimerScreen = () => {
     setIsPaused(false);
 
     setSessionDuration(1500 - time); // Calculate the session duration
+    
     setTime(1500); // Reset time to 25 minutes for the next session
     setSessionTopic(""); // Clear the session topic input
     setSessionMemo(""); // Clear the session memo input
@@ -118,11 +103,8 @@ const TimerScreen = () => {
   const handleSave = () => {  
     // Save the session details to the database
     togglePopup(); // Close the popup
-    console.log('sessionTopic', sessionTopic);  //data that we want to save on DB and fetch in Timerlogs
-    console.log('sessionMemo', sessionMemo);   //data that we want to save on DB and fetch in Timerlogs
-    console.log('sessionDuration', sessionDuration);  //data that we want to save on DB and fetch in Timerlogs
     sendData();
-    navigation.navigate(ROUTES.TIMER_LOGS, {sessionTopic, sessionMemo, sessionDuration, sessionFinishTime});
+    navigation.navigate(ROUTES.TIMER_LOGS);
     setIsSaveDisabled(true);
   };
 
@@ -172,14 +154,14 @@ const TimerScreen = () => {
               <Text style={styles.buttonText}> Start</Text>
               <Text style={styles.buttonText}>25 min</Text>
             </TouchableOpacity>
-
+{/* 
             <TouchableOpacity
               style={[styles.button, styles.startButton]}
               onPress={handleStart}
-            >
+            > 
               <Text style={styles.buttonText}>Start</Text>
               <Text style={styles.buttonText}> 5 min</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </>
         ) : (
           <>
@@ -201,6 +183,7 @@ const TimerScreen = () => {
           </>
         )}
       </View>
+
 
       {isPopupVisible && (
         <Modal animationType="slide" transparent={true} visible={isPopupVisible} onRequestClose={togglePopup}>
@@ -353,4 +336,3 @@ const styles = StyleSheet.create({
     backgroundColor: '#ccc',
   },
 });
-

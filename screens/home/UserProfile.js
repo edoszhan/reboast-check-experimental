@@ -1,60 +1,46 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { FIREBASE_AUTH } from '../../config/firebase';
 import { FIREBASE_DB } from '../../config/firebase';
-import { useState, useEffect } from 'react';
-
+import { collection, query, getDocs, where } from 'firebase/firestore';
+import { useNavigation } from '@react-navigation/native';
+import { ROUTES } from '../../constants';
 
 const UserProfile = () => {
+  const navigation = useNavigation();
   const auth = FIREBASE_AUTH;
-  console.log("some data", auth.currentUser.email);
-  const email = auth.currentUser.email;
-  // const [userName, setUserName] = useState('');
-  
-  // useEffect(() => {
-  //   const fetchUserName = async () => {
-  //     try {
-  //       const nameRef = FIREBASE_DB.collection('users-info');
-  //       const snapshot = await nameRef.get();
-  //       console.log('snapshot', snapshot);
-  //       if (snapshot.exists) {
-  //         const { name } = snapshot.data();
-  //         setUserName(name);
-  //       }
-  //     } catch (error) {
-  //       console.log('Error fetching user name:', error);
-  //     }
-  //   };
+  const uid = auth.currentUser.uid;
 
-  //     fetchUserName();
-  //   }, []);
-  // const nameRef = FIREBASE_DB.collection('users-info');
-  // useEffect(async () => {
-  //   nameRef
-  //   .onSnapshot((querySnapshot) => {
-  //     const name = [];
-  //     querySnapshot.forEach((doc) => {  
-  //       name.push(doc.data());
-  //     });
-  //     console.log('name', name);
-  //     setUserName(name);
-  //   });
-  // }, []
-  // );
+  const [info, setInfo] = useState([]);
+
+  const fetchSessions = async () => {
+    const q = query(collection(FIREBASE_DB, 'users-info'));
+    const querySnapshot = await getDocs(q);
+    const sessionData = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.userId === uid) {
+        sessionData.push(data);
+      }
+    });
+    setInfo(sessionData);
+  };
+
+  useEffect(() => {
+    fetchSessions();
+  }, []);
 
   const handleLogOut = () => {
     auth.signOut();
   };
 
   const handleSettingsPress = () => {
-    // Implement the action when the settings button is pressed   
-    console.log('Profile Settings button pressed');
+    navigation.navigate(ROUTES.USER_PROFILE_SETTINGS);
   };
-
   const user = {
-    name: email,
+    name: info.length > 0 ? info[0].displayName : 'Not found',
   };
 
   return (

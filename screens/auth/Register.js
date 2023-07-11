@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { FIREBASE_AUTH, FIREBASE_DB } from '../../config/firebase';
 import { COLORS, ROUTES } from '../../constants';
 import { doc, setDoc } from 'firebase/firestore';
@@ -15,49 +15,14 @@ const Register = ({ navigation }) => {
 
   const [name, setName] = useState('');
   const userId_random = uuid.v4();
-
-  // function create () {
-  //   setDoc(doc(FIREBASE_DB, "users-info", userId_random), {
-  //     name: name,
-  //     email: email,
-  // }).then(() => {
-  //     console.log("Document successfully written!");
-
-  // }).catch((error) => {
-  //   console.log("Error writing document: ", error);
-  // });
-  // }
-
-
-  // const signUp = async () => {
-  //   if (password !== repeatPassword) {
-  //     Alert.alert('Passwords do not match');
-  //     return;
-  //   }
-
-  //   if (!agreed) {
-  //     Alert.alert('Please agree to the terms and conditions');
-  //     return;
-  //   }
-
-  //   try {
-  //     const response = await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password);
-  //     console.log(response);
-  //     Alert.alert('Registration Success');
-
-  //     create();
-
-  //     navigation.replace(ROUTES.HOME);
-  //   } catch (error) {
-  //     console.log(error);
-  //     Alert.alert('Registration Failed');
-  //   }
-  // };
-  const create = async (uid) => {
+  const create = async (uid, name) => {
+    console.log("uid", uid);
     try {
       await setDoc(doc(FIREBASE_DB, "users-info", uid), {
-        name: name,
+        displayName: name,
         email: email,
+        userId: uid,
+        photoURL: "Not given",   //might be useful for profile picture
       });
       console.log("Document successfully written!");
     } catch (error) {
@@ -79,10 +44,17 @@ const Register = ({ navigation }) => {
     try {
       const { user } = await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password);
       console.log(user);
+
+      await updateProfile(user, {
+        displayName: name,
+      });
+
+      console.log(name);
       Alert.alert('Registration Success');
 
       const uid = user.uid;
-      await create(uid);
+
+      await create(uid, name);
 
       navigation.replace(ROUTES.HOME);
     } catch (error) {
@@ -91,26 +63,24 @@ const Register = ({ navigation }) => {
     }
   };
 
-
-
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Register</Text>
 
       <Text style={styles.inputLabel}>Name
-      
-      <Text style={styles.mandatoryApostrophe}>*</Text></Text>
+        <Text style={styles.mandatoryApostrophe}>*</Text>
+      </Text>
       <TextInput
         style={styles.input}
         value={name}
         placeholder="Enter your name"
         autoCapitalize="none"
         onChangeText={(name) => setName(name)}
-        />
+      />
 
-      <Text style={styles.inputLabel}>Email 
-      
-      <Text style={styles.mandatoryApostrophe}>*</Text></Text>
+      <Text style={styles.inputLabel}>Email
+        <Text style={styles.mandatoryApostrophe}>*</Text>
+      </Text>
       <TextInput
         style={styles.input}
         value={email}
@@ -119,8 +89,9 @@ const Register = ({ navigation }) => {
         onChangeText={(email) => setEmail(email)}
       />
 
-      <Text style={styles.inputLabel}>Password 
-      <Text style={styles.mandatoryApostrophe}>*</Text></Text>
+      <Text style={styles.inputLabel}>Password
+        <Text style={styles.mandatoryApostrophe}>*</Text>
+      </Text>
       <TextInput
         style={styles.input}
         value={password}
@@ -128,8 +99,10 @@ const Register = ({ navigation }) => {
         secureTextEntry={true}
         onChangeText={(text) => setPassword(text)}
       />
+
       <Text style={styles.inputLabel}>Confirm Password
-      <Text style={styles.mandatoryApostrophe}>*</Text></Text>
+        <Text style={styles.mandatoryApostrophe}>*</Text>
+      </Text>
       <TextInput
         style={styles.input}
         value={repeatPassword}
@@ -137,6 +110,7 @@ const Register = ({ navigation }) => {
         secureTextEntry={true}
         onChangeText={(text) => setRepeatPassword(text)}
       />
+
       <View style={styles.checkBoxContainer}>
         <TouchableOpacity
           style={styles.checkBox}
@@ -156,12 +130,11 @@ const Register = ({ navigation }) => {
       </TouchableOpacity>
 
       <View style={styles.footer}>
-          <Text style={styles.footerText}> Already have an account? </Text>
-          {/******************** LOG IN BUTTON *********************/}
-          <TouchableOpacity onPress={() => navigation.navigate(ROUTES.LOGIN)}>
-            <Text style={styles.logInBtn}>Login</Text>
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.footerText}> Already have an account? </Text>
+        <TouchableOpacity onPress={() => navigation.navigate(ROUTES.LOGIN)}>
+          <Text style={styles.logInBtn}>Login</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -208,13 +181,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  loginLink: {
-    fontSize: 14,
-    color: COLORS.primary,
-    marginTop: 20,
-  },
   mandatoryApostrophe: {
-    color: "red",
+    color: 'red',
     fontSize: 20,
     marginLeft: 5,
   },

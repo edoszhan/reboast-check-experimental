@@ -60,6 +60,7 @@ const Register = ({ navigation }) => {
         name: name,
         email: email,
         userId: uid,
+        profileURL: "Not given",   //might be useful for profile picture
       });
       console.log("Document successfully written!");
     } catch (error) {

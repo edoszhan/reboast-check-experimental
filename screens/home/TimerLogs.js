@@ -47,7 +47,7 @@ const TimerLogs = () => {
       {sessions.map((session, index) => (
         <View key={index} style={styles.sessionContainer}>
           <View style={styles.sessionBlock}>
-            {/* <Text style={styles.sessionTitle}>Topic:</Text> */}
+            <Text style={styles.sessionTitle}>Topic:</Text>
             <Text style={styles.sessionText}>{session.sessionTopic}</Text>
           </View>
           {/* <View style={styles.sessionBlock}> //memo only shown when you click on the session

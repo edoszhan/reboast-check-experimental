@@ -5,20 +5,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 
 const ProfileSettings = () => {
   const [profileImage, setProfileImage] = useState(null);
-
-  // const handleChooseImage = () => {
-  //   ImagePicker.showImagePicker({ title: 'Select Profile Picture' }, (response) => {
-  //     if (response.didCancel) {
-  //       console.log('User cancelled image picker');
-  //     } else if (response.error) {
-  //       console.log('ImagePicker Error: ', response.error);
-  //     } else {
-  //       const source = { uri: response.uri };
-  //       setProfileImage(source);
-  //     }
-  //   });
-  // };
-
+  
   const handleChooseImage = () => {
     launchImageLibrary({ title: 'Select Profile Picture' }, (response) => {
       if (response.didCancel) {

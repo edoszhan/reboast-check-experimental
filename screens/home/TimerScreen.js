@@ -49,8 +49,8 @@ const TimerScreen = () => {
   const intervalRef = useRef(null);
 
   const now = new Date();
-  const currentDay = now.toLocaleDateString('en-US', {weekday: "long"});
-  const currentTime = now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+  const currentDay = now.toLocaleDateString('ko-KR');  //korean date format
+  const currentTime = now.toLocaleTimeString('ko-KR', {hour: '2-digit', minute:'2-digit'});
 
   const currentDayTime = currentDay + " " + currentTime;  //we might change the formatting later
   const sessionFinishTime = currentDayTime;

@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { collection, query, getDocs } from 'firebase/firestore';
+import { collection, query, getDocs, orderBy } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
-import { where } from 'firebase/firestore';
 import {FIREBASE_AUTH} from '../../config/firebase';
 
 import { ScrollView } from 'react-native-gesture-handler';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { deleteDoc, doc } from 'firebase/firestore';
-
 
 const TimerLogs = () => {
   const [sessions, setSessions] = useState([]);
@@ -16,7 +14,7 @@ const TimerLogs = () => {
 
 
   const fetchSessions = async () => {
-    const q = query(collection(FIREBASE_DB, 'timer-logs', uid, 'sessions'));
+    const q = query(collection(FIREBASE_DB, 'timer-logs', uid, 'sessions'), orderBy('sessionFinishTime', 'desc')); //timer sessions are ordered
     const querySnapshot = await getDocs(q);
     const sessionData = [];
     querySnapshot.forEach((doc) => {
@@ -37,9 +35,6 @@ const TimerLogs = () => {
     try {
       await deleteDoc(doc(FIREBASE_DB, 'timer-logs', uid, 'sessions', sessionId));
       await fetchSessions();
-      // Filter out the deleted session from the sessions state
-      // const updatedSessions = sessions.filter((session) => session.id !== sessionId);
-      // setSessions(updatedSessions);
     } catch (error) {
       console.log('Error deleting document: ', error);
     }
@@ -52,15 +47,15 @@ const TimerLogs = () => {
       {sessions.map((session, index) => (
         <View key={index} style={styles.sessionContainer}>
           <View style={styles.sessionBlock}>
-            <Text style={styles.sessionTitle}>Topic:</Text>
+            {/* <Text style={styles.sessionTitle}>Topic:</Text> */}
             <Text style={styles.sessionText}>{session.sessionTopic}</Text>
           </View>
-          <View style={styles.sessionBlock}>
+          {/* <View style={styles.sessionBlock}> //memo only shown when you click on the session
             <Text style={styles.sessionTitle}>Memo:</Text>
             <Text style={styles.sessionText}>
               {session.sessionMemo ? session.sessionMemo : 'No memo'}
             </Text>
-          </View>
+          </View> */}
           <View style={styles.sessionBlock}>
             <Text style={styles.sessionTitle}>Duration:</Text>
             <Text style={styles.sessionText}>
@@ -73,10 +68,10 @@ const TimerLogs = () => {
             <Text style={styles.sessionTitle}>Finished time:</Text>
             <Text style={styles.sessionText}>{session.sessionFinishTime}</Text>
           </View>
-          <View style={styles.sessionBlock}>
+          {/* <View style={styles.sessionBlock}>
             <Text style={styles.sessionTitle}>Session Id:</Text>
             <Text style={styles.sessionText}>{session.sessionId}</Text>
-          </View>
+          </View> */}
           <TouchableOpacity
               style={styles.deleteButton}
               onPress={() => deleteSession(session.sessionId)} // Call deleteSession function with session ID

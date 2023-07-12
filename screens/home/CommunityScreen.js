@@ -10,6 +10,7 @@ import { orderBy } from 'firebase/firestore';
 
 // import DefaultLogo from '../../assets/icons/DEFAULT_USER_IMAGE.svg';  //not properly being displayed
 import Logo from '../../assets/icons/LOGO.svg';
+import { Entypo } from '@expo/vector-icons'; 
 
 const CommunityScreen = () => {
   const navigation = useNavigation();
@@ -50,32 +51,31 @@ const CommunityScreen = () => {
       </TouchableOpacity> 
       <View style={styles.container}>
         {sessions.map((session, index) => (
-            <View style={styles.sessionContainer}>
-              <View style={styles.sessionBlock}>
-                <Logo width={24} height={24} style={styles.mr7}/>
-                <Text style={styles.sessionText}>u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
+          <View key={index} style={styles.sessionContainer}>
+            <View style={styles.sessionHeader}>
+              <View style={styles.sessionHeaderLeft}>
+                <Logo width={24} height={24} style={styles.mr7} />
+                <Text style={{ fontSize: 16 }}>u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
               </View>
+              <TouchableOpacity onPress={() => deleteSession(session.postId, session.userId)}>
+                <Entypo name="dots-three-vertical" size={24} color="black" />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.sessionBlock}>
+              <Text style={{ color: 'grey', fontSize: 11 }}>{session.postCreatedDateTime}</Text>
+            </View>
+            <TouchableOpacity onPress={() => navigation.navigate(ROUTES.POST_INFORMATION, { postId: session.id })}>
               <View style={styles.sessionBlock}>
-                <Text style={{color: "grey", fontSize: 11}}>{session.postCreatedDateTime}</Text>  
-              </View>
-              <TouchableOpacity
-            key={index}
-            onPress={() => navigation.navigate(ROUTES.POST_INFORMATION, { postId: session.id })}
-          >
-              <View style={styles.sessionBlock}>
-              <Text style={{fontWeight:'bold', fontSize: 18}}>{session.postTopic}</Text>
+                <Text style={{ fontWeight: 'bold', fontSize: 18 }}>{session.postTopic}</Text>
               </View>
               <View style={styles.sessionBlock}>
                 <Text style={styles.sessionText}>{session.postContent ? session.postContent : 'No content'}</Text>
               </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => deleteSession(session.postId, session.userId)}
-              >
-                <Text style={styles.deleteButtonText}>Delete</Text>
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.deleteButton} onPress={() => deleteSession(session.postId, session.userId)}>
+              <Text style={styles.deleteButtonText}>Delete</Text>
+            </TouchableOpacity>
+          </View>
         ))}
       </View>
     </ScrollView>
@@ -128,6 +128,20 @@ const styles = StyleSheet.create({
   mr7: {
     marginRight: 7,
   },
+  sessionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  sessionHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  sessionBlock: {
+    marginBottom: 10,
+  },
+  
 });
 
 export default CommunityScreen;

@@ -15,7 +15,7 @@ const AddPost = () => {
 
   const now = new Date();
   const currentDay = now.toLocaleDateString('en-US', {weekday: "long"});
-  const currentTime = now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+  const currentTime = now.toLocaleTimeString('en-US');
 
   const postCreatedDateTime = currentDay + " " + currentTime;  //we might change the formatting later
   const handlePostCreation = async () => {

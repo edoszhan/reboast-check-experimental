@@ -115,7 +115,6 @@ const TimerScreen = () => {
 
     const formattedMinutes = String(minutes).padStart(2, "0");
     const formattedSeconds = String(seconds).padStart(2, "0");
-    console.log(formattedMinutes, formattedSeconds)
     return `${formattedMinutes}:${formattedSeconds}`;
   };
 

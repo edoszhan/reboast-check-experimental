@@ -33,7 +33,6 @@ const TimerLogs = () => {
   }, []);
 
   const deleteSession = async (sessionId) => {
-    console.log('sessionId', sessionId);
     try {
       await deleteDoc(doc(FIREBASE_DB, 'timer-logs', uid, 'sessions', sessionId));
       await fetchSessions();

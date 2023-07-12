@@ -11,12 +11,26 @@ import { orderBy } from 'firebase/firestore';
 import Logo from '../../assets/icons/LOGO.svg';
 import { Entypo } from '@expo/vector-icons'; 
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
+import { RefreshControl } from 'react-native';
 
-
-const CommunityScreen = () => {
+const CommunityScreen = ({route}) => {
+  const params = route.params ? route.params : "false";
   const navigation = useNavigation();
   const [sessions, setSessions] = useState([]);
-  // const [fetchTimestamp, setFetchTimestamp] = useState(Date.now()); //was used to update the list when new session is added
+
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(async () => {   //refreshing the page
+    setRefreshing(true);
+    try {
+      await fetchSessions();
+    } catch (error) {
+      console.log('Error fetching sessions: ', error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
 
   const fetchSessions = async () => {
     const q = query(collection(FIREBASE_DB, 'community-chat'), orderBy('postCreatedDateTime', 'desc'));
@@ -26,13 +40,28 @@ const CommunityScreen = () => {
       const data = doc.data();
       sessionData.push({ id: doc.id, ...data });
     });
-    // setFetchTimestamp(Date.now());
     setSessions(sessionData);
 
   };
 
-  useEffect(() => {
+
+  if (params.refresh == true) {
     fetchSessions();
+    console.log("i did the thing");
+    params.refresh = "false";
+  }
+
+
+  useEffect(() => {
+    const fetchSessionsAndSetState = async () => {
+      try {
+        await fetchSessions();
+      } catch (error) { 
+        console.log('Error fetching sessions: ', error);
+      }
+    };
+  
+    fetchSessionsAndSetState();
   }, []);
 
   const deleteSession = async (postId, userId) => {
@@ -68,7 +97,10 @@ const CommunityScreen = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container}
+    refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
       <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)}>
         <Text style={styles.deleteButtonText}>Add post</Text>
       </TouchableOpacity> 

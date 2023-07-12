@@ -38,8 +38,8 @@ const AddPost = () => {
       } catch (error) {
         console.log("Error writing document: ", error);
       }
-      // navigation.navigate(ROUTES.COMMUNITY);
-      navigation.goBack();
+      navigation.navigate(ROUTES.COMMUNITY, {refresh: true});
+      // navigation.goBack();
 
     }
   };

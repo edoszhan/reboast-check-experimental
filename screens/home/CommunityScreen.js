@@ -8,13 +8,15 @@ import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
 import { orderBy } from 'firebase/firestore';
 
-// import DefaultLogo from '../../assets/icons/DEFAULT_USER_IMAGE.svg';  //not properly being displayed
 import Logo from '../../assets/icons/LOGO.svg';
 import { Entypo } from '@expo/vector-icons'; 
+import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
+
 
 const CommunityScreen = () => {
   const navigation = useNavigation();
   const [sessions, setSessions] = useState([]);
+  // const [fetchTimestamp, setFetchTimestamp] = useState(Date.now()); //was used to update the list when new session is added
 
   const fetchSessions = async () => {
     const q = query(collection(FIREBASE_DB, 'community-chat'), orderBy('postCreatedDateTime', 'desc'));
@@ -24,7 +26,9 @@ const CommunityScreen = () => {
       const data = doc.data();
       sessionData.push({ id: doc.id, ...data });
     });
+    // setFetchTimestamp(Date.now());
     setSessions(sessionData);
+
   };
 
   useEffect(() => {
@@ -34,7 +38,7 @@ const CommunityScreen = () => {
   const deleteSession = async (postId, userId) => {
     try {
       if (FIREBASE_AUTH.currentUser.uid !== userId) {
-        alert('You can only delete your own post');
+        // alert('You can only delete your own post');
         return;
       }
       await deleteDoc(doc(FIREBASE_DB, 'community-chat', postId));
@@ -42,6 +46,25 @@ const CommunityScreen = () => {
     } catch (error) {
       console.log('Error deleting document: ', error);
     }
+  };
+
+  const handlePost = (session) => {
+    if (FIREBASE_AUTH.currentUser.uid !== session.userId) {
+      return;
+    }
+    return (
+      <Menu>
+        <MenuTrigger>
+          <Entypo name="dots-three-vertical" size={24} color="black" />
+        </MenuTrigger>
+        <MenuOptions>
+          <MenuOption onSelect={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)} text='Edit' />
+          <MenuOption onSelect={() => deleteSession(session.postId, session.userId)}>
+            <Text style={{ color: 'red' }}>Delete</Text>
+          </MenuOption>
+        </MenuOptions>
+      </Menu>
+    );
   };
 
   return (
@@ -57,9 +80,7 @@ const CommunityScreen = () => {
                 <Logo width={24} height={24} style={styles.mr7} />
                 <Text style={{ fontSize: 16 }}>u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
               </View>
-              <TouchableOpacity onPress={() => deleteSession(session.postId, session.userId)}>
-                <Entypo name="dots-three-vertical" size={24} color="black" />
-              </TouchableOpacity>
+              {handlePost(session)}
             </View>
             <View style={styles.sessionBlock}>
               <Text style={{ color: 'grey', fontSize: 11 }}>{session.postCreatedDateTime}</Text>
@@ -72,9 +93,9 @@ const CommunityScreen = () => {
                 <Text style={styles.sessionText}>{session.postContent ? session.postContent : 'No content'}</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.deleteButton} onPress={() => deleteSession(session.postId, session.userId)}>
+            {/* <TouchableOpacity style={styles.deleteButton} onPress={() => deleteSession(session.postId, session.userId)}>
               <Text style={styles.deleteButtonText}>Delete</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         ))}
       </View>
@@ -85,7 +106,7 @@ const CommunityScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 5,  //can be used effficiently to adjust size of the posts
+    padding: 5,
   },
   sessionContainer: {
     marginBottom: 20,
@@ -98,14 +119,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
-  },
-  sessionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginRight: 10,
-  },
-  sessionText: {
-    fontSize: 16,
   },
   deleteButton: {
     marginTop: 10,
@@ -138,10 +151,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  sessionBlock: {
-    marginBottom: 10,
-  },
-  
 });
 
 export default CommunityScreen;

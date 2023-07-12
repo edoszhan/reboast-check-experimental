@@ -40,6 +40,7 @@ const AddPost = () => {
       }
       // navigation.navigate(ROUTES.COMMUNITY);
       navigation.goBack();
+
     }
   };
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BottomTabView, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ROUTES } from '../constants';
 import { Home, Timer, Calendar, Community, UserProfile, AddPost, PostInformation } from '../screens';
-import { Ionicons, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, FontAwesome, MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import TimerLogs from '../screens/home/TimerLogs';
 import { TouchableOpacity, View, Text, Modal, StyleSheet } from 'react-native';
@@ -72,7 +72,7 @@ function StackRoutes() {
         options={({ navigation }) => ({
           headerLeft: () => (
             <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-              <MaterialIcons name="menu" size={25} />
+              <Entypo name="dots-three-horizontal" size={25} />
             </TouchableOpacity>
           ),
         })}

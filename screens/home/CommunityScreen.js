@@ -8,6 +8,9 @@ import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
 import { orderBy } from 'firebase/firestore';
 
+// import DefaultLogo from '../../assets/icons/DEFAULT_USER_IMAGE.svg';  //not properly being displayed
+import Logo from '../../assets/icons/LOGO.svg';
+
 const CommunityScreen = () => {
   const navigation = useNavigation();
   const [sessions, setSessions] = useState([]);
@@ -49,7 +52,11 @@ const CommunityScreen = () => {
         {sessions.map((session, index) => (
             <View style={styles.sessionContainer}>
               <View style={styles.sessionBlock}>
+                <Logo width={24} height={24} style={styles.mr7}/>
                 <Text style={styles.sessionText}>u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
+              </View>
+              <View style={styles.sessionBlock}>
+                <Text style={{color: "grey", fontSize: 11}}>{session.postCreatedDateTime}</Text>  
               </View>
               <TouchableOpacity
             key={index}
@@ -117,6 +124,9 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
+  },
+  mr7: {
+    marginRight: 7,
   },
 });
 

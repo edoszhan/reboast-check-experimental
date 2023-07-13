@@ -22,7 +22,7 @@ const Register = ({ navigation }) => {
         displayName: name,
         email: email,
         userId: uid,
-        photoURL: "Not given",   //might be useful for profile picture
+        photoURL: null,   //might be useful for profile picture
       });
       console.log("Document successfully written!");
     } catch (error) {

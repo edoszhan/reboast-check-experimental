@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BottomTabView, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import React, { useState, useEffect } from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ROUTES } from '../constants';
 import { Home, Timer, Calendar, Community, UserProfile, AddPost, PostInformation } from '../screens';
 import { Ionicons, FontAwesome, MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
@@ -7,12 +7,14 @@ import { createStackNavigator } from '@react-navigation/stack';
 import TimerLogs from '../screens/home/TimerLogs';
 import { TouchableOpacity, View, Text, Modal, StyleSheet } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import ProfileSettings from '../screens/home/ProfileSettings';
-
+import ProfileSettings from '../screens/home/ImageUpload';
 
 import { Input } from 'react-native-elements';
-import {Dropdown } from 'react-native-element-dropdown';
-
+import { Dropdown } from 'react-native-element-dropdown';
+import uuid from 'react-native-uuid';
+import { FIREBASE_DB } from '../config/firebase';
+import { FIREBASE_AUTH } from '../config/firebase';
+import { setDoc, doc } from 'firebase/firestore';
 
 
 const Tab = createBottomTabNavigator();
@@ -23,13 +25,10 @@ const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 const UserProfileStack = createStackNavigator();
 
-
-
 import { Dimensions } from 'react-native';
 import CommunityScreen from '../screens/home/CommunityScreen';
 import { set } from 'react-native-reanimated';
 const { height } = Dimensions.get('window');
-
 
 const HomeStackScreen = () => {
   return (
@@ -42,8 +41,7 @@ const HomeStackScreen = () => {
 
 const CommunityStackScreen = () => {
   return (
-    <ProfileStack.Navigator
-    screenOptions={{ headerShown: true  }}>
+    <ProfileStack.Navigator screenOptions={{ headerShown: true }}>
       <ProfileStack.Screen name={ROUTES.COMMUNITY} component={CommunityScreen} />
       <ProfileStack.Screen name={ROUTES.ADD_POST_SCREEN} component={AddPost} />
       <ProfileStack.Screen name={ROUTES.POST_INFORMATION} component={PostInformation} />
@@ -53,8 +51,7 @@ const CommunityStackScreen = () => {
 
 const TimerStackScreen = () => {
   return (
-    <TimerStack.Navigator
-    screenOptions={{ headerShown: true }} >
+    <TimerStack.Navigator screenOptions={{ headerShown: true }}>
       <TimerStack.Screen name="Timer" component={Timer} />
       <TimerStack.Screen name="History" component={TimerLogs} />
     </TimerStack.Navigator>
@@ -90,34 +87,22 @@ function StackRoutes() {
   );
 }
 
-
-
 const BottomTabNavigator = () => {
   return (
-    <Drawer.Navigator
-      initialRouteName="Home"
-      screenOptions={{ headerTitle: '' }}
-    >
-      <Drawer.Screen name="Home" component={BottomTabNavigator2} />
+    <Drawer.Navigator initialRouteName="Home" screenOptions={{ headerTitle: '' }}>
+      <Drawer.Screen name="Home" component={MainComponent} />
       <Drawer.Screen name="Profile" component={UserProfileStackScreen} />
     </Drawer.Navigator>
   );
-
-
 };
 
-
-
-// const BottomTabNavigator2 = () => {
-
-function BottomTabNavigator2() {
+function MainComponent() {
   const [taskName, setTaskName] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedDays, setSelectedDays] = useState([]);
-
-
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [dailyPressed, setDailyPressed] = useState(false);
 
   const togglePopup = () => {
     setIsPopupVisible(!isPopupVisible);
@@ -142,6 +127,7 @@ function BottomTabNavigator2() {
   };
 
   const handleDailyPress = () => {
+    setDailyPressed(!dailyPressed);
     const allChecked = checkboxes.every((checkbox) => checkbox.checked);
     const updatedCheckboxes = checkboxes.map((checkbox) => ({
       ...checkbox,
@@ -151,11 +137,11 @@ function BottomTabNavigator2() {
   };
 
   const data = [
-    { label:  "Morning Routine", value: "1" },
-    { label:  "Sport", value: "2" },
-    { label:  "Learning", value: "3" },
+    { label: 'Morning Routine', value: '1' },
+    { label: 'Sport', value: '2' },
+    { label: 'Learning', value: '3' },
     // { label:  "Add category +", value: "Add category +" },
-  ]
+  ];
 
   const [checkboxes, setCheckboxes] = useState([
     { day: '월', checked: false },
@@ -166,6 +152,46 @@ function BottomTabNavigator2() {
     { day: '토', checked: false },
     { day: '일', checked: false },
   ]);
+
+  useEffect(() => {
+    if (!isPopupVisible) {
+      setCheckboxes(checkboxes.map((checkbox) => ({ ...checkbox, checked: false })));
+      setDailyPressed(false);
+    }
+  }, [isPopupVisible]);
+
+  const category_random_Id= uuid.v4();
+  const auth = FIREBASE_AUTH;
+  const uid = auth.currentUser.uid;
+
+  //sendind todo data to firebase
+  const create = async (uid) => {
+    console.log("reached here too")
+    try {
+      await setDoc(doc(FIREBASE_DB, 'todo-list', uid, 'category_learning', category_random_Id), {  //session3 should not be manually entered, we need to update number of sessions  
+        categoryName: selectedCategory,
+        categoryColor: selectedColor,
+        isChecked: false,
+        categoryItems: taskName,
+        categoryDays: selectedDays,
+        categoryId: category_random_Id,
+      });
+    } catch (error) {
+      console.log("Error writing document: ", error);
+    }
+  };
+
+  const sendData = async () => {
+    console.log("reached here")
+    await create(uid);
+  };
+
+  const handleSave = () => {  
+    // Save the session details to the database
+    togglePopup(); // Close the popup
+    sendData();
+  };
+
 
 
   return (
@@ -198,35 +224,37 @@ function BottomTabNavigator2() {
                 return <Ionicons name={iconName} size={size} color={color} />;
               case ROUTES.BOTTOM_DRAWER:
                 iconName = focused ? 'add-circle' : 'add-circle-outline';
-                 return <Ionicons name={iconName} size={size} color={color} />;
+                return <Ionicons name={iconName} size={size} color={color} />;
               default:
                 return null;
             }
           },
         })}
       >
-        <Tab.Screen component={StackRoutes} name={ROUTES.HOME_TAB}/>
-        <Tab.Screen 
-          name={ROUTES.TIMER} component={TimerStackScreen} />
+        <Tab.Screen component={StackRoutes} name={ROUTES.HOME_TAB} />
+        <Tab.Screen name={ROUTES.TIMER} component={TimerStackScreen} />
         <Tab.Screen
           name={ROUTES.BOTTOM_DRAWER}
           component={Calendar}
           options={{
             tabBarButton: () => (
               <TouchableOpacity onPress={togglePopup} style={styles.tabBarButton}>
-                <Ionicons name='add-circle-outline' color='black' size={40} />
+                <Ionicons name="add-circle-outline" color="black" size={40} />
               </TouchableOpacity>
             ),
           }}
         />
-        <Tab.Screen name={ROUTES.CALENDAR} component={Calendar}/>
+        <Tab.Screen name={ROUTES.CALENDAR} component={Calendar} />
         <Tab.Screen name={ROUTES.COMMUNITY} component={CommunityStackScreen} />
       </Tab.Navigator>
       {isPopupVisible && (
         <Modal transparent={true} animationType="slide" visible={isPopupVisible} onRequestClose={togglePopup}>
           <View style={styles.modalContainer}>
             <View style={styles.popup}>
-            <View style={styles.dayButtonsContainer}>
+              <TouchableOpacity style={styles.closeButton} onPress={togglePopup}>
+                <Ionicons name="close" size={25} color="black" />
+              </TouchableOpacity>
+              <View style={styles.dayButtonsContainer}>
                 {checkboxes.map((checkbox, index) => (
                   <TouchableOpacity
                     key={index}
@@ -239,42 +267,53 @@ function BottomTabNavigator2() {
                   </TouchableOpacity>
                 ))}
               </View>
-              <TouchableOpacity style={styles.dailyButton} onPress={handleDailyPress}>
+              <TouchableOpacity
+                style={[styles.dailyButton, dailyPressed && styles.dailyButtonPressed]}
+                onPress={handleDailyPress}
+              >
                 <Text style={styles.dailyButtonText}>Daily</Text>
               </TouchableOpacity>
-              
-
-            <Text style={styles.popupText}>Task</Text>
-              <Input style={{borderColor: 'black', borderWidth: 1, borderRadius: 5, marginLeft: -10}} placeholder=" Enter task name" onChangeText={handleTaskNameChange}>{" "}</Input>
-            <Text style={styles.popupText}>Color</Text>
-              <Input style={{borderColor: 'black', borderWidth: 1, borderRadius: 5, marginLeft: -10}} placeholder=" Enter color name" onChangeText={handleColorSelect}>{" "}</Input> 
-            <Text style={styles.popupText}>Category</Text>
+              <Text style={styles.popupText}>Task</Text>
+              <Input
+                style={{ borderColor: 'black', borderWidth: 1, borderRadius: 5, marginLeft: -10 }}
+                placeholder=" Enter task name"
+                onChangeText={handleTaskNameChange}
+              >
+                {' '}
+              </Input>
+              <Text style={styles.popupText}>Color</Text>
+              <Input
+                style={{ borderColor: 'black', borderWidth: 1, borderRadius: 5, marginLeft: -10 }}
+                placeholder=" Enter color name"
+                onChangeText={handleColorSelect}
+              >
+                {' '}
+              </Input>
+              <Text style={styles.popupText}>Category</Text>
               <Dropdown
-              labelField="label"
-              valueField="value"
-              onChange={item => {
-                setSelectedCategory(item.label);
-                console.log("selected color:",selectedColor);
-                console.log("selected category:", selectedCategory);
-                console.log("task name:",taskName);
-                console.log("selected days:",selectedDays)
-              }}
-              placeholder=' Select category'
-              style={{width: 330 ,borderColor: 'black', borderWidth: 1, borderRadius: 10}} data={data} onChangeText={handleCategorySelect} />
+                labelField="label"
+                valueField="value"
+                onChange={(item) => {
+                  setSelectedCategory(item.label);
+                  console.log('selected days:', selectedDays);
+                }}
+                placeholder=" Select category"
+                style={{ width: 330, borderColor: 'black', borderWidth: 1, borderRadius: 10 }}
+                data={data}
+                onChangeText={handleCategorySelect}
+              />
               <TouchableOpacity style={styles.closeButton} onPress={togglePopup}>
-                <Text style={styles.closeButtonText}>Save</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.closeButton} onPress={togglePopup}>
-                <Text style={styles.closeButtonText}>Close</Text>
+              <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+                <Text style={styles.saveButtonText}>Save</Text>
               </TouchableOpacity>
-              
             </View>
           </View>
         </Modal>
       )}
     </View>
   );
-};        
+}
 
 const styles = StyleSheet.create({
   modalContainer: {
@@ -283,12 +322,12 @@ const styles = StyleSheet.create({
     borderWidth: 5,
     backgroundColor: 'rgba(100,100,100, 0.5)',
   },
-  popup: {   //some changes are needed to adjust the size
+  popup: {
     backgroundColor: 'white',
-    padding: 20, ///changed to fit all inputs
+    padding: 20,
     borderRadius: 10,
     position: 'absolute',
-    left: 0, 
+    left: 0,
     right: 0,
   },
   popupText: {
@@ -298,17 +337,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   closeButton: {
-    marginTop: 20,
+    position: 'absolute',
+    top: 0,
+    right: 0,
     padding: 10,
-    backgroundColor: 'gray',
-    borderRadius: 5,
-    marginLeft: 140,
-    width: 60,
+    zIndex: 1,
   },
   closeButtonText: {
-    color: 'white',
+    color: 'black',
     fontWeight: 'bold',
-    
   },
   tabBarButton: {
     flex: 1,
@@ -347,13 +384,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 10,
     paddingHorizontal: 20,
-    backgroundColor: 'gray',
+    backgroundColor: 'black', 
     borderRadius: 5,
     marginBottom: 20,
+  },
+  dailyButtonPressed: {
+    backgroundColor: 'green',
   },
   dailyButtonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  saveButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: 'black',
+    borderRadius: 5,
+    marginLeft: 140,
+    width: 60,
+  },
+  saveButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    marginLeft: 4,
+    
   },
 });
 

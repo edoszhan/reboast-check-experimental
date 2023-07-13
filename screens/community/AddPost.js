@@ -13,6 +13,7 @@ const AddPost = () => {
   const [postTopic, setPostTopic] = useState('');
   const navigation = useNavigation();
 
+
   const now = new Date();
   const currentDay = now.toLocaleDateString('en-US', {weekday: "long"});
   const currentTime = now.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'});
@@ -22,6 +23,7 @@ const AddPost = () => {
     if (postTopic && postContent) {
       const auth = FIREBASE_AUTH;
       const uid = auth.currentUser.uid;
+      const photo = auth.currentUser.photoURL;  //null right now
       const postId = uuid.v4();
 
       try {
@@ -33,6 +35,7 @@ const AddPost = () => {
           userId: uid,
           postId: postId,
           createdAt: serverTimestamp() ? serverTimestamp() : postCreatedDateTime,
+          photoURL: photo,
         });
       } catch (error) {
         console.log("Error writing document: ", error);

@@ -7,7 +7,7 @@ import { deleteDoc, doc } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
 import { orderBy } from 'firebase/firestore';
-
+import { Image } from 'react-native';
 import Logo from '../../assets/icons/LOGO.svg';
 import { Entypo } from '@expo/vector-icons'; 
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
@@ -109,8 +109,19 @@ const CommunityScreen = ({route}) => {
           <View key={index} style={styles.sessionContainer}>
             <View style={styles.sessionHeader}>
               <View style={styles.sessionHeaderLeft}>
-                <Logo width={24} height={24} style={styles.mr7} />
-                <Text style={{ fontSize: 16 }}>u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
+              {session.photoURL ? (
+                  <Image
+                    source={{ uri: session.photoURL }}
+                    width={24} height={24}
+                    borderRadius={12}
+                    style={styles.mr7}
+                  />
+                ) : (
+                  <Logo width={24} height={24} style={styles.mr7} />
+                )}
+                {/* <Logo width={24} height={24} style={styles.mr7} /> */}
+                {/* <Image source={{ uri: session.photoURL }} style={{ width: 24, height: 24, borderRadius: 12 }} /> */}
+                <Text style={{ fontSize: 16 }}> u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
               </View>
               {handlePost(session)}
             </View>

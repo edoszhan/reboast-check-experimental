@@ -33,7 +33,7 @@ const CommunityScreen = ({route}) => {
 
 
   const fetchSessions = async () => {
-    const q = query(collection(FIREBASE_DB, 'community-chat'), orderBy('postCreatedDateTime', 'desc'));
+    const q = query(collection(FIREBASE_DB, 'community-chat'), orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
     const sessionData = [];
     querySnapshot.forEach((doc) => {

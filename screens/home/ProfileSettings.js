@@ -15,7 +15,7 @@ const ProfileSettings = () => {
     launchImageLibrary(options, (response) => {
       if (response.assets && response.assets.length > 0) {
         setSelectImage(response.assets[0].uri);
-        console.log(response.assets[0].uri);
+        console.log(response.assets[0].uri); 
       }
     });
   };

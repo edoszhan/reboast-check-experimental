@@ -117,6 +117,7 @@ function BottomTabNavigator2() {
 
 
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const togglePopup = () => {
     setIsPopupVisible(!isPopupVisible);
@@ -209,29 +210,13 @@ function BottomTabNavigator2() {
         <Tab.Screen name={ROUTES.COMMUNITY} component={CommunityStackScreen} />
       </Tab.Navigator>
       {isPopupVisible && (
-        <Modal animationType="slide" transparent={true} visible={isPopupVisible} onRequestClose={togglePopup}>
+        <Modal transparent={true} animationType="slide" visible={isPopupVisible} onRequestClose={togglePopup}>
           <View style={styles.modalContainer}>
             <View style={styles.popup}>
-            <Text style={styles.popupText}>Task Name</Text>
-              <Input placeholder="Enter task name" onChangeText={handleTaskNameChange} />
-              {/* <Text style={styles.popupText}>Popup Content</Text> */}
-              <Text style={styles.popupText}>Color</Text>
-              {/* <ButtonGroup
-                onPress={handleColorSelect}
-                selectedIndex={selectedColorIndex}
-                buttons={['Red', 'Green', 'Blue']} // Replace with your desired colors
-              /> */}
-
-              <Text style={styles.popupText}>Category</Text>
-              
-              <Dropdown
-                placeholder="Select category"
-                data={data} // Replace with your category options
-                onChangeText={handleCategorySelect}
-              />
-
-
-
+            <Text style={styles.popupText}>Task</Text>
+              <Input style={{borderColor: 'black', borderWidth: 1, borderRadius: 5, marginLeft: -10}} placeholder=" Enter task name" onChangeText={handleTaskNameChange}>{" "}</Input> 
+            <Text style={styles.popupText}>Category</Text>
+              <Dropdown style={{width: 330 ,borderColor: 'black', borderWidth: 1, borderRadius: 10}} data={data} onChangeText={handleCategorySelect} />
               <TouchableOpacity style={styles.closeButton} onPress={togglePopup}>
                 <Text style={styles.closeButtonText}>Close</Text>
               </TouchableOpacity>
@@ -247,28 +232,25 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    borderWidth: 5,
     backgroundColor: 'rgba(100,100,100, 0.5)',
   },
   popup: {   //some changes are needed to adjust the size
     backgroundColor: 'white',
-    padding: 20,
+    padding: 20, ///changed to fit all inputs
     borderRadius: 10,
-    alignItems: 'center',
     position: 'absolute',
-    // bottom: 0,
     left: 0,
     right: 0,
-    maxHeight: height / 2,
   },
   popupText: {
     fontSize: 20,
     fontWeight: 'bold',
+    marginRight: 240,
     marginBottom: 10,
   },
   closeButton: {
     marginTop: 20,
-    // marginBottom: 1,
     padding: 10,
     backgroundColor: 'gray',
     borderRadius: 5,

@@ -27,6 +27,7 @@ const UserProfileStack = createStackNavigator();
 
 import { Dimensions } from 'react-native';
 import CommunityScreen from '../screens/home/CommunityScreen';
+import { set } from 'react-native-reanimated';
 const { height } = Dimensions.get('window');
 
 
@@ -117,7 +118,6 @@ function BottomTabNavigator2() {
 
 
   const [isPopupVisible, setIsPopupVisible] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
 
   const togglePopup = () => {
     setIsPopupVisible(!isPopupVisible);
@@ -135,24 +135,37 @@ function BottomTabNavigator2() {
     setSelectedCategory(category);
   };
 
-  const handleDaySelect = (day) => {
-    const updatedSelectedDays = [...selectedDays];
-    const index = updatedSelectedDays.indexOf(day);
+  const handleDayPress = (index) => {
+    const updatedCheckboxes = [...checkboxes];
+    updatedCheckboxes[index].checked = !updatedCheckboxes[index].checked;
+    setCheckboxes(updatedCheckboxes);
+  };
 
-    if (index > -1) {
-      updatedSelectedDays.splice(index, 1);
-    } else {
-      updatedSelectedDays.push(day);
-    }
-
-    setSelectedDays(updatedSelectedDays);
+  const handleDailyPress = () => {
+    const allChecked = checkboxes.every((checkbox) => checkbox.checked);
+    const updatedCheckboxes = checkboxes.map((checkbox) => ({
+      ...checkbox,
+      checked: !allChecked,
+    }));
+    setCheckboxes(updatedCheckboxes);
   };
 
   const data = [
-    { label:  "Morning Routine" },
-    { label:  "Sport" },
-    { label:  "Learning" },
+    { label:  "Morning Routine", value: "1" },
+    { label:  "Sport", value: "2" },
+    { label:  "Learning", value: "3" },
+    // { label:  "Add category +", value: "Add category +" },
   ]
+
+  const [checkboxes, setCheckboxes] = useState([
+    { day: '월', checked: false },
+    { day: '화', checked: false },
+    { day: '수', checked: false },
+    { day: '목', checked: false },
+    { day: '금', checked: false },
+    { day: '토', checked: false },
+    { day: '일', checked: false },
+  ]);
 
 
   return (
@@ -213,20 +226,55 @@ function BottomTabNavigator2() {
         <Modal transparent={true} animationType="slide" visible={isPopupVisible} onRequestClose={togglePopup}>
           <View style={styles.modalContainer}>
             <View style={styles.popup}>
+            <View style={styles.dayButtonsContainer}>
+                {checkboxes.map((checkbox, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[styles.dayButton, checkbox.checked && styles.checkedDayButton]}
+                    onPress={() => [handleDayPress(index), setSelectedDays(selectedDays => [checkboxes[index].day])]}
+                  >
+                    <Text style={[styles.dayButtonText, checkbox.checked && styles.checkedDayButtonText]}>
+                      {checkbox.day}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <TouchableOpacity style={styles.dailyButton} onPress={handleDailyPress}>
+                <Text style={styles.dailyButtonText}>Daily</Text>
+              </TouchableOpacity>
+              
+
             <Text style={styles.popupText}>Task</Text>
-              <Input style={{borderColor: 'black', borderWidth: 1, borderRadius: 5, marginLeft: -10}} placeholder=" Enter task name" onChangeText={handleTaskNameChange}>{" "}</Input> 
+              <Input style={{borderColor: 'black', borderWidth: 1, borderRadius: 5, marginLeft: -10}} placeholder=" Enter task name" onChangeText={handleTaskNameChange}>{" "}</Input>
+            <Text style={styles.popupText}>Color</Text>
+              <Input style={{borderColor: 'black', borderWidth: 1, borderRadius: 5, marginLeft: -10}} placeholder=" Enter color name" onChangeText={handleColorSelect}>{" "}</Input> 
             <Text style={styles.popupText}>Category</Text>
-              <Dropdown style={{width: 330 ,borderColor: 'black', borderWidth: 1, borderRadius: 10}} data={data} onChangeText={handleCategorySelect} />
+              <Dropdown
+              labelField="label"
+              valueField="value"
+              onChange={item => {
+                setSelectedCategory(item.label);
+                console.log("selected color:",selectedColor);
+                console.log("selected category:", selectedCategory);
+                console.log("task name:",taskName);
+                console.log("selected days:",selectedDays)
+              }}
+              placeholder=' Select category'
+              style={{width: 330 ,borderColor: 'black', borderWidth: 1, borderRadius: 10}} data={data} onChangeText={handleCategorySelect} />
+              <TouchableOpacity style={styles.closeButton} onPress={togglePopup}>
+                <Text style={styles.closeButtonText}>Save</Text>
+              </TouchableOpacity>
               <TouchableOpacity style={styles.closeButton} onPress={togglePopup}>
                 <Text style={styles.closeButtonText}>Close</Text>
               </TouchableOpacity>
+              
             </View>
           </View>
         </Modal>
       )}
     </View>
   );
-};
+};        
 
 const styles = StyleSheet.create({
   modalContainer: {
@@ -240,7 +288,7 @@ const styles = StyleSheet.create({
     padding: 20, ///changed to fit all inputs
     borderRadius: 10,
     position: 'absolute',
-    left: 0,
+    left: 0, 
     right: 0,
   },
   popupText: {
@@ -254,15 +302,58 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: 'gray',
     borderRadius: 5,
+    marginLeft: 140,
+    width: 60,
   },
   closeButtonText: {
     color: 'white',
     fontWeight: 'bold',
+    
   },
   tabBarButton: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  dayButtonsContainer: {
+    flexDirection: 'row',
+    marginTop: 10,
+    marginBottom: 20,
+    marginLeft: 20,
+  },
+  dayButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'gray',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  checkedDayButton: {
+    backgroundColor: 'green',
+    borderColor: 'green',
+  },
+  dayButtonText: {
+    fontSize: 16,
+    color: 'gray',
+  },
+  checkedDayButtonText: {
+    color: 'white',
+  },
+  dailyButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: 'gray',
+    borderRadius: 5,
+    marginBottom: 20,
+  },
+  dailyButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 

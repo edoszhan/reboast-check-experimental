@@ -120,8 +120,6 @@ const CommunityScreen = ({route}) => {
                 ) : (
                   <Logo width={24} height={24} style={styles.mr7} />
                 )}
-                {/* <Logo width={24} height={24} style={styles.mr7} /> */}
-                {/* <Image source={{ uri: session.photoURL }} style={{ width: 24, height: 24, borderRadius: 12 }} /> */}
                 <Text style={{ fontSize: 16 }}> u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
               </View>
               {handlePost(session)}
@@ -137,9 +135,6 @@ const CommunityScreen = ({route}) => {
                 <Text style={styles.sessionText}>{session.postContent ? session.postContent : 'No content'}</Text>
               </View>
             </TouchableOpacity>
-            {/* <TouchableOpacity style={styles.deleteButton} onPress={() => deleteSession(session.postId, session.userId)}>
-              <Text style={styles.deleteButtonText}>Delete</Text>
-            </TouchableOpacity> */}
           </View>
         ))}
       </View>

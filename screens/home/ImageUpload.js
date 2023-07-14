@@ -24,17 +24,20 @@ const ImageUpload = () => {
         setSelectImage(response.assets[0].uri);
         console.log(response.assets[0].uri);
 
+        const auth = FIREBASE_AUTH;
+
         // Update Firestore with the new photoURL
         try {
-          const auth = FIREBASE_AUTH;
           const uid = auth.currentUser.uid;
           await updateDoc(doc(FIREBASE_DB, 'users-info', uid), {
             photoURL: response.assets[0].uri,
           });
           console.log('Document successfully updated!');
+          console.log(response.assets[0].uri);
         } catch (error) {
           console.log('Error updating document: ', error);
         }
+        console.log("user", auth.currentUser);
         navigation.navigate(ROUTES.USER_PROFILE, {refresh: "true"});
       }
     });

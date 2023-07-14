@@ -40,6 +40,8 @@ const AddPost = () => {
       } catch (error) {
         console.log("Error writing document: ", error);
       }
+      console.log("Document successfully written!");  
+
       navigation.navigate(ROUTES.COMMUNITY, {refresh: true});
       // navigation.goBack();
 

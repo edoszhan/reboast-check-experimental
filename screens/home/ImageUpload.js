@@ -6,6 +6,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { FIREBASE_AUTH } from '../../config/firebase';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
+import { updateDoc } from 'firebase/firestore';
 
 
 const ImageUpload = () => {
@@ -24,21 +25,15 @@ const ImageUpload = () => {
         console.log(response.assets[0].uri);
 
         // Update Firestore with the new photoURL
-
         try {
           const auth = FIREBASE_AUTH;
-          const email = auth.currentUser.email;
           const uid = auth.currentUser.uid;
-          const name = auth.currentUser.displayName;
-          await setDoc(doc(FIREBASE_DB, 'users-info', uid), {
-            displayName: name,
-            email: email,
-            userId: uid,
+          await updateDoc(doc(FIREBASE_DB, 'users-info', uid), {
             photoURL: response.assets[0].uri,
           });
-          console.log('Document successfully written!');
+          console.log('Document successfully updated!');
         } catch (error) {
-          console.log('Error writing document: ', error);
+          console.log('Error updating document: ', error);
         }
         navigation.navigate(ROUTES.USER_PROFILE, {refresh: "true"});
       }

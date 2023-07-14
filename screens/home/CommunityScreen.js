@@ -16,6 +16,7 @@ import { RefreshControl } from 'react-native';
 
 const CommunityScreen = ({route}) => {
   const params = route.params ? route.params : "false";
+  console.log(params);
   const navigation = useNavigation();
   const [sessions, setSessions] = useState([]);
 

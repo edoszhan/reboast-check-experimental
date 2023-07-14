@@ -20,29 +20,18 @@ import { setDoc, doc } from 'firebase/firestore';
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
 const TimerStack = createStackNavigator();
-const HomeStack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 const UserProfileStack = createStackNavigator();
 
 import { Dimensions } from 'react-native';
 import CommunityScreen from '../screens/home/CommunityScreen';
-import { set } from 'react-native-reanimated';
 const { height } = Dimensions.get('window');
-
-// const HomeStackScreen = () => {
-//   return (
-//     <HomeStack.Navigator>
-//       <HomeStack.Screen name="Home" component={Home} />
-//       <HomeStack.Screen name="User Profile" component={Profile} />
-//     </HomeStack.Navigator>
-//   );
-// };
 
 const CommunityStackScreen = () => {
   return (
     <ProfileStack.Navigator screenOptions={{ headerShown: true }}>
-      <ProfileStack.Screen name="Community Chat" component={CommunityScreen} /> 
+      <ProfileStack.Screen name={ROUTES.COMMUNITY} component={CommunityScreen} /> 
       <ProfileStack.Screen name={ROUTES.ADD_POST_SCREEN} component={AddPost} />
       <ProfileStack.Screen name={ROUTES.POST_INFORMATION} component={PostInformation} />
     </ProfileStack.Navigator>

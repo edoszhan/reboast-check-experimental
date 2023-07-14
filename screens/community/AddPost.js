@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, TextInput, TouchableOpacity, View, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { FIREBASE_AUTH } from '../../config/firebase';
 import uuid from 'react-native-uuid';
@@ -13,19 +13,19 @@ const AddPost = () => {
   const [postTopic, setPostTopic] = useState('');
   const navigation = useNavigation();
 
+
   const now = new Date();
   const currentDay = now.toLocaleDateString('en-US', {weekday: "long"});
-  const currentTime = now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+  const currentTime = now.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'});
 
   const postCreatedDateTime = currentDay + " " + currentTime;  //we might change the formatting later
   const handlePostCreation = async () => {
     if (postTopic && postContent) {
       const auth = FIREBASE_AUTH;
       const uid = auth.currentUser.uid;
+      const photo = auth.currentUser.photoURL;  //null right now
       const postId = uuid.v4();
-      // const user = auth.currentUser;
-      // console.log(user);
-      // console.log("here", auth.currentUser);
+
       try {
         await setDoc(doc(FIREBASE_DB, 'community-chat', postId), {
           postTopic: postTopic,
@@ -34,12 +34,17 @@ const AddPost = () => {
           postCreatedDateTime: postCreatedDateTime,
           userId: uid,
           postId: postId,
+          createdAt: serverTimestamp() ? serverTimestamp() : postCreatedDateTime,
+          photoURL: photo,
         });
       } catch (error) {
         console.log("Error writing document: ", error);
       }
-      // navigation.navigate(ROUTES.COMMUNITY);
-      navigation.goBack();
+      console.log("Document successfully written!");  
+
+      navigation.navigate(ROUTES.COMMUNITY, {refresh: true});
+      // navigation.goBack();
+
     }
   };
 

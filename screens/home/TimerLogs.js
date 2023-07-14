@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { collection, query, getDocs, orderBy } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
-import {FIREBASE_AUTH} from '../../config/firebase';
+import { FIREBASE_AUTH } from '../../config/firebase';
 
 import { ScrollView } from 'react-native-gesture-handler';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -12,9 +12,11 @@ const TimerLogs = () => {
   const [sessions, setSessions] = useState([]);
   const uid = FIREBASE_AUTH.currentUser.uid;
 
-
   const fetchSessions = async () => {
-    const q = query(collection(FIREBASE_DB, 'timer-logs', uid, 'sessions'), orderBy('sessionFinishTime', 'desc')); //timer sessions are ordered
+    const q = query(
+      collection(FIREBASE_DB, 'timer-logs', uid, 'sessions'),
+      orderBy('sessionFinishTime', 'desc')
+    );
     const querySnapshot = await getDocs(q);
     const sessionData = [];
     querySnapshot.forEach((doc) => {
@@ -31,7 +33,6 @@ const TimerLogs = () => {
   }, []);
 
   const deleteSession = async (sessionId) => {
-    console.log('sessionId', sessionId);
     try {
       await deleteDoc(doc(FIREBASE_DB, 'timer-logs', uid, 'sessions', sessionId));
       await fetchSessions();
@@ -42,45 +43,49 @@ const TimerLogs = () => {
 
   return (
     <ScrollView style={styles.container}>
-    <View style={styles.container}>
-      <Text style={styles.title}>History of Timer Sessions</Text>
-      {sessions.map((session, index) => (
-        <View key={index} style={styles.sessionContainer}>
-          <View style={styles.sessionBlock}>
-            <Text style={styles.sessionTitle}>Topic:</Text>
-            <Text style={styles.sessionText}>{session.sessionTopic}</Text>
-          </View>
+      <View style={styles.container}>
+        <Text style={styles.title}>History of Timer Sessions</Text>
+        {sessions.length < 1 ? ( // Check if sessions array is empty
+          <Text style={styles.noSessionsText}>No current timer sessions</Text>
+        ) : (
+          sessions.map((session, index) => (
+            <View key={index} style={styles.sessionContainer}>
+              <View style={styles.sessionBlock}>
+                <Text style={styles.sessionTitle}>Topic:</Text>
+                <Text style={styles.sessionText}>{session.sessionTopic}</Text>
+              </View>
           {/* <View style={styles.sessionBlock}> //memo only shown when you click on the session
             <Text style={styles.sessionTitle}>Memo:</Text>
             <Text style={styles.sessionText}>
               {session.sessionMemo ? session.sessionMemo : 'No memo'}
             </Text>
           </View> */}
-          <View style={styles.sessionBlock}>
-            <Text style={styles.sessionTitle}>Duration:</Text>
-            <Text style={styles.sessionText}>
-              {`${Math.floor(session.sessionDuration / 60)} minutes ${
-                session.sessionDuration % 60
-              } seconds`}
-            </Text>
-          </View>
-          <View style={styles.sessionBlock}>
-            <Text style={styles.sessionTitle}>Finished time:</Text>
-            <Text style={styles.sessionText}>{session.sessionFinishTime}</Text>
-          </View>
+              <View style={styles.sessionBlock}>
+                <Text style={styles.sessionTitle}>Duration:</Text>
+                <Text style={styles.sessionText}>
+                  {`${Math.floor(session.sessionDuration / 60)} minutes ${
+                    session.sessionDuration % 60
+                  } seconds`}
+                </Text>
+              </View>
+              <View style={styles.sessionBlock}>
+                <Text style={styles.sessionTitle}>Finished time:</Text>
+                <Text style={styles.sessionText}>{session.sessionFinishTime}</Text>
+              </View>
           {/* <View style={styles.sessionBlock}>
             <Text style={styles.sessionTitle}>Session Id:</Text>
             <Text style={styles.sessionText}>{session.sessionId}</Text>
           </View> */}
-          <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => deleteSession(session.sessionId)} // Call deleteSession function with session ID
-            >
-              <Text style={styles.deleteButtonText}>Delete</Text>
-            </TouchableOpacity>
-        </View>
-      ))}
-    </View>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => deleteSession(session.sessionId)}
+              >
+                <Text style={styles.deleteButtonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          ))
+        )}
+      </View>
     </ScrollView>
   );
 };
@@ -103,8 +108,8 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     padding: 10,
     borderRadius: 5,
-    width: '110%',    //change the sessioncontainer width because finished time was cut off
-    marginLeft: -10,  //change the marginleft because finished time was cut off
+    width: '110%',
+    marginLeft: -10,
   },
   sessionBlock: {
     flexDirection: 'row',
@@ -129,5 +134,10 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  noSessionsText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 200,
   },
 });

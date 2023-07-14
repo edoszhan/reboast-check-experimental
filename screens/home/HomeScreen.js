@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, StyleSheet, Text } from 'react-native';
 import { getAuth } from 'firebase/auth';
-import { getDoc, doc } from 'firebase/firestore';
+import { getDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 
 

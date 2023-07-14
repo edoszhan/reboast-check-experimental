@@ -7,13 +7,34 @@ import { deleteDoc, doc } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
 import { orderBy } from 'firebase/firestore';
+import { Image } from 'react-native';
+import Logo from '../../assets/icons/LOGO.svg';
+import { Entypo } from '@expo/vector-icons'; 
+import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
+import { RefreshControl } from 'react-native';
 
-const CommunityScreen = () => {
+
+const CommunityScreen = ({route}) => {
+  const params = route.params ? route.params : "false";
   const navigation = useNavigation();
   const [sessions, setSessions] = useState([]);
 
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(async () => {   //refreshing the page
+    setRefreshing(true);
+    try {
+      await fetchSessions();
+    } catch (error) {
+      console.log('Error fetching sessions: ', error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
+
   const fetchSessions = async () => {
-    const q = query(collection(FIREBASE_DB, 'community-chat'), orderBy('postCreatedDateTime', 'desc'));
+    const q = query(collection(FIREBASE_DB, 'community-chat'), orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
     const sessionData = [];
     querySnapshot.forEach((doc) => {
@@ -21,16 +42,33 @@ const CommunityScreen = () => {
       sessionData.push({ id: doc.id, ...data });
     });
     setSessions(sessionData);
+
   };
 
-  useEffect(() => {
+
+  if (params.refresh == true) {
     fetchSessions();
+    console.log("i did the thing");
+    params.refresh = "false";
+  }
+
+
+  useEffect(() => {
+    const fetchSessionsAndSetState = async () => {
+      try {
+        await fetchSessions();
+      } catch (error) { 
+        console.log('Error fetching sessions: ', error);
+      }
+    };
+  
+    fetchSessionsAndSetState();
   }, []);
 
   const deleteSession = async (postId, userId) => {
     try {
       if (FIREBASE_AUTH.currentUser.uid !== userId) {
-        alert('You can only delete your own post');
+        // alert('You can only delete your own post');
         return;
       }
       await deleteDoc(doc(FIREBASE_DB, 'community-chat', postId));
@@ -40,35 +78,64 @@ const CommunityScreen = () => {
     }
   };
 
+  const handlePost = (session) => {
+    if (FIREBASE_AUTH.currentUser.uid !== session.userId) {
+      return;
+    }
+    return (
+      <Menu>
+        <MenuTrigger>
+          <Entypo name="dots-three-vertical" size={24} color="black" />
+        </MenuTrigger>
+        <MenuOptions>
+          <MenuOption onSelect={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)} text='Edit' />
+          <MenuOption onSelect={() => deleteSession(session.postId, session.userId)}>
+            <Text style={{ color: 'red' }}>Delete</Text>
+          </MenuOption>
+        </MenuOptions>
+      </Menu>
+    );
+  };
+
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container}
+    refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }>
       <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)}>
         <Text style={styles.deleteButtonText}>Add post</Text>
       </TouchableOpacity> 
       <View style={styles.container}>
         {sessions.map((session, index) => (
-            <View style={styles.sessionContainer}>
-              <View style={styles.sessionBlock}>
-                <Text style={styles.sessionText}>u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
+          <View key={index} style={styles.sessionContainer}>
+            <View style={styles.sessionHeader}>
+              <View style={styles.sessionHeaderLeft}>
+              {session.photoURL ? (
+                  <Image
+                    source={{ uri: session.photoURL }}
+                    width={24} height={24}
+                    borderRadius={12}
+                    style={styles.mr7}
+                  />
+                ) : (
+                  <Logo width={24} height={24} style={styles.mr7} />
+                )}
+                <Text style={{ fontSize: 16 }}> u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
               </View>
-              <TouchableOpacity
-            key={index}
-            onPress={() => navigation.navigate(ROUTES.POST_INFORMATION, { postId: session.id })}
-          >
+              {handlePost(session)}
+            </View>
+            <View style={styles.sessionBlock}>
+              <Text style={{ color: 'grey', fontSize: 11 }}>{session.postCreatedDateTime}</Text>
+            </View>
+            <TouchableOpacity onPress={() => navigation.navigate(ROUTES.POST_INFORMATION, { postId: session.id })}>
               <View style={styles.sessionBlock}>
-              <Text style={{fontWeight:'bold', fontSize: 18}}>{session.postTopic}</Text>
+                <Text style={{ fontWeight: 'bold', fontSize: 18 }}>{session.postTopic}</Text>
               </View>
               <View style={styles.sessionBlock}>
                 <Text style={styles.sessionText}>{session.postContent ? session.postContent : 'No content'}</Text>
               </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => deleteSession(session.postId, session.userId)}
-              >
-                <Text style={styles.deleteButtonText}>Delete</Text>
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
+          </View>
         ))}
       </View>
     </ScrollView>
@@ -78,7 +145,7 @@ const CommunityScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 5,  //can be used effficiently to adjust size of the posts
+    padding: 5,
   },
   sessionContainer: {
     marginBottom: 20,
@@ -91,14 +158,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
-  },
-  sessionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginRight: 10,
-  },
-  sessionText: {
-    fontSize: 16,
   },
   deleteButton: {
     marginTop: 10,
@@ -116,6 +175,19 @@ const styles = StyleSheet.create({
     backgroundColor: 'green',
     padding: 10,
     borderRadius: 5,
+    alignItems: 'center',
+  },
+  mr7: {
+    marginRight: 7,
+  },
+  sessionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  sessionHeaderLeft: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
 });

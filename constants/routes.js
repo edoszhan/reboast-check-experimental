@@ -9,6 +9,7 @@ export default {
   
     // PROFILE: 'Profile',
     COMMUNITY: 'Community',
+    COMMUNITY_MAIN: 'Community Main',
     CALENDAR: 'Calendar',
     TIMER: 'Timer',
     TIMER_LOGS: 'History',

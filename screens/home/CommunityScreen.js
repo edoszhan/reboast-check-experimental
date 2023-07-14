@@ -13,6 +13,7 @@ import { Entypo } from '@expo/vector-icons';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { RefreshControl } from 'react-native';
 
+
 const CommunityScreen = ({route}) => {
   const params = route.params ? route.params : "false";
   const navigation = useNavigation();

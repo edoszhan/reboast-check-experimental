@@ -15,7 +15,6 @@ export default {
     USER_PROFILE: 'User Profile',
     USER_PROFILE_SETTINGS: 'User Profile Settings',
     POST_INFORMATION: 'Post Information',
-    TODO_SCREEN: 'Todo Screen',
   
     SETTINGS: 'Settings',
     ACCOUNT_SETTINGS: 'Account Settings',

@@ -30,19 +30,19 @@ import CommunityScreen from '../screens/home/CommunityScreen';
 import { set } from 'react-native-reanimated';
 const { height } = Dimensions.get('window');
 
-const HomeStackScreen = () => {
-  return (
-    <HomeStack.Navigator>
-      <HomeStack.Screen name="Home" component={Home} />
-      <HomeStack.Screen name="User Profile" component={Profile} />
-    </HomeStack.Navigator>
-  );
-};
+// const HomeStackScreen = () => {
+//   return (
+//     <HomeStack.Navigator>
+//       <HomeStack.Screen name="Home" component={Home} />
+//       <HomeStack.Screen name="User Profile" component={Profile} />
+//     </HomeStack.Navigator>
+//   );
+// };
 
 const CommunityStackScreen = () => {
   return (
     <ProfileStack.Navigator screenOptions={{ headerShown: true }}>
-      <ProfileStack.Screen name={ROUTES.COMMUNITY} component={CommunityScreen} />
+      <ProfileStack.Screen name="Community Chat" component={CommunityScreen} /> 
       <ProfileStack.Screen name={ROUTES.ADD_POST_SCREEN} component={AddPost} />
       <ProfileStack.Screen name={ROUTES.POST_INFORMATION} component={PostInformation} />
     </ProfileStack.Navigator>
@@ -52,7 +52,7 @@ const CommunityStackScreen = () => {
 const TimerStackScreen = () => {
   return (
     <TimerStack.Navigator screenOptions={{ headerShown: true }}>
-      <TimerStack.Screen name="Timer" component={Timer} />
+      <TimerStack.Screen name="Timers" component={Timer} />
       <TimerStack.Screen name="History" component={TimerLogs} />
     </TimerStack.Navigator>
   );
@@ -73,16 +73,16 @@ function StackRoutes() {
       <Stack.Screen
         name="home"
         component={Home}
-        options={({ navigation }) => ({
-          headerLeft: () => (
-            <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-              <Entypo name="dots-three-horizontal" size={25} />
-            </TouchableOpacity>
-          ),
-        })}
+        // options={({ navigation }) => ({
+        //   headerLeft: () => (
+        //     <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
+        //       <Entypo name="dots-three-horizontal" size={25} />
+        //     </TouchableOpacity>
+        //   ),
+        // })}
       />
 
-      <Stack.Screen name="User Profile" component={UserProfile} />
+      <Stack.Screen name="UserProfile" component={UserProfile} />
     </Stack.Navigator>
   );
 }

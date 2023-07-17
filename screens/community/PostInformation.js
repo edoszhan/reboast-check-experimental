@@ -4,7 +4,7 @@ import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect } from 'react';
 import { useState } from 'react';
-import { collection, query, getDocs} from 'firebase/firestore';
+import { collection, query, getDocs, orderBy, onSnapshot} from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { Image } from 'react-native';
 import { ROUTES } from '../../constants';
@@ -24,6 +24,29 @@ const PostInformation = ({route}) => {
   const navigation = useNavigation();
   const [sessions, setSessions] = useState([]);
   const [replyText, setReplyText] = useState('');
+  const [comments, setComments] = useState([]);
+
+  postId = params.postId;
+  const fetchComments = async () => {
+    const q = query(collection(FIREBASE_DB, 'community-comment', postId, 'comments'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const commentsData = [];
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        commentsData.push({ id: doc.id, ...data });
+      });
+      setComments(commentsData);
+    });
+
+    return unsubscribe; // Return the unsubscribe function for cleanup
+  };
+
+
+  useEffect(() => {
+    const unsubscribe = fetchComments(); // Fetch sessions and subscribe to updates
+
+    return () => unsubscribe(); // Cleanup the subscription on component unmount
+  }, []);
 
   const fetchSessions = async () => {
     const q = query(collection(FIREBASE_DB, 'community-chat'));
@@ -85,11 +108,13 @@ const PostInformation = ({route}) => {
     }
   };
 
-  randomId = uuid.v4(); //randomly generated id
+
+  parentId = params.postId;
 
   const handleReply = async (postId) => {
+    randomId = uuid.v4(); //randomly generated id
     try {
-      await setDoc(doc(FIREBASE_DB, 'community-comment', randomId, 'comments', parentId), {
+      await setDoc(doc(FIREBASE_DB, 'community-comment', parentId, 'comments', randomId), {
         parentId: params.postId,
         postId: randomId, //randomly generated id
         replyAuthor: FIREBASE_AUTH.currentUser.displayName,
@@ -97,6 +122,7 @@ const PostInformation = ({route}) => {
         createdAt: serverTimestamp(),
         userId: FIREBASE_AUTH.currentUser.uid,
       });
+      console.log('Document successfully written!');
       setReplyText(''); // Clear the reply text input after submission
       await fetchSessions(); // Update the sessions with the new reply
     } catch (error) {
@@ -137,6 +163,14 @@ const PostInformation = ({route}) => {
               </View>
           </View>
         ))}
+          <View style={styles.commentsContainer}>
+              {comments.map((comment) => (
+                <View key={comment.id} style={styles.commentContainer}>
+                  <Text style={styles.commentAuthor}>{comment.replyAuthor}</Text>
+                  <Text style={styles.commentContent}>{comment.replyContent}</Text>
+                </View>
+              ))}
+            </View>
         <View style={styles.replyContainer}>
           <TextInput
             style={styles.replyInput}
@@ -232,5 +266,21 @@ const styles = StyleSheet.create({
   replyButtonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  commentsContainer: {
+    marginTop: 10,
+  },
+  commentContainer: {
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    borderRadius: 5,
+  },
+  commentAuthor: {
+    fontWeight: 'bold',
+  },
+  commentContent: {
+    marginTop: 5,
   },
 });

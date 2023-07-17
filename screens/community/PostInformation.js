@@ -14,10 +14,16 @@ import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-m
 import { FIREBASE_AUTH } from '../../config/firebase';
 import { deleteDoc, doc } from 'firebase/firestore';
 
+
+import { setDoc, serverTimestamp } from 'firebase/firestore';
+import { TextInput } from 'react-native';
+import uuid from 'react-native-uuid';
+
 const PostInformation = ({route}) => {
   const params = route.params ? route.params : "no post";
   const navigation = useNavigation();
   const [sessions, setSessions] = useState([]);
+  const [replyText, setReplyText] = useState('');
 
   const fetchSessions = async () => {
     const q = query(collection(FIREBASE_DB, 'community-chat'));
@@ -79,6 +85,25 @@ const PostInformation = ({route}) => {
     }
   };
 
+  randomId = uuid.v4(); //randomly generated id
+
+  const handleReply = async (postId) => {
+    try {
+      await setDoc(doc(FIREBASE_DB, 'community-comment', randomId, 'comments', parentId), {
+        parentId: params.postId,
+        postId: randomId, //randomly generated id
+        replyAuthor: FIREBASE_AUTH.currentUser.displayName,
+        replyContent: replyText,
+        createdAt: serverTimestamp(),
+        userId: FIREBASE_AUTH.currentUser.uid,
+      });
+      setReplyText(''); // Clear the reply text input after submission
+      await fetchSessions(); // Update the sessions with the new reply
+    } catch (error) {
+      console.log("Error writing document: ", error);
+    } 
+  };
+
   
   return (
     <ScrollView style={styles.container}>
@@ -112,6 +137,22 @@ const PostInformation = ({route}) => {
               </View>
           </View>
         ))}
+        <View style={styles.replyContainer}>
+          <TextInput
+            style={styles.replyInput}
+            placeholder="Type your reply"
+            value={replyText}
+            onChangeText={setReplyText}
+            multiline
+          />
+          <TouchableOpacity
+            style={styles.replyButton}
+            onPress={() => handleReply(params.postId)}
+            disabled={!replyText} // Disable the button if the reply text is empty
+          >
+            <Text style={styles.replyButtonText}>Reply</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
   );
@@ -166,5 +207,30 @@ const styles = StyleSheet.create({
   sessionHeaderLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  replyContainer: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 330,
+  },
+  replyInput: {
+    height: 50,  //size of the reply input box
+    padding: 5,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+  },
+  replyButton: {
+    backgroundColor: 'blue',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  replyButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });

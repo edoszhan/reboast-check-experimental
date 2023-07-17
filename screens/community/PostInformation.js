@@ -42,11 +42,11 @@ const PostInformation = ({route}) => {
   };
 
 
-  useEffect(() => {
-    const unsubscribe = fetchComments(); // Fetch sessions and subscribe to updates
+  // useEffect(() => {
+  //   const unsubscribe = fetchComments(); // Fetch sessions and subscribe to updates
 
-    return () => unsubscribe(); // Cleanup the subscription on component unmount
-  }, []);
+  //   return () => unsubscribe(); // Cleanup the subscription on component unmount
+  // }, []);
 
   const fetchSessions = async () => {
     const q = query(collection(FIREBASE_DB, 'community-chat'));
@@ -66,6 +66,7 @@ const PostInformation = ({route}) => {
     const fetchSessionsAndSetState = async () => {
       try {
         await fetchSessions();
+        await fetchComments();
       } catch (error) { 
         console.log('Error fetching sessions: ', error);
       }
@@ -134,6 +135,9 @@ const PostInformation = ({route}) => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.container}>
+
+        {/*session container starts*/}
+
         {sessions.map((session, index) => (
           <View key={index} style={styles.sessionContainer}>
             <View style={styles.sessionHeader}>
@@ -163,6 +167,10 @@ const PostInformation = ({route}) => {
               </View>
           </View>
         ))}
+
+          {/*session container finishes*/}
+
+          {/*comments container starts*/}
           <View style={styles.commentsContainer}>
               {comments.map((comment) => (
                 <View key={comment.id} style={styles.commentContainer}>
@@ -171,6 +179,12 @@ const PostInformation = ({route}) => {
                 </View>
               ))}
             </View>
+
+           {/*comments container finishes*/}
+
+
+           {/*reply container starts*/}
+
         <View style={styles.replyContainer}>
           <TextInput
             style={styles.replyInput}
@@ -187,6 +201,8 @@ const PostInformation = ({route}) => {
             <Text style={styles.replyButtonText}>Reply</Text>
           </TouchableOpacity>
         </View>
+
+         {/*reply container finishes*/}
       </View>
     </ScrollView>
   );
@@ -243,11 +259,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   replyContainer: {
+    bottom: 0,
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 10,
     borderRadius: 5,
-    marginTop: 330,
+    // marginTop: 330,
+    // position: 'absolute',
+    // bottom: 0,
+    // left: 0,
+    // right: 0,
+    // borderWidth: 1,
+    // borderColor: '#ccc',
+    // padding: 10,
+    // borderRadius: 5,
+    // backgroundColor: '#fff',
   },
   replyInput: {
     height: 50,  //size of the reply input box

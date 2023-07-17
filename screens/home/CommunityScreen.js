@@ -1,27 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { collection, query, getDocs } from 'firebase/firestore';
+import { collection, query, onSnapshot, orderBy, deleteDoc, doc } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { FIREBASE_AUTH } from '../../config/firebase';
-import { deleteDoc, doc } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
-import { orderBy } from 'firebase/firestore';
 import { Image } from 'react-native';
 import Logo from '../../assets/icons/LOGO.svg';
-import { Entypo } from '@expo/vector-icons'; 
+import { Entypo } from '@expo/vector-icons';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { RefreshControl } from 'react-native';
 
-
-const CommunityScreen = ({route}) => {
-  const params = route.params ? route.params : "false";
+const CommunityScreen = () => {
   const navigation = useNavigation();
   const [sessions, setSessions] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const [refreshing, setRefreshing] = React.useState(false);
-
-  const onRefresh = React.useCallback(async () => {   //refreshing the page
+  const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     try {
       await fetchSessions();
@@ -32,47 +27,33 @@ const CommunityScreen = ({route}) => {
     }
   }, []);
 
-
   const fetchSessions = async () => {
     const q = query(collection(FIREBASE_DB, 'community-chat'), orderBy('createdAt', 'desc'));
-    const querySnapshot = await getDocs(q);
-    const sessionData = [];
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      sessionData.push({ id: doc.id, ...data });
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const sessionData = [];
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        sessionData.push({ id: doc.id, ...data });
+      });
+      setSessions(sessionData);
     });
-    setSessions(sessionData);
 
+    return unsubscribe; // Return the unsubscribe function for cleanup
   };
 
 
-  if (params.refresh == true) {
-    fetchSessions();
-    console.log("i did the thing");
-    params.refresh = "false";
-  }
-
-
   useEffect(() => {
-    const fetchSessionsAndSetState = async () => {
-      try {
-        await fetchSessions();
-      } catch (error) { 
-        console.log('Error fetching sessions: ', error);
-      }
-    };
-  
-    fetchSessionsAndSetState();
+    const unsubscribe = fetchSessions(); // Fetch sessions and subscribe to updates
+
+    return () => unsubscribe(); // Cleanup the subscription on component unmount
   }, []);
 
   const deleteSession = async (postId, userId) => {
     try {
       if (FIREBASE_AUTH.currentUser.uid !== userId) {
-        // alert('You can only delete your own post');
         return;
       }
       await deleteDoc(doc(FIREBASE_DB, 'community-chat', postId));
-      await fetchSessions();
     } catch (error) {
       console.log('Error deleting document: ', error);
     }
@@ -88,8 +69,8 @@ const CommunityScreen = ({route}) => {
           <Entypo name="dots-three-vertical" size={24} color="black" />
         </MenuTrigger>
         <MenuOptions>
-          <MenuOption onSelect={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)} text='Edit' />
-          <MenuOption onSelect={() => deleteSession(session.postId, session.userId)}>
+          <MenuOption onSelect={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)} text="Edit" />
+          <MenuOption onSelect={() => deleteSession(session.id, session.userId)}>
             <Text style={{ color: 'red' }}>Delete</Text>
           </MenuOption>
         </MenuOptions>
@@ -98,36 +79,39 @@ const CommunityScreen = ({route}) => {
   };
 
   return (
-    <ScrollView style={styles.container}
-    refreshControl={
-      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-    }>
+    <ScrollView
+      style={styles.container}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+    >
       <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)}>
         <Text style={styles.deleteButtonText}>Add post</Text>
-      </TouchableOpacity> 
+      </TouchableOpacity>
       <View style={styles.container}>
         {sessions.map((session, index) => (
           <View key={index} style={styles.sessionContainer}>
             <View style={styles.sessionHeader}>
               <View style={styles.sessionHeaderLeft}>
-              {session.photoURL ? (
+                {session.photoURL ? (
                   <Image
                     source={{ uri: session.photoURL }}
-                    width={24} height={24}
+                    width={24}
+                    height={24}
                     borderRadius={12}
                     style={styles.mr7}
                   />
                 ) : (
                   <Logo width={24} height={24} style={styles.mr7} />
                 )}
-                <Text style={{ fontSize: 16 }}> u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
+                <Text style={{ fontSize: 16 }}>u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
               </View>
               {handlePost(session)}
             </View>
             <View style={styles.sessionBlock}>
               <Text style={{ color: 'grey', fontSize: 11 }}>{session.postCreatedDateTime}</Text>
             </View>
-            <TouchableOpacity onPress={() => navigation.navigate(ROUTES.POST_INFORMATION, { postId: session.id })}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate(ROUTES.POST_INFORMATION, { postId: session.id })}
+            >
               <View style={styles.sessionBlock}>
                 <Text style={{ fontWeight: 'bold', fontSize: 18 }}>{session.postTopic}</Text>
               </View>

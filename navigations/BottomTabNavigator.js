@@ -25,13 +25,13 @@ const Stack = createStackNavigator();
 const UserProfileStack = createStackNavigator();
 
 import { Dimensions } from 'react-native';
-import CommunityScreen from '../screens/home/CommunityScreen';
+import CommunityScreen from '../screens/home/CommunityScreen'; 
 const { height } = Dimensions.get('window');
 
 const CommunityStackScreen = () => {
   return (
     <ProfileStack.Navigator screenOptions={{ headerShown: true }}>
-      <ProfileStack.Screen name={ROUTES.COMMUNITY} component={CommunityScreen} /> 
+      <ProfileStack.Screen name={ROUTES.COMMUNITY_MAIN} component={CommunityScreen} /> 
       <ProfileStack.Screen name={ROUTES.ADD_POST_SCREEN} component={AddPost} />
       <ProfileStack.Screen name={ROUTES.POST_INFORMATION} component={PostInformation} />
     </ProfileStack.Navigator>

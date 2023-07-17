@@ -4,12 +4,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { FIREBASE_AUTH } from '../../config/firebase';
 import { FIREBASE_DB } from '../../config/firebase';
-import { collection, query, getDocs, where } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore'; // Updated import
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
 
-const UserProfile = ({route}) => {
-  const params = route.params ? route.params : "false"; //refreshing the page
+const UserProfile = ({ route }) => {
+  const params = route.params ? route.params : 'false'; //refreshing the page
 
   const navigation = useNavigation();
   const auth = FIREBASE_AUTH;
@@ -17,29 +17,21 @@ const UserProfile = ({route}) => {
 
   const [info, setInfo] = useState([]);
 
-
-  const fetchSessions = async () => {
-    const q = query(collection(FIREBASE_DB, 'users-info'));
-    const querySnapshot = await getDocs(q);
-    const sessionData = [];
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      if (data.userId === uid) {
-        sessionData.push(data);
-      }
-    });
-    setInfo(sessionData);
-  };
-
-  if (params.refresh == "true") {
-    fetchSessions();
-    console.log("i did the thing but in another page");
-    params.refresh = "false";
-  }
-
   useEffect(() => {
-    fetchSessions();
-  }, []);
+    const unsubscribe = onSnapshot(
+      query(collection(FIREBASE_DB, 'users-info'), where('userId', '==', uid)),
+      (snapshot) => {
+        const sessionData = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          sessionData.push(data);
+        });
+        setInfo(sessionData);
+      }
+    );
+
+    return () => unsubscribe(); // Cleanup the subscription on component unmount
+  }, [uid]);
 
   const handleLogOut = () => {
     auth.signOut();
@@ -48,10 +40,10 @@ const UserProfile = ({route}) => {
   const handleSettingsPress = () => {
     navigation.navigate(ROUTES.USER_PROFILE_SETTINGS);
   };
+
   const user = {
     name: info.length > 0 ? info[0].displayName : 'Not found',
     photoURL: info.length > 0 ? info[0].photoURL : null,
-
   };
 
   return (

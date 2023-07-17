@@ -26,7 +26,6 @@ const PostInformation = ({route}) => {
     querySnapshot.forEach((doc) => {
       const data = doc.data();
       if (data.postId === params.postId) {
-        console.log(data);
         sessionData.push({ id: doc.id, ...data });
       }
     });

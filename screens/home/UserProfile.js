@@ -16,7 +16,7 @@ const UserProfile = ({ route }) => {
   const uid = auth.currentUser.uid;
 
   const [info, setInfo] = useState([]);
-
+  
   useEffect(() => {
     const unsubscribe = onSnapshot(
       query(collection(FIREBASE_DB, 'users-info'), where('userId', '==', uid)),
@@ -29,9 +29,12 @@ const UserProfile = ({ route }) => {
         setInfo(sessionData);
       }
     );
-
-    return () => unsubscribe(); // Cleanup the subscription on component unmount
+  
+    return () => {
+      unsubscribe(); // Unsubscribe from the Firestore snapshot listener
+    };
   }, [uid]);
+  
 
   const handleLogOut = () => {
     auth.signOut();
@@ -43,14 +46,18 @@ const UserProfile = ({ route }) => {
 
   const user = {
     name: info.length > 0 ? info[0].displayName : 'Not found',
-    photoURL: info.length > 0 ? info[0].photoURL : null,
+    photoURL: info.length > 0 ? `${info[0].photoURL}?timestamp=${Date.now()}` : null,
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.profileInfo}>
-        {user.photoURL ? (
-          <Image source={{ uri: user.photoURL }} style={styles.profileImage} />
+      {user.photoURL ? (
+      <Image
+        source={{ uri: user.photoURL }}
+        style={styles.profileImage}
+        onError={() => console.log('Failed to load image')}
+      />
         ) : (
           <Ionicons name="person-outline" size={100} color="gray" style={styles.profileIcon} />
         )}

@@ -147,6 +147,7 @@ const PostInformation = ({ route }) => {
         createdAt: serverTimestamp(),
         timeShown: commentCreatedDateTime,
         userId: FIREBASE_AUTH.currentUser.uid,
+        photoURL: FIREBASE_AUTH.currentUser.photoURL,
       });
       console.log('Document successfully written!');
       setReplyText('');

@@ -7,12 +7,8 @@ import { FIREBASE_AUTH } from '../../config/firebase';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
 import { updateDoc } from 'firebase/firestore';
-import { storage } from '../../config/firebase';
-import { Alert } from 'react-native';
+import { updateProfile } from 'firebase/auth';
 
-import * as ImagePicker from 'expo-image-picker';
-import { uploadBytesResumable } from 'firebase/storage';
-import { ref } from 'firebase/storage';
 
 const ImageUpload = () => {
   const navigation = useNavigation();
@@ -27,10 +23,17 @@ const ImageUpload = () => {
       },
     };
     launchImageLibrary(options, async (response) => {
+
       if (response.assets && response.assets.length > 0) {
         setSelectImage(response.assets[0].uri);
         const auth = FIREBASE_AUTH;
 
+        const user = auth.currentUser;
+        console.log(user);
+        await updateProfile(user, {
+          photoURL: response.assets[0].uri,
+        });
+        console.log(user);
         // Update Firestore with the new photoURL
         try {
           const uid = auth.currentUser.uid;
@@ -41,40 +44,10 @@ const ImageUpload = () => {
         } catch (error) {
           console.log('Error updating document: ', error);
         }
-        // console.log("user", auth.currentUser);
         navigation.navigate(ROUTES.USER_PROFILE, {refresh: "true"});
       }
     });
   };
-
-  
-    // async function pickImage() {
-    //   let result = await launchImageLibrary({
-    //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    //     allowsEditing: true,
-    //     aspect: [4, 3],
-    //     quality: 1,
-    //   });
-  
-    //   console.log(result);
-
-    //   if (!result.canceled) {
-    //     setImage(result.assets[0].uri);
-    //     //upload image to firebase
-    //     await uploadImage(result.assets[0].uri, "image");
-    //   }
-    // }
-
-    // async function uploadImage(uri, fileType) {
-    //   const response = await fetch(uri);
-    //   const blob = await response.blob();
-
-    //   const storageRef = ref(storage, "ProfilePictures/" + new Date().toString());
-    //   const uploadTask = uploadBytesResumable(storageRef, blob);
-
-    // }
-
-
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

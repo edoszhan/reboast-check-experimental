@@ -94,6 +94,25 @@ const PostInformation = ({route}) => {
       </Menu>
     );
   };
+  const handleComment = (comment) => {
+
+    if (FIREBASE_AUTH.currentUser.uid !== comment.userId) {
+      return;
+    }
+    return (
+      <Menu>
+        <MenuTrigger>
+          <Entypo name="dots-three-vertical" size={24} color="black" />
+        </MenuTrigger>
+        <MenuOptions>
+          <MenuOption onSelect={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)} text='Edit' />
+          <MenuOption onSelect={() => deleteSession(comment.postId, comment.userId)}>
+            <Text style={{ color: 'red' }}>Delete</Text>
+          </MenuOption>
+        </MenuOptions>
+      </Menu>
+    );
+  };
  //for now, we will have 2 or 3 deleteSession, then combine into one depending whether it is post, comment, or reply -> one deleteSession seems to be working fine
   const deleteSession = async (postId, userId) => {
     try {
@@ -194,7 +213,7 @@ const PostInformation = ({route}) => {
                    )}
                    <Text style={styles.commentAuthor}>u/{comment.replyAuthor}</Text>
                  </View>
-                 {handlePost(comment)}
+                 {handleComment(comment)}
                </View>
                <Text style={{ color: 'grey', fontSize: 10 }}>{comment.timeShown}</Text>
                <Text style={styles.commentContent}>{comment.replyContent}</Text>

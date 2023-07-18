@@ -48,6 +48,7 @@ const UserProfile = ({ route }) => {
     name: info.length > 0 ? info[0].displayName : 'Not found',
     photoURL: info.length > 0 ? `${info[0].photoURL}?timestamp=${Date.now()}` : null,
   };
+  // photoURL: info.length > 0 ? `${info[0].photoURL}?timestamp=${Date.now()}` : null,
 
   return (
     <SafeAreaView style={styles.container}>

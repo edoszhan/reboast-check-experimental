@@ -3,9 +3,7 @@ import ROUTES from "../constants/routes";
 import ForgotPassword from "../screens/auth/ForgotPassword";
 import Login from "../screens/auth/Login";
 import Register from "../screens/auth/Register";
-import { useNavigation } from "@react-navigation/native";
 import BottomTabNavigator from "./BottomTabNavigator";
-import { ActivityIndicator, View } from "react-native-paper";
 import COLORS from "../constants/colors";
 import { User } from "../config/firebase"
 import { FIREBASE_AUTH } from "../config/firebase";

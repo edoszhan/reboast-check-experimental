@@ -52,6 +52,8 @@ const CommunityScreen = () => {
     try {
       if (FIREBASE_AUTH.currentUser.uid !== userId) {
         return;
+        // await deleteDoc(doc(FIREBASE_DB, 'community-chat', postId));
+        // await fetchSessions();
       }
       Alert.alert(
         'Confirm Deletion',

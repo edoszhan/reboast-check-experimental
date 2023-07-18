@@ -8,7 +8,6 @@ import TimerLogs from '../screens/home/TimerLogs';
 import { TouchableOpacity, View, Text, Modal, StyleSheet } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import ProfileSettings from '../screens/home/ImageUpload';
-
 import { Input } from 'react-native-elements';
 import { Dropdown } from 'react-native-element-dropdown';
 import uuid from 'react-native-uuid';
@@ -26,6 +25,7 @@ const UserProfileStack = createStackNavigator();
 
 import { Dimensions } from 'react-native';
 import CommunityScreen from '../screens/home/CommunityScreen'; 
+import { ActivityIndicator } from 'react-native-paper';
 const { height } = Dimensions.get('window');
 
 const CommunityStackScreen = () => {
@@ -77,6 +77,23 @@ function StackRoutes() {
 }
 
 const BottomTabNavigator = () => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
+        <ActivityIndicator size="large" color="blue" />
+        <Text style={{ marginTop: 10 }}>Loading...</Text> 
+      </View>
+    );
+  }
+
   return (
     <Drawer.Navigator initialRouteName="Home" screenOptions={{ headerTitle: '' }}>
       <Drawer.Screen name="Home" component={MainComponent} />

@@ -94,23 +94,26 @@ const PostInformation = ({route}) => {
       </Menu>
     );
   };
-
+ //for now, we will have 2 or 3 deleteSession, then combine into one depending whether it is post, comment, or reply -> one deleteSession seems to be working fine
   const deleteSession = async (postId, userId) => {
     try {
       if (FIREBASE_AUTH.currentUser.uid !== userId) {
         // alert('You can only delete your own post');
         return;
       }
-      await deleteDoc(doc(FIREBASE_DB, 'community-chat', postId));
+      await deleteDoc(doc(FIREBASE_DB, 'community-chat', postId)); //deletes post alone
+      await deleteDoc(doc(FIREBASE_DB, 'community-comment', parentId, 'comments', postId));  //deletes comments
       await fetchSessions();
-      navigation.navigate(ROUTES.COMMUNITY, {refresh: true});
     } catch (error) {
       console.log('Error deleting document: ', error);
     }
   };
-
-
   parentId = params.postId;
+  const now = new Date();
+  const currentDay = now.toLocaleDateString('en-US', {weekday: "long"});
+  const currentTime = now.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'});
+
+  const commentCreatedDateTime = currentDay + " " + currentTime;  //we might change the formatting later
 
   const handleReply = async (postId) => {
     randomId = uuid.v4(); //randomly generated id
@@ -120,7 +123,9 @@ const PostInformation = ({route}) => {
         postId: randomId, //randomly generated id
         replyAuthor: FIREBASE_AUTH.currentUser.displayName,
         replyContent: replyText,
+        // createdAt: commentCreatedDateTime,
         createdAt: serverTimestamp(),
+        timeShown: commentCreatedDateTime,
         userId: FIREBASE_AUTH.currentUser.uid,
       });
       console.log('Document successfully written!');
@@ -173,10 +178,27 @@ const PostInformation = ({route}) => {
           {/*comments container starts*/}
           <View style={styles.commentsContainer}>
               {comments.map((comment) => (
-                <View key={comment.id} style={styles.commentContainer}>
-                  <Text style={styles.commentAuthor}>{comment.replyAuthor}</Text>
-                  <Text style={styles.commentContent}>{comment.replyContent}</Text>
-                </View>
+               <View key={comment.id} style={styles.commentContainer}>
+               <View style={styles.commentHeader}>
+                 <View style={styles.commentHeaderLeft}>
+                   {comment.photoURL ? (
+                     <Image
+                       source={{ uri: comment.photoURL }}
+                       width={24}
+                       height={24}
+                       borderRadius={12}
+                       style={styles.mr7}
+                     />
+                   ) : (
+                     <Logo width={24} height={24} style={styles.mr7} />
+                   )}
+                   <Text style={styles.commentAuthor}>u/{comment.replyAuthor}</Text>
+                 </View>
+                 {handlePost(comment)}
+               </View>
+               <Text style={{ color: 'grey', fontSize: 10 }}>{comment.timeShown}</Text>
+               <Text style={styles.commentContent}>{comment.replyContent}</Text>
+             </View>             
               ))}
             </View>
 
@@ -308,5 +330,15 @@ const styles = StyleSheet.create({
   },
   commentContent: {
     marginTop: 5,
+  },
+  commentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  commentHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

@@ -1,10 +1,10 @@
 import React from 'react';
-import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect } from 'react';
 import { useState } from 'react';
-import { collection, query, getDocs, orderBy, onSnapshot} from 'firebase/firestore';
+import { collection, query, getDocs, orderBy, onSnapshot } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { Image } from 'react-native';
 import { ROUTES } from '../../constants';
@@ -14,13 +14,12 @@ import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-m
 import { FIREBASE_AUTH } from '../../config/firebase';
 import { deleteDoc, doc } from 'firebase/firestore';
 
-
 import { setDoc, serverTimestamp } from 'firebase/firestore';
 import { TextInput } from 'react-native';
 import uuid from 'react-native-uuid';
 
-const PostInformation = ({route}) => {
-  const params = route.params ? route.params : "no post";
+const PostInformation = ({ route }) => {
+  const params = route.params ? route.params : 'no post';
   const navigation = useNavigation();
   const [sessions, setSessions] = useState([]);
   const [replyText, setReplyText] = useState('');
@@ -41,13 +40,6 @@ const PostInformation = ({route}) => {
     return unsubscribe; // Return the unsubscribe function for cleanup
   };
 
-
-  // useEffect(() => {
-  //   const unsubscribe = fetchComments(); // Fetch sessions and subscribe to updates
-
-  //   return () => unsubscribe(); // Cleanup the subscription on component unmount
-  // }, []);
-
   const fetchSessions = async () => {
     const q = query(collection(FIREBASE_DB, 'community-chat'));
     const querySnapshot = await getDocs(q);
@@ -59,7 +51,6 @@ const PostInformation = ({route}) => {
       }
     });
     setSessions(sessionData);
-
   };
 
   useEffect(() => {
@@ -67,16 +58,15 @@ const PostInformation = ({route}) => {
       try {
         await fetchSessions();
         await fetchComments();
-      } catch (error) { 
+      } catch (error) {
         console.log('Error fetching sessions: ', error);
       }
     };
-  
+
     fetchSessionsAndSetState();
   }, []);
 
   const handlePost = (session) => {
-
     if (FIREBASE_AUTH.currentUser.uid !== session.userId) {
       return;
     }
@@ -86,7 +76,7 @@ const PostInformation = ({route}) => {
           <Entypo name="dots-three-vertical" size={24} color="black" />
         </MenuTrigger>
         <MenuOptions>
-          <MenuOption onSelect={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)} text='Edit' />
+          <MenuOption onSelect={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)} text="Edit" />
           <MenuOption onSelect={() => deleteSession(session.postId, session.userId)}>
             <Text style={{ color: 'red' }}>Delete</Text>
           </MenuOption>
@@ -95,33 +85,44 @@ const PostInformation = ({route}) => {
     );
   };
   const handleComment = (comment) => {
-
     if (FIREBASE_AUTH.currentUser.uid !== comment.userId) {
-      return;
+      return (
+        <Menu>
+          <MenuTrigger>
+            <Entypo name="dots-three-vertical" size={24} color="black" />
+          </MenuTrigger>
+          <MenuOptions>
+            <MenuOption onSelect={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)}>
+              <Text style={{ color: 'blue' }}>Reply</Text>
+            </MenuOption>
+          </MenuOptions>
+        </Menu>
+      );
     }
-    return (
-      <Menu>
-        <MenuTrigger>
-          <Entypo name="dots-three-vertical" size={24} color="black" />
-        </MenuTrigger>
-        <MenuOptions>
-          <MenuOption onSelect={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)} text='Edit' />
-          <MenuOption onSelect={() => deleteSession(comment.postId, comment.userId)}>
-            <Text style={{ color: 'red' }}>Delete</Text>
-          </MenuOption>
-        </MenuOptions>
-      </Menu>
-    );
+    if (FIREBASE_AUTH.currentUser.uid == comment.userId) {
+      return (
+        <Menu>
+          <MenuTrigger>
+            <Entypo name="dots-three-vertical" size={24} color="black" />
+          </MenuTrigger>
+          <MenuOptions>
+            <MenuOption onSelect={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)} text="Edit" />
+            <MenuOption onSelect={() => deleteSession(comment.id, comment.userId)}>
+              <Text style={{ color: 'red' }}>Delete</Text>
+            </MenuOption>
+          </MenuOptions>
+        </Menu>
+      );
+    }
   };
- //for now, we will have 2 or 3 deleteSession, then combine into one depending whether it is post, comment, or reply -> one deleteSession seems to be working fine
+
   const deleteSession = async (postId, userId) => {
     try {
       if (FIREBASE_AUTH.currentUser.uid !== userId) {
-        // alert('You can only delete your own post');
         return;
       }
-      await deleteDoc(doc(FIREBASE_DB, 'community-chat', postId)); //deletes post alone
-      await deleteDoc(doc(FIREBASE_DB, 'community-comment', parentId, 'comments', postId));  //deletes comments
+      await deleteDoc(doc(FIREBASE_DB, 'community-chat', postId));
+      await deleteDoc(doc(FIREBASE_DB, 'community-comment', parentId, 'comments', postId));
       await fetchSessions();
     } catch (error) {
       console.log('Error deleting document: ', error);
@@ -129,132 +130,124 @@ const PostInformation = ({route}) => {
   };
   parentId = params.postId;
   const now = new Date();
-  const currentDay = now.toLocaleDateString('en-US', {weekday: "long"});
-  const currentTime = now.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'});
+  const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' });
+  const currentTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-  const commentCreatedDateTime = currentDay + " " + currentTime;  //we might change the formatting later
+  const commentCreatedDateTime = currentDay + ' ' + currentTime;
 
   const handleReply = async (postId) => {
-    randomId = uuid.v4(); //randomly generated id
+    randomId = uuid.v4();
     try {
       await setDoc(doc(FIREBASE_DB, 'community-comment', parentId, 'comments', randomId), {
         parentId: params.postId,
-        postId: randomId, //randomly generated id
+        postId: randomId,
         replyAuthor: FIREBASE_AUTH.currentUser.displayName,
         replyContent: replyText,
-        // createdAt: commentCreatedDateTime,
         createdAt: serverTimestamp(),
         timeShown: commentCreatedDateTime,
         userId: FIREBASE_AUTH.currentUser.uid,
       });
       console.log('Document successfully written!');
-      setReplyText(''); // Clear the reply text input after submission
-      await fetchSessions(); // Update the sessions with the new reply
+      setReplyText('');
+      await fetchSessions();
     } catch (error) {
-      console.log("Error writing document: ", error);
-    } 
+      console.log('Error writing document: ', error);
+    }
   };
 
-  
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.container}>
-
-        {/*session container starts*/}
-
-        {sessions.map((session, index) => (
-          <View key={index} style={styles.sessionContainer}>
-            <View style={styles.sessionHeader}>
-              <View style={styles.sessionHeaderLeft}>
-              {session.photoURL ? (
-                  <Image
-                    source={{ uri: session.photoURL }}
-                    width={24} height={24}
-                    borderRadius={12}
-                    style={styles.mr7}
-                  />
-                ) : (
-                  <Logo width={24} height={24} style={styles.mr7} />
-                )}
-                <Text style={{ fontSize: 16 }}> u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
+    <View style={styles.parentContainer}>
+      <ScrollView style={styles.container}>
+        <View style={styles.container}>
+          {/*session container starts*/}
+          {sessions.map((session, index) => (
+            <View key={index} style={styles.sessionContainer}>
+              <View style={styles.sessionHeader}>
+                <View style={styles.sessionHeaderLeft}>
+                  {session.photoURL ? (
+                    <Image source={{ uri: session.photoURL }} width={24} height={24} borderRadius={12} style={styles.mr7} />
+                  ) : (
+                    <Logo width={24} height={24} style={styles.mr7} />
+                  )}
+                  <Text style={{ fontSize: 16 }}> u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
+                </View>
+                {handlePost(session)}
               </View>
-              {handlePost(session)}
-            </View>
-            <View style={styles.sessionBlock}>
-              <Text style={{ color: 'grey', fontSize: 11 }}>{session.postCreatedDateTime}</Text>
-            </View>
+              <View style={styles.sessionBlock}>
+                <Text style={{ color: 'grey', fontSize: 11 }}>{session.postCreatedDateTime}</Text>
+              </View>
               <View style={styles.sessionBlock}>
                 <Text style={{ fontWeight: 'bold', fontSize: 18 }}>{session.postTopic}</Text>
               </View>
               <View style={styles.sessionBlock}>
                 <Text style={styles.sessionText}>{session.postContent ? session.postContent : 'No content'}</Text>
               </View>
-          </View>
-        ))}
-
+            </View>
+          ))}
           {/*session container finishes*/}
-
           {/*comments container starts*/}
           <View style={styles.commentsContainer}>
-              {comments.map((comment) => (
-               <View key={comment.id} style={styles.commentContainer}>
-               <View style={styles.commentHeader}>
-                 <View style={styles.commentHeaderLeft}>
-                   {comment.photoURL ? (
-                     <Image
-                       source={{ uri: comment.photoURL }}
-                       width={24}
-                       height={24}
-                       borderRadius={12}
-                       style={styles.mr7}
-                     />
-                   ) : (
-                     <Logo width={24} height={24} style={styles.mr7} />
-                   )}
-                   <Text style={styles.commentAuthor}>u/{comment.replyAuthor}</Text>
-                 </View>
-                 {handleComment(comment)}
-               </View>
-               <Text style={{ color: 'grey', fontSize: 10 }}>{comment.timeShown}</Text>
-               <Text style={styles.commentContent}>{comment.replyContent}</Text>
-             </View>             
-              ))}
-            </View>
-
-           {/*comments container finishes*/}
-
-
-           {/*reply container starts*/}
-
-        <View style={styles.replyContainer}>
-          <TextInput
-            style={styles.replyInput}
-            placeholder="Type your reply"
-            value={replyText}
-            onChangeText={setReplyText}
-            multiline
-          />
-          <TouchableOpacity
-            style={styles.replyButton}
-            onPress={() => handleReply(params.postId)}
-            disabled={!replyText} // Disable the button if the reply text is empty
-          >
-            <Text style={styles.replyButtonText}>Reply</Text>
-          </TouchableOpacity>
+            {comments.map((comment) => (
+              <View key={comment.id} style={styles.commentContainer}>
+                <View style={styles.commentHeader}>
+                  <View style={styles.commentHeaderLeft}>
+                    {comment.photoURL ? (
+                      <Image
+                        source={{ uri: comment.photoURL }}
+                        width={24}
+                        height={24}
+                        borderRadius={12}
+                        style={styles.mr7}
+                      />
+                    ) : (
+                      <Logo width={24} height={24} style={styles.mr7} />
+                    )}
+                    <Text style={styles.commentAuthor}>u/{comment.replyAuthor}</Text>
+                  </View>
+                  {handleComment(comment)}
+                </View>
+                <Text style={{ color: 'grey', fontSize: 10 }}>{comment.timeShown}</Text>
+                <Text style={styles.commentContent}>{comment.replyContent}</Text>
+              </View>
+            ))}
+          </View>
+          {/*comments container finishes*/}
         </View>
-
-         {/*reply container finishes*/}
+      </ScrollView>
+      {/*reply container starts*/}
+      <View style={styles.replyContainer}>
+        <TextInput
+          style={styles.replyInput}
+          placeholder="Add a comment"
+          value={replyText}
+          onChangeText={setReplyText}
+          multiline
+        />
+        <TouchableOpacity
+          style={styles.replyButton}
+          onPress={() => handleReply(params.postId)}
+          disabled={!replyText}
+        >
+          <Text style={styles.replyButtonText}>Send</Text>
+        </TouchableOpacity>
       </View>
-    </ScrollView>
+      {/*reply container finishes*/}
+    </View>
   );
 };
 
 export default PostInformation;
 
 const styles = StyleSheet.create({
+  parentContainer: {
+    flex: 1,
+    position: 'relative',
+    backgroundColor: '#fff',
+  },
   container: {
     flex: 1,
     padding: 5,
+    backgroundColor: '#fff',
   },
   sessionContainer: {
     marginBottom: 20,
@@ -300,29 +293,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   replyContainer: {
+    position: 'absolute',
     bottom: 0,
+    left: 0,
+    right: 0,
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 10,
     borderRadius: 5,
-    // marginTop: 330,
-    // position: 'absolute',
-    // bottom: 0,
-    // left: 0,
-    // right: 0,
-    // borderWidth: 1,
-    // borderColor: '#ccc',
-    // padding: 10,
-    // borderRadius: 5,
-    // backgroundColor: '#fff',
+    backgroundColor: '#fff',
   },
   replyInput: {
-    height: 50,  //size of the reply input box
+    height: 50,
     padding: 5,
     marginBottom: 10,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
+    backgroundColor: '#fff',
   },
   replyButton: {
     backgroundColor: 'blue',

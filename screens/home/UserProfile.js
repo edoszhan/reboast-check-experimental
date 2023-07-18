@@ -57,7 +57,6 @@ const UserProfile = ({ route }) => {
       <Image
         source={{ uri: user.photoURL }}
         style={styles.profileImage}
-        onError={() => console.log('Failed to load image')}
       />
         ) : (
           <Ionicons name="person-outline" size={100} color="gray" style={styles.profileIcon} />

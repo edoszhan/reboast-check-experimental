@@ -13,7 +13,7 @@ import { Entypo } from '@expo/vector-icons';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { FIREBASE_AUTH } from '../../config/firebase';
 import { deleteDoc, doc } from 'firebase/firestore';
-
+import { Ionicons } from '@expo/vector-icons';
 import { setDoc, serverTimestamp } from 'firebase/firestore';
 import { TextInput } from 'react-native';
 import uuid from 'react-native-uuid';
@@ -24,6 +24,7 @@ const PostInformation = ({ route }) => {
   const [sessions, setSessions] = useState([]);
   const [replyText, setReplyText] = useState('');
   const [comments, setComments] = useState([]);
+  const [replyEnabled, setReplyEnabled] = useState(false);
 
   postId = params.postId;
   const fetchComments = async () => {
@@ -167,9 +168,9 @@ const PostInformation = ({ route }) => {
                   {session.photoURL ? (
                     <Image source={{ uri: session.photoURL }} width={24} height={24} borderRadius={12} style={styles.mr7} />
                   ) : (
-                    <Logo width={24} height={24} style={styles.mr7} />
+                    <Ionicons name="person-outline" size={20} color="gray" style={styles.profileIcon} />
                   )}
-                  <Text style={{ fontSize: 16 }}> u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
+                  <Text style={{ fontSize: 16 }}>  u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
                 </View>
                 {handlePost(session)}
               </View>
@@ -200,9 +201,9 @@ const PostInformation = ({ route }) => {
                         style={styles.mr7}
                       />
                     ) : (
-                      <Logo width={24} height={24} style={styles.mr7} />
+                      <Ionicons name="person-outline" size={20} color="gray" style={styles.profileIcon} />
                     )}
-                    <Text style={styles.commentAuthor}>u/{comment.replyAuthor}</Text>
+                    <Text style={styles.commentAuthor}> u/{comment.replyAuthor}</Text>
                   </View>
                   {handleComment(comment)}
                 </View>

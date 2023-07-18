@@ -11,6 +11,7 @@ import { Entypo } from '@expo/vector-icons';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { RefreshControl } from 'react-native';
 import { Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 const CommunityScreen = () => {
   const navigation = useNavigation();
   const [sessions, setSessions] = useState([]);
@@ -81,23 +82,56 @@ const CommunityScreen = () => {
     }
   };
 
+
+  // const handlePost = (session) => {
+  //   if (FIREBASE_AUTH.currentUser.uid !== session.userId) {
+  //     return;
+  //   }
+  //   return (
+  //     <Menu>
+  //       <MenuTrigger>
+  //         <Entypo name="dots-three-vertical" size={24} color="black" />
+  //       </MenuTrigger>
+  //       <MenuOptions>
+  //         <MenuOption onSelect={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)} text="Edit" />
+  //         <MenuOption onSelect={() => deleteSession(session.id, session.userId)}>
+  //           <Text style={{ color: 'red' }}>Delete</Text>
+  //         </MenuOption>
+  //       </MenuOptions>
+  //     </Menu>
+  //   );
+  // };
+
   const handlePost = (session) => {
     if (FIREBASE_AUTH.currentUser.uid !== session.userId) {
-      return;
+      return (
+        <Menu>
+          <MenuTrigger>
+            <Entypo name="dots-three-vertical" size={24} color="black" />
+          </MenuTrigger>
+          <MenuOptions>
+            <MenuOption onSelect={() => navigation.navigate(ROUTES.POST_INFORMATION, { postId: session.id })}>
+              <Text style={{ color: 'blue' }}>More details</Text>
+            </MenuOption>
+          </MenuOptions>
+        </Menu>
+      );
     }
-    return (
-      <Menu>
-        <MenuTrigger>
-          <Entypo name="dots-three-vertical" size={24} color="black" />
-        </MenuTrigger>
-        <MenuOptions>
-          <MenuOption onSelect={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)} text="Edit" />
-          <MenuOption onSelect={() => deleteSession(session.id, session.userId)}>
-            <Text style={{ color: 'red' }}>Delete</Text>
-          </MenuOption>
-        </MenuOptions>
-      </Menu>
-    );
+    if (FIREBASE_AUTH.currentUser.uid == session.userId) {
+      return (
+        <Menu>
+          <MenuTrigger>
+            <Entypo name="dots-three-vertical" size={24} color="black" />
+          </MenuTrigger>
+          <MenuOptions>
+            <MenuOption onSelect={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)} text="Edit" />
+            <MenuOption onSelect={() => deleteSession(session.id, session.userId)}>
+              <Text style={{ color: 'red' }}>Delete</Text>
+            </MenuOption>
+          </MenuOptions>
+        </Menu>
+      );
+    }
   };
 
   return (
@@ -122,9 +156,9 @@ const CommunityScreen = () => {
                     style={styles.mr7}
                   />
                 ) : (
-                  <Logo width={24} height={24} style={styles.mr7} />
+                  <Ionicons name="person-outline" size={20} color="gray" style={styles.profileIcon} />
                 )}
-                <Text style={{ fontSize: 16 }}>u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
+                <Text style={{ fontSize: 16 }}> u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
               </View>
               {handlePost(session)}
             </View>

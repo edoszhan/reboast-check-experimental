@@ -10,7 +10,7 @@ import Logo from '../../assets/icons/LOGO.svg';
 import { Entypo } from '@expo/vector-icons';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { RefreshControl } from 'react-native';
-
+import { Alert } from 'react-native';
 const CommunityScreen = () => {
   const navigation = useNavigation();
   const [sessions, setSessions] = useState([]);
@@ -53,7 +53,27 @@ const CommunityScreen = () => {
       if (FIREBASE_AUTH.currentUser.uid !== userId) {
         return;
       }
-      await deleteDoc(doc(FIREBASE_DB, 'community-chat', postId));
+      Alert.alert(
+        'Confirm Deletion',
+        'Are you sure you want to delete this session?',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Delete',
+            onPress: async () => {
+              try {
+                await deleteDoc(doc(FIREBASE_DB, 'community-chat', postId));
+              } catch (error) {
+                console.log('Error deleting document: ', error);
+              }
+            },
+            style: 'destructive',
+          },
+        ]
+      );
     } catch (error) {
       console.log('Error deleting document: ', error);
     }

@@ -24,6 +24,7 @@ const PostInformation = ({ route }) => {
   const [sessions, setSessions] = useState([]);
   const [replyText, setReplyText] = useState('');
   const [comments, setComments] = useState([]);
+  const [replies, setReplies] = useState([]);
   const [replyEnabled, setReplyEnabled] = useState(false);
 
   postId = params.postId;
@@ -93,7 +94,7 @@ const PostInformation = ({ route }) => {
             <Entypo name="dots-three-vertical" size={24} color="black" />
           </MenuTrigger>
           <MenuOptions>
-            <MenuOption onSelect={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)}>
+            <MenuOption onSelect={() => setReplyEnabled(true)}>
               <Text style={{ color: 'blue' }}>Reply</Text>
             </MenuOption>
           </MenuOptions>
@@ -216,23 +217,33 @@ const PostInformation = ({ route }) => {
           {/*comments container finishes*/}
         </View>
       </ScrollView>
-      {/*reply container starts*/}
-      <View style={styles.replyContainer}>
-        <TextInput
-          style={styles.replyInput}
-          placeholder="Add a comment"
-          value={replyText}
-          onChangeText={setReplyText}
-          multiline
-        />
-        <TouchableOpacity
-          style={styles.replyButton}
-          onPress={() => handleReply(params.postId)}
-          disabled={!replyText}
-        >
-          <Text style={styles.replyButtonText}>Send</Text>
-        </TouchableOpacity>
-      </View>
+      {/*reply container starts, reply container will have repling to screen*/}
+          <View style={styles.replyContainer}>
+          <TextInput
+            style={styles.replyInput}
+            placeholder="Add a comment"
+            value={replyText}
+            onChangeText={setReplyText}
+            multiline
+          />  
+          { replyEnabled ? (
+          <TouchableOpacity
+            style={{...styles.replyButton, backgroundColor: 'red'}}
+            onPress={() => [handleReply(params.postId), setReplyEnabled(false)]}
+            disabled={!replyText}
+          >
+            <Text style={styles.replyButtonText}>Reply</Text>
+          </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+            style={{...styles.replyButton, backgroundColor: 'blue'}}
+            onPress={() => handleReply(params.postId)}
+            disabled={!replyText}
+          >
+            <Text style={styles.replyButtonText}>Send</Text>
+          </TouchableOpacity>
+          )}
+        </View>
       {/*reply container finishes*/}
     </View>
   );

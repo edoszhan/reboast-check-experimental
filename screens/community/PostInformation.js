@@ -94,7 +94,7 @@ const PostInformation = ({ route }) => {
             <Entypo name="dots-three-vertical" size={24} color="black" />
           </MenuTrigger>
           <MenuOptions>
-            <MenuOption onSelect={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)}>
+            <MenuOption onSelect={() => setReplyEnabled(true)}>
               <Text style={{ color: 'blue' }}>Reply</Text>
             </MenuOption>
           </MenuOptions>
@@ -108,6 +108,9 @@ const PostInformation = ({ route }) => {
             <Entypo name="dots-three-vertical" size={24} color="black" />
           </MenuTrigger>
           <MenuOptions>
+          <MenuOption onSelect={() => setReplyEnabled(true)}>
+              <Text style={{ color: 'blue' }}>Reply</Text>
+            </MenuOption>
             <MenuOption onSelect={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)} text="Edit" />
             <MenuOption onSelect={() => deleteSession(comment.id, comment.userId)}>
               <Text style={{ color: 'red' }}>Delete</Text>
@@ -138,7 +141,8 @@ const PostInformation = ({ route }) => {
   const commentCreatedDateTime = currentDay + ' ' + currentTime;
 
   const handleReply = async (postId) => {
-    randomId = uuid.v4();
+    // randomId = uuid.v4()
+    randomId = FIREBASE_AUTH.currentUser.displayName + "-" + uuid.v4();
     try {
       await setDoc(doc(FIREBASE_DB, 'community-comment', parentId, 'comments', randomId), {
         parentId: params.postId,
@@ -162,7 +166,6 @@ const PostInformation = ({ route }) => {
     <View style={styles.parentContainer}>
       <ScrollView style={styles.container}>
         <View style={styles.container}>
-          {/*session container starts*/}
           {sessions.map((session, index) => (
             <View key={index} style={styles.sessionContainer}>
               <View style={styles.sessionHeader}>
@@ -187,9 +190,7 @@ const PostInformation = ({ route }) => {
               </View>
             </View>
           ))}
-          {/*session container finishes*/}
-          {/*comments container starts*/}
-          <View style={styles.commentsContainer}>
+         <View style={styles.commentsContainer}> 
             {comments.map((comment) => (
               <View key={comment.id} style={styles.commentContainer}>
                 <View style={styles.commentHeader}>
@@ -214,10 +215,8 @@ const PostInformation = ({ route }) => {
               </View>
             ))}
           </View>
-          {/*comments container finishes*/}
         </View>
       </ScrollView>
-      {/*reply container starts*/}
           <View style={styles.replyContainer}>
           <TextInput
             style={styles.replyInput}
@@ -225,16 +224,25 @@ const PostInformation = ({ route }) => {
             value={replyText}
             onChangeText={setReplyText}
             multiline
-          />
+          />  
+          { replyEnabled ? (
           <TouchableOpacity
+            style={{...styles.replyButton, backgroundColor: 'red'}}
+            onPress={() => [handleReply(params.postId), setReplyEnabled(false)]}
+            disabled={!replyText}
+          >
+            <Text style={styles.replyButtonText}>Reply</Text>
+          </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
             style={{...styles.replyButton, backgroundColor: 'blue'}}
             onPress={() => handleReply(params.postId)}
             disabled={!replyText}
           >
             <Text style={styles.replyButtonText}>Send</Text>
           </TouchableOpacity>
+          )}
         </View>
-      {/*reply container finishes*/}
     </View>
   );
 };
@@ -351,4 +359,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+
 });

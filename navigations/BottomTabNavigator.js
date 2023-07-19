@@ -13,9 +13,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import uuid from 'react-native-uuid';
 import { FIREBASE_DB } from '../config/firebase';
 import { FIREBASE_AUTH } from '../config/firebase';
-import { setDoc, doc } from 'firebase/firestore';
-
-
+import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
 const TimerStack = createStackNavigator();
@@ -30,7 +28,7 @@ const { height } = Dimensions.get('window');
 
 const CommunityStackScreen = () => {
   return (
-    <ProfileStack.Navigator screenOptions={{ headerShown: true }}>
+    <ProfileStack.Navigator screenOptions={{ headerShown: true }} id="tabs">
       <ProfileStack.Screen name={ROUTES.COMMUNITY_MAIN} component={CommunityScreen} /> 
       <ProfileStack.Screen name={ROUTES.ADD_POST_SCREEN} component={AddPost} />
       <ProfileStack.Screen name={ROUTES.POST_INFORMATION} component={PostInformation} />
@@ -61,16 +59,8 @@ function StackRoutes() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen
         name="home"
-        component={Home}
-        // options={({ navigation }) => ({
-        //   headerLeft: () => (
-        //     <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-        //       <Entypo name="dots-three-horizontal" size={25} />
-        //     </TouchableOpacity>
-        //   ),
-        // })}
+        component={Home}  
       />
-
       <Stack.Screen name="UserProfile" component={UserProfile} />
     </Stack.Navigator>
   );
@@ -170,7 +160,7 @@ function MainComponent() {
   const auth = FIREBASE_AUTH;
   const uid = auth.currentUser.uid;
 
-  //sendind todo data to firebase
+  //sending todo data to firebase
   const create = async (uid) => {
     console.log("reached here too")
     try {
@@ -181,6 +171,7 @@ function MainComponent() {
         categoryItems: taskName,
         categoryDays: selectedDays,
         categoryId: category_random_Id,
+        createdAt: serverTimestamp(),
       });
     } catch (error) {
       console.log("Error writing document: ", error);
@@ -197,7 +188,6 @@ function MainComponent() {
     togglePopup(); // Close the popup
     sendData();
   };
-
 
 
   return (
@@ -285,7 +275,6 @@ function MainComponent() {
                 placeholder=" Enter task name"
                 onChangeText={handleTaskNameChange}
               >
-                {' '}
               </Input>
               <Text style={styles.popupText}>Color</Text>
               <Input
@@ -293,7 +282,6 @@ function MainComponent() {
                 placeholder=" Enter color name"
                 onChangeText={handleColorSelect}
               >
-                {' '}
               </Input>
               <Text style={styles.popupText}>Category</Text>
               <Dropdown

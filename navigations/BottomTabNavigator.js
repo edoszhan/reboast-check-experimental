@@ -161,10 +161,11 @@ function MainComponent() {
   const uid = auth.currentUser.uid;
 
   //sending todo data to firebase
-  const create = async (uid) => {
+  const create = async (uid, categoryName) => {
+    console.log(categoryName);
     console.log("reached here too")
     try {
-      await setDoc(doc(FIREBASE_DB, 'todo-list', uid, 'category_learning', category_random_Id), {  //session3 should not be manually entered, we need to update number of sessions  
+      await setDoc(doc(FIREBASE_DB, 'todo-list', uid, categoryName, category_random_Id), {  //session3 should not be manually entered, we need to update number of sessions  
         categoryName: selectedCategory,
         categoryColor: selectedColor,
         isChecked: false,
@@ -180,7 +181,7 @@ function MainComponent() {
 
   const sendData = async () => {
     console.log("reached here")
-    await create(uid);
+    await create(uid, selectedCategory);
   };
 
   const handleSave = () => {  

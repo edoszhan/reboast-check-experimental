@@ -295,7 +295,8 @@ function MainComponent() {
                 placeholder=" Select category"
                 style={{ width: 330, borderColor: 'black', borderWidth: 1, borderRadius: 10 }}
                 data={data}
-                onChangeText={handleCategorySelect}
+                value={selectedCategory}
+                // onChangeText={handleCategorySelect}
               />
               <TouchableOpacity style={styles.closeButton} onPress={togglePopup}>
               </TouchableOpacity>

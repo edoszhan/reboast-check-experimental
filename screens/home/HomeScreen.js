@@ -97,6 +97,7 @@ const HomeScreen = (props) => {
                   onPress={() => toggleTaskChecked(categoryName, task.categoryId)}
                 >
                   <CustomCheckbox checked={task.checked} />
+                  <View style={styles.taskContent}>
                   <Text
                     style={[
                       styles.categoryItems,
@@ -105,6 +106,7 @@ const HomeScreen = (props) => {
                   >
                     {task.categoryItems}
                   </Text>
+                  </View>
                 </TouchableOpacity>
               ))
             )}
@@ -129,6 +131,11 @@ const styles = StyleSheet.create({
   },
   categoryContainer: {
     marginBottom: 20,
+  },
+  taskContent: {
+    flex: 1,
+    flexShrink: 1,
+    overflow: 'hidden',
   },
   taskBlock: {
     flexDirection: 'row',

@@ -3,19 +3,13 @@ import ROUTES from "../constants/routes";
 import ForgotPassword from "../screens/auth/ForgotPassword";
 import Login from "../screens/auth/Login";
 import Register from "../screens/auth/Register";
-import { useNavigation } from "@react-navigation/native";
 import BottomTabNavigator from "./BottomTabNavigator";
-
 import COLORS from "../constants/colors";
 import { User } from "../config/firebase"
 import { FIREBASE_AUTH } from "../config/firebase";
 import { useState } from "react";
 import { useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
-import Timer from "../screens/";
-import Settings from "../screens/home/Settings";
 
 const Stack = createStackNavigator();
 
@@ -31,11 +25,6 @@ const Stack = createStackNavigator();
 
 function AuthNavigator() {
     const [user, setUser] = useState(User);
-
-
-    const navigation = useNavigation();
-    // console.log('user',user);
-
     useEffect(() => {
       onAuthStateChanged(FIREBASE_AUTH, (user) => {
         console.log('user',user);

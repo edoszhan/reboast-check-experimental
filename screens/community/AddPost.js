@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, TextInput, TouchableOpacity, View, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { ROUTES } from '../../constants';
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { FIREBASE_AUTH } from '../../config/firebase';
@@ -39,11 +38,8 @@ const AddPost = () => {
         });
       } catch (error) {
         console.log("Error writing document: ", error);
-      }
-      console.log("Document successfully written!");  
-
-      navigation.navigate(ROUTES.COMMUNITY, {refresh: true});
-      // navigation.goBack();
+      } 
+      navigation.goBack(); //passing params was removed in favor of onSnapshot
 
     }
   };

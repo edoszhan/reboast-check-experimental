@@ -8,15 +8,12 @@ import TimerLogs from '../screens/home/TimerLogs';
 import { TouchableOpacity, View, Text, Modal, StyleSheet } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import ProfileSettings from '../screens/home/ImageUpload';
-
 import { Input } from 'react-native-elements';
 import { Dropdown } from 'react-native-element-dropdown';
 import uuid from 'react-native-uuid';
 import { FIREBASE_DB } from '../config/firebase';
 import { FIREBASE_AUTH } from '../config/firebase';
-import { setDoc, doc } from 'firebase/firestore';
-
-
+import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
 const TimerStack = createStackNavigator();
@@ -25,13 +22,14 @@ const Stack = createStackNavigator();
 const UserProfileStack = createStackNavigator();
 
 import { Dimensions } from 'react-native';
-import CommunityScreen from '../screens/home/CommunityScreen';
+import CommunityScreen from '../screens/home/CommunityScreen'; 
+import { ActivityIndicator } from 'react-native-paper';
 const { height } = Dimensions.get('window');
 
 const CommunityStackScreen = () => {
   return (
-    <ProfileStack.Navigator screenOptions={{ headerShown: true }}>
-      <ProfileStack.Screen name={ROUTES.COMMUNITY} component={CommunityScreen} /> 
+    <ProfileStack.Navigator screenOptions={{ headerShown: true }} id="tabs">
+      <ProfileStack.Screen name={ROUTES.COMMUNITY_MAIN} component={CommunityScreen} /> 
       <ProfileStack.Screen name={ROUTES.ADD_POST_SCREEN} component={AddPost} />
       <ProfileStack.Screen name={ROUTES.POST_INFORMATION} component={PostInformation} />
     </ProfileStack.Navigator>
@@ -61,22 +59,31 @@ function StackRoutes() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen
         name="home"
-        component={Home}
-        // options={({ navigation }) => ({
-        //   headerLeft: () => (
-        //     <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-        //       <Entypo name="dots-three-horizontal" size={25} />
-        //     </TouchableOpacity>
-        //   ),
-        // })}
+        component={Home}  
       />
-
       <Stack.Screen name="UserProfile" component={UserProfile} />
     </Stack.Navigator>
   );
 }
 
 const BottomTabNavigator = () => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
+        <ActivityIndicator size="large" color="blue" />
+        <Text style={{ marginTop: 10 }}>Loading...</Text> 
+      </View>
+    );
+  }
+
   return (
     <Drawer.Navigator initialRouteName="Home" screenOptions={{ headerTitle: '' }}>
       <Drawer.Screen name="Home" component={MainComponent} />
@@ -153,17 +160,19 @@ function MainComponent() {
   const auth = FIREBASE_AUTH;
   const uid = auth.currentUser.uid;
 
-  //sendind todo data to firebase
-  const create = async (uid) => {
+  //sending todo data to firebase
+  const create = async (uid, categoryName) => {
+    console.log(categoryName);
     console.log("reached here too")
     try {
-      await setDoc(doc(FIREBASE_DB, 'todo-list', uid, 'category_learning', category_random_Id), {  //session3 should not be manually entered, we need to update number of sessions  
+      await setDoc(doc(FIREBASE_DB, 'todo-list', uid, categoryName, category_random_Id), {  //session3 should not be manually entered, we need to update number of sessions  
         categoryName: selectedCategory,
         categoryColor: selectedColor,
         isChecked: false,
         categoryItems: taskName,
         categoryDays: selectedDays,
         categoryId: category_random_Id,
+        createdAt: serverTimestamp(),
       });
     } catch (error) {
       console.log("Error writing document: ", error);
@@ -172,7 +181,7 @@ function MainComponent() {
 
   const sendData = async () => {
     console.log("reached here")
-    await create(uid);
+    await create(uid, selectedCategory);
   };
 
   const handleSave = () => {  
@@ -180,7 +189,6 @@ function MainComponent() {
     togglePopup(); // Close the popup
     sendData();
   };
-
 
 
   return (
@@ -248,7 +256,7 @@ function MainComponent() {
                   <TouchableOpacity
                     key={index}
                     style={[styles.dayButton, checkbox.checked && styles.checkedDayButton]}
-                    onPress={() => [handleDayPress(index), setSelectedDays(selectedDays => [checkboxes[index].day])]}
+                    onPress={() => [handleDayPress(index), setSelectedDays(selectedDays => [...selectedDays,checkboxes[index].day,])]}
                   >
                     <Text style={[styles.dayButtonText, checkbox.checked && styles.checkedDayButtonText]}>
                       {checkbox.day}
@@ -268,7 +276,6 @@ function MainComponent() {
                 placeholder=" Enter task name"
                 onChangeText={handleTaskNameChange}
               >
-                {' '}
               </Input>
               <Text style={styles.popupText}>Color</Text>
               <Input
@@ -276,7 +283,6 @@ function MainComponent() {
                 placeholder=" Enter color name"
                 onChangeText={handleColorSelect}
               >
-                {' '}
               </Input>
               <Text style={styles.popupText}>Category</Text>
               <Dropdown
@@ -289,6 +295,7 @@ function MainComponent() {
                 placeholder=" Select category"
                 style={{ width: 330, borderColor: 'black', borderWidth: 1, borderRadius: 10 }}
                 data={data}
+                // value={selectedCategory} //attemp to fix the dropdown items unselect
                 onChangeText={handleCategorySelect}
               />
               <TouchableOpacity style={styles.closeButton} onPress={togglePopup}>

@@ -1,69 +1,127 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, Text } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { getAuth } from 'firebase/auth';
-import { getDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
+import { ScrollView } from 'react-native-gesture-handler';
 
-
-
-import {
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
-import { Agenda } from 'react-native-calendars';
-
+const CustomCheckbox = ({ checked }) => {
+  return (
+    <View style={styles.checkboxContainer}>
+      {checked && <View style={styles.checkboxInner} />}
+    </View>
+  );
+};
 
 const HomeScreen = (props) => {
-  const {navigation} = props;
-  const [userName, setUserName] = useState('');
+  const [tasksByCategory, setTasksByCategory] = useState({});
   const auth = getAuth();
-  const user = auth.currentUser;
+
+    // const todayDayoftheWeek = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+    const todayDayoftheWeek = new Date().toLocaleDateString('kr-KO', { weekday: 'long' });
+
   useEffect(() => {
-    const fetchUserName = async () => {
-      try {
-        const auth = getAuth();
-        const user = auth.currentUser;
-
-        if (user) {
-          const userId = user.uid;
-          const userDocRef = doc(FIREBASE_DB, 'users-info', userId);
-          const userDocSnapshot = await getDoc(userDocRef);
-
-          if (userDocSnapshot.exists()) {
-            const userData = userDocSnapshot.data();
-            setUserName(userData.name);   // Hello message is here -> Hello {userName}
-          } else {
-            console.log('User document not found');
-          }
-        } else {
-          console.log('No user is currently logged in');
+    const checkedTaskNames = [];
+    Object.entries(tasksByCategory).forEach(([categoryName, tasks]) => {
+      tasks.forEach((task) => {
+        if (task.checked) {
+          checkedTaskNames.push(task.categoryItems);
         }
-      } catch (error) {
-        console.log('Error fetching user data:', error);
-      }
-    };
+      });
+    });
+  }, [tasksByCategory]);
 
-    fetchUserName();
+  useEffect(() => {
+    const today = new Date().toLocaleDateString('kr-KO', { weekday: 'long' });
+    const string = today.split(" ");
+    const todayDay = string[3][0];
+    const user = auth.currentUser;
+    const categoryNames = ['Sport', 'Learning', 'Morning Routine'];
+    const unsubscribeTasks = categoryNames.map((categoryName) => {
+      const categoryRef = collection(FIREBASE_DB, 'todo-list', user.uid, categoryName);
+      const q = query(categoryRef, orderBy('createdAt', 'desc'));
+      return onSnapshot(q, (snapshot) => {
+        const taskList = [];
+        snapshot.forEach((doc) => {
+          const taskData = doc.data();
+          if (todayDay.includes(taskData.categoryDays)) {
+          taskList.push({ ...taskData, checked: false }); // Add checked property to task data
+          }
+        });
+        setTasksByCategory((prevTasksByCategory) => ({
+          ...prevTasksByCategory,
+          [categoryName]: taskList,
+        }));
+      });
+    });
+
+    return () => {
+      // Unsubscribe from task listeners for each category
+      unsubscribeTasks.forEach((unsubscribe) => {
+        unsubscribe();
+      });
+    };
   }, []);
+
+  const toggleTaskChecked = (categoryName, taskId) => {
+    setTasksByCategory((prevTasksByCategory) => {
+      const updatedTasks = prevTasksByCategory[categoryName].map((task) =>
+        task.categoryId === taskId ? { ...task, checked: !task.checked } : task
+      );
+      return {
+        ...prevTasksByCategory,
+        [categoryName]: updatedTasks,
+      };
+    });
+  };
+
+  // const getCheckedTaskNames = () => {
+  //   const checkedTaskNames = [];
+  //   Object.entries(tasksByCategory).forEach(([categoryName, tasks]) => {
+  //     tasks.forEach((task) => {
+  //       if (task.checked) {
+  //         checkedTaskNames.push(task.categoryItems);
+  //       }
+  //     });
+  //   });
+  //   return checkedTaskNames;
+  // };
+
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* <Text style={styles.text}>Home Screen</Text> */}
-      {/* <Button color="white" onPress={() => navigation.navigate(ROUTES.USER_PROFILE)} title="User Profile"/> */}
-      {/* <Text style={styles.text} >Hello {userName}</Text> */}
-      <Agenda
-        selected="2023-10-13"
-
-        items={{
-          '2023-10-12': [{name: 'Coding'}, {name: 'Workout'}, {name: 'Dinner'}],
-          '2023-10-13': [{name: 'Coding'}, {name: 'Workout'}, {name: 'Dinner'}],
-        }}
-        renderItem={(item, isFirst) => (
-          <TouchableOpacity style={styles.item}>
-            <Text style={styles.itemText}>{item.name}</Text>
-          </TouchableOpacity>
-        )}
-      />
+      <ScrollView>
+        <Text style={styles.heading}>Todo Tasks</Text>
+        <Text style={{...styles.heading, fontSize: 15, fontWeight: "normal"}}>{todayDayoftheWeek}</Text>
+        {Object.entries(tasksByCategory).map(([categoryName, tasks]) => (
+          <View key={categoryName} style={styles.categoryContainer}>
+            <Text style={styles.categoryName}>{categoryName}</Text>
+            {tasks.length === 0 ? (
+              <Text style={styles.noTasksText}>No tasks available. Go add one now</Text>
+            ) : (
+              tasks.map((task) => ( 
+                <TouchableOpacity
+                  key={task.categoryId}
+                  style={{ ...styles.taskBlock, backgroundColor: task.categoryColor.toLowerCase() }}
+                  onPress={() => toggleTaskChecked(categoryName, task.categoryId)}
+                >
+                  <CustomCheckbox checked={task.checked} />
+                  <View style={styles.taskContent}>
+                  <Text
+                    style={[
+                      styles.categoryItems,
+                      { textDecorationLine: task.checked ? 'line-through' : 'none', color: task.checked ? 'gray' : 'black' },
+                    ]}
+                  >
+                    {task.categoryItems}
+                  </Text>
+                  </View>
+                </TouchableOpacity>
+              ))
+            )}
+          </View>
+        ))}
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -71,28 +129,77 @@ const HomeScreen = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    // backgroundColor: '#0a8faf',
-    backgroundColor: 'white',
+    backgroundColor: '#fff',
+    padding: 20,
   },
-  text: {
+  heading: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 10,
-    justifyContent: 'center',
+    marginBottom: 20,
+    textAlign: 'center',
   },
-  item: {
-    backgroundColor: 'white',
+  categoryContainer: {
+    marginBottom: 20,
+  },
+  taskContent: {
     flex: 1,
-    borderRadius: 5,
-    padding: 10,
-    marginRight: 10,
-    marginTop: 17,
+    flexShrink: 1,
+    overflow: 'hidden',
   },
-  itemText: {
-    color: '#888',
+  taskBlock: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f2f2f2',
+    padding: 8,
+    marginBottom: 8,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: 'black',
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  categoryName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    marginLeft: 7,
+  },
+  categoryItems: {
     fontSize: 16,
-  }
+    marginLeft: 10,
+  },
+  checkboxContainer: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'black',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  checkboxInner: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: 'black',
+  },
+  noTasksText: {
+    fontSize: 16,
+    fontStyle: 'italic',
+    color: 'gray',
+    textAlign: 'center',
+    marginTop: 10,
+  },
+  showCheckedButton: {
+    marginTop: 20,
+    padding: 10,
+    fontSize: 16,
+    textAlign: 'center',
+    color: 'white',
+    backgroundColor: 'black',
+    borderRadius: 5,
+  },
 });
 
 export default HomeScreen;

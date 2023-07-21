@@ -4,6 +4,9 @@ import { getAuth } from 'firebase/auth';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/native';
+import { ROUTES } from '../../constants';
+
 
 const CustomCheckbox = ({ checked }) => {
   return (
@@ -13,7 +16,8 @@ const CustomCheckbox = ({ checked }) => {
   );
 };
 
-const HomeScreen = (props) => {
+const HomeScreen = () => {
+  const navigation = useNavigation();
   const [tasksByCategory, setTasksByCategory] = useState({});
   const auth = getAuth();
 
@@ -103,9 +107,9 @@ const HomeScreen = (props) => {
                 <TouchableOpacity
                   key={task.categoryId}
                   style={{ ...styles.taskBlock, backgroundColor: task.categoryColor.toLowerCase() }}
-                  onPress={() => toggleTaskChecked(categoryName, task.categoryId)}
+                  onPress={() => [toggleTaskChecked(categoryName, task.categoryId), navigation.navigate(ROUTES.TODO_INFORMATION)]}
                 >
-                  <CustomCheckbox checked={task.checked} />
+                  <CustomCheckbox checked={task.checked}/>
                   <View style={styles.taskContent}>
                   <Text
                     style={[

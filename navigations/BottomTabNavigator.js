@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ROUTES } from '../constants';
-import { Home, Timer, Calendar, Community, UserProfile, AddPost, PostInformation } from '../screens';
+import { Home, Timer, Calendar, Community, UserProfile, AddPost, PostInformation, TodoInformation } from '../screens';
 import { Ionicons, FontAwesome, MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import TimerLogs from '../screens/home/TimerLogs';
@@ -20,11 +20,22 @@ const TimerStack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 const UserProfileStack = createStackNavigator();
+const HomeScreenStack = createStackNavigator();
 
 import { Dimensions } from 'react-native';
 import CommunityScreen from '../screens/home/CommunityScreen'; 
 import { ActivityIndicator } from 'react-native-paper';
+import HomeScreen from '../screens/home/HomeScreen';
 const { height } = Dimensions.get('window');
+
+const HomeStackScreen = () => {
+  return (
+    <HomeScreenStack.Navigator screenOptions={{ headerTitle: "" }}>
+      <HomeScreenStack.Screen name={ROUTES.HOME} component={HomeScreen} />
+      <HomeScreenStack.Screen name={ROUTES.TODO_INFORMATION} component={TodoInformation} />
+      </HomeScreenStack.Navigator>
+  );
+};
 
 const CommunityStackScreen = () => {
   return (
@@ -230,7 +241,7 @@ function MainComponent() {
           },
         })}
       >
-        <Tab.Screen component={StackRoutes} name={ROUTES.HOME_TAB} />
+        <Tab.Screen component={HomeStackScreen} name={ROUTES.HOME_TAB} />
         <Tab.Screen name={ROUTES.TIMER} component={TimerStackScreen} />
         <Tab.Screen
           name={ROUTES.BOTTOM_DRAWER}

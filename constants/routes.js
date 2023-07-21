@@ -13,7 +13,6 @@ export default {
     CALENDAR: 'Calendar',
     TIMER: 'Timer',
     TIMER_LOGS: 'History',
-    TIMER_5MIN: 'Timer 5 MIN',
     USER_PROFILE: 'User Profile',
     USER_PROFILE_SETTINGS: 'User Profile Settings',
     POST_INFORMATION: 'Post Information',
@@ -28,4 +27,7 @@ export default {
     // Community screens
     NOTICE_SCREEN: 'Notice Screen',
     ADD_POST_SCREEN: 'Add Post',
+
+    // Todo screens
+    TODO_INFORMATION: 'Todo Information',
   };

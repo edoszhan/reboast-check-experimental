@@ -8,6 +8,8 @@ import { useNavigation } from '@react-navigation/native';
 import { FIREBASE_AUTH, FIREBASE_DB } from '../../config/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import uuid from 'react-native-uuid'; //for generating random id, and it does not really matter for us
+import { FontAwesome5 } from "@expo/vector-icons";
+import { Dropdown } from 'react-native-element-dropdown';
 
 const TimerScreen = () => {
  
@@ -56,6 +58,12 @@ const TimerScreen = () => {
 
   const currentDayTime = currentDay + " " + currentTime;  //we might change the formatting later
   const sessionFinishTime = currentDayTime;
+
+  const data = [
+    { label: 'Morning Routine', value: '1' },
+    { label: 'Sport', value: '2' },
+    { label: 'Learning', value: '3' },
+  ];
 
   useEffect(() => {
     if (isActive && !isPaused) {
@@ -133,18 +141,6 @@ const TimerScreen = () => {
     return `${formattedMinutes}:${formattedSeconds}`;
   };
 
-
-
-  const formatTime5min = () => {
-    const time = 300;
-    const minutes = Math.floor(time / 60);
-    const seconds = time % 60;
-
-    const formattedMinutes = String(minutes).padStart(2, "0");
-    const formattedSeconds = String(seconds).padStart(2, "0");
-    return `${formattedMinutes}:${formattedSeconds}`;
-  };
-
   const handleSessionTopicChange = (text) => {
     setSessionTopic(text);
     setIsSaveDisabled(text.trim().length === 0); // Enable or disable the save button based on the session topic entry
@@ -157,8 +153,13 @@ const TimerScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={{ justifyContent: 'flex-end' }}>
-      <Button title="History" onPress={() => navigation.navigate(ROUTES.TIMER_LOGS)} />
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.navigate(ROUTES.TIMER_LOGS)}>
+          <View style={styles.iconContainer}>
+            <FontAwesome5 name="history" size={24} color="black" />
+          </View>
+        </TouchableOpacity>
+        <Text style={styles.headerText}>History</Text>
       </View>
       <TouchableOpacity
         style={styles.timerContainer}
@@ -207,8 +208,23 @@ const TimerScreen = () => {
                 {isPaused ? "Resume" : "Pause"}
               </Text>
             </TouchableOpacity>
-          </>
+          </> 
         )}
+      </View>
+      <View>
+        <Dropdown
+                iconColor="black"
+                labelField="label"
+                valueField="value"
+                onChange={(item) => {
+                  console.log('working');
+                }}
+                placeholder=" Select todo task"
+                style={{ width: 200, borderColor: 'black', borderWidth: 1, borderRadius: 10 }}
+                data={data}
+                // value={selectedCategory} //attemp to fix the dropdown items unselect
+                // onChangeText={handleCategorySelect}
+              />
       </View>
 
 
@@ -271,8 +287,9 @@ const styles = StyleSheet.create({
     padding: 10,   //some changes are needed to adjust the size
   },
   timerCircle: {
+    marginTop: -50,
     width: 200,
-    height: 200,
+    height: 200,  //was changed to free spae for the dropdown
     borderRadius: 100,
     backgroundColor: "#e3e3e3",
     alignItems: "center",
@@ -283,8 +300,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   button: {
+    marginTop: -30,
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     borderRadius: 5,
     marginBottom: 10,
   },
@@ -361,5 +379,21 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     backgroundColor: '#ccc',
+  },
+  header: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
+  iconContainer: {
+    borderRadius: 30,
+    backgroundColor: '#f0f0f0',
+    padding: 10,
+  },
+  headerText: {
+    marginTop: 10,
+    marginRight: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

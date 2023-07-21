@@ -10,7 +10,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import uuid from 'react-native-uuid'; //for generating random id, and it does not really matter for us
 
 const TimerScreen = () => {
-
+ 
   const auth = FIREBASE_AUTH;
 
   uid = auth.currentUser.uid;
@@ -47,6 +47,8 @@ const TimerScreen = () => {
 
   const [sessionDuration, setSessionDuration] = useState(0);
   const intervalRef = useRef(null);
+  
+  const [sessionType, setSessionType] = useState("25");
 
   const now = new Date();
   const currentDay = now.toLocaleDateString('ko-KR');  //korean date format
@@ -77,9 +79,15 @@ const TimerScreen = () => {
     };
   }, [isActive, isPaused, time]);
 
-  const handleStart = () => {
+  const handleStart = (type) => {
     setIsActive(true);
     setIsPaused(false);
+    setSessionType(type);
+    if (type === "25") { 
+      setTime(1500); // 25 minutes in seconds ~ pomodoro style
+    } else {
+      setTime(300); // 5 minutes in seconds
+    }
   };
 
   const handlePause = () => {
@@ -87,15 +95,22 @@ const TimerScreen = () => {
   };
 
   const handleStop = () => {
+    if (sessionType === "25") {
     togglePopup(); // Display the popup when the session is stopped
-
+    }
     clearInterval(intervalRef.current);
     setIsActive(false);
     setIsPaused(false);
 
-    setSessionDuration(1500 - time); // Calculate the session duration
     
-    setTime(1500); // Reset time to 25 minutes for the next session
+    setSessionDuration(
+      sessionType === "25" ? 1500 - time : 300 - time
+    ); // Calculate the session duration based on the sessionType
+
+    setTime(sessionType === "25" ? 1500 : 300); // Reset time to 25 minutes or 5 minutes for the next session
+
+    // setSessionDuration(1500 - time); // Calculate the session duration
+    // setTime(1500); // Reset time to 25 minutes for the next session
     setSessionTopic(""); // Clear the session topic input
     setSessionMemo(""); // Clear the session memo input
   }
@@ -110,6 +125,18 @@ const TimerScreen = () => {
 
 
   const formatTime = () => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+
+    const formattedMinutes = String(minutes).padStart(2, "0");
+    const formattedSeconds = String(seconds).padStart(2, "0");
+    return `${formattedMinutes}:${formattedSeconds}`;
+  };
+
+
+
+  const formatTime5min = () => {
+    const time = 300;
     const minutes = Math.floor(time / 60);
     const seconds = time % 60;
 
@@ -136,7 +163,8 @@ const TimerScreen = () => {
       <TouchableOpacity
         style={styles.timerContainer}
         onPress={handleStart}
-        disabled={isActive}
+        // disabled={isActive}
+        disabled={true}
       >
         <View style={styles.timerCircle}>
           <Text style={styles.timerText}>{formatTime()}</Text>
@@ -148,7 +176,7 @@ const TimerScreen = () => {
           <>
             <TouchableOpacity
               style={[styles.button, styles.startButton]}
-              onPress={handleStart}
+              onPress={() => handleStart("25")}
             >
               <Text style={styles.buttonText}> Start</Text>
               <Text style={styles.buttonText}>25 min</Text>
@@ -156,7 +184,7 @@ const TimerScreen = () => {
 
             <TouchableOpacity
               style={[styles.button, styles.startButton]}
-              onPress={handleStart}
+              onPress={() => handleStart("5")}
             > 
               <Text style={styles.buttonText}>Start</Text>
               <Text style={styles.buttonText}> 5 min</Text>

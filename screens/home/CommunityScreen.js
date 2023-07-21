@@ -25,7 +25,7 @@ const CommunityScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    const fetchSessions = async () => {
+    const fetchSessions = async () => { 
       const q = query(collection(FIREBASE_DB, 'community-chat'), orderBy('createdAt', 'desc'));
       const unsubscribe = onSnapshot(q, (snapshot) => {
         const sessionData = [];
@@ -158,7 +158,8 @@ const CommunityScreen = () => {
               <View style={styles.sessionHeaderLeft}>
                 {session.photoURL ? (
                   <Image
-                    source={{ uri: session.photoURL }}
+                    // source={{ uri: session.photoURL }}
+                    source={{ uri: `${session.photoURL}?timestamp=${Date.now()}` }}
                     width={24}
                     height={24}
                     borderRadius={12}

@@ -9,9 +9,9 @@ const CalendarScreen = (props) => {
   const [showTasks, setShowTasks] = useState(false);
 
   const tasksForSelectedDay = [
-    { id: 1, title: 'English' },
-    { id: 2, title: 'Spanish' },
-    { id: 3, title: 'Math' },
+    { id: 1, title: 'Morning Routine' },
+    { id: 2, title: 'Sport' },
+    { id: 3, title: 'Learning' },
   ];
 
   const handleDayPress = (day) => {

@@ -13,6 +13,7 @@ export default {
     CALENDAR: 'Calendar',
     TIMER: 'Timer',
     TIMER_LOGS: 'History',
+    TIMER_5MIN: 'Timer 5 MIN',
     USER_PROFILE: 'User Profile',
     USER_PROFILE_SETTINGS: 'User Profile Settings',
     POST_INFORMATION: 'Post Information',

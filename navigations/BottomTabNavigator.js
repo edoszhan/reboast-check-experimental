@@ -101,6 +101,7 @@ function MainComponent() {
   const [dailyPressed, setDailyPressed] = useState(false);
 
   const togglePopup = () => {
+    setSelectedDays([]); 
     setIsPopupVisible(!isPopupVisible);
   };
 
@@ -188,6 +189,7 @@ function MainComponent() {
     // Save the session details to the database
     togglePopup(); // Close the popup
     sendData();
+    setSelectedDays([]); 
   };
 
 
@@ -256,7 +258,7 @@ function MainComponent() {
                   <TouchableOpacity
                     key={index}
                     style={[styles.dayButton, checkbox.checked && styles.checkedDayButton]}
-                    onPress={() => [handleDayPress(index), setSelectedDays(selectedDays => [...selectedDays,checkboxes[index].day,])]}
+                    onPress={() => [handleDayPress(index), setSelectedDays(selectedDays => [checkboxes[index].day,])]}
                   >
                     <Text style={[styles.dayButtonText, checkbox.checked && styles.checkedDayButtonText]}>
                       {checkbox.day}

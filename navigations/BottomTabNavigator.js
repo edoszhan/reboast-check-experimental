@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ROUTES } from '../constants';
-import { Home, Timer, Calendar, Community, UserProfile, AddPost, PostInformation, TodoInformation } from '../screens';
-import { Ionicons, FontAwesome, MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
+import { Home, Timer, Calendar, UserProfile, AddPost, PostInformation, TodoInformation } from '../screens';
+import { Ionicons, MaterialCommunityIcons, } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import TimerLogs from '../screens/home/TimerLogs';
 import { TouchableOpacity, View, Text, Modal, StyleSheet } from 'react-native';
@@ -22,11 +22,9 @@ const Stack = createStackNavigator();
 const UserProfileStack = createStackNavigator();
 const HomeScreenStack = createStackNavigator();
 
-import { Dimensions } from 'react-native';
 import CommunityScreen from '../screens/home/CommunityScreen'; 
 import { ActivityIndicator } from 'react-native-paper';
 import HomeScreen from '../screens/home/HomeScreen';
-const { height } = Dimensions.get('window');
 
 const HomeStackScreen = () => {
   return (

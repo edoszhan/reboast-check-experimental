@@ -256,7 +256,7 @@ function MainComponent() {
                   <TouchableOpacity
                     key={index}
                     style={[styles.dayButton, checkbox.checked && styles.checkedDayButton]}
-                    onPress={() => [handleDayPress(index), setSelectedDays(selectedDays => [checkboxes[index].day])]}
+                    onPress={() => [handleDayPress(index), setSelectedDays(selectedDays => [...selectedDays,checkboxes[index].day,])]}
                   >
                     <Text style={[styles.dayButtonText, checkbox.checked && styles.checkedDayButtonText]}>
                       {checkbox.day}
@@ -295,8 +295,8 @@ function MainComponent() {
                 placeholder=" Select category"
                 style={{ width: 330, borderColor: 'black', borderWidth: 1, borderRadius: 10 }}
                 data={data}
-                value={selectedCategory}
-                // onChangeText={handleCategorySelect}
+                // value={selectedCategory} //attemp to fix the dropdown items unselect
+                onChangeText={handleCategorySelect}
               />
               <TouchableOpacity style={styles.closeButton} onPress={togglePopup}>
               </TouchableOpacity>

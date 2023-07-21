@@ -68,17 +68,17 @@ const HomeScreen = (props) => {
     });
   };
 
-  const getCheckedTaskNames = () => {
-    const checkedTaskNames = [];
-    Object.entries(tasksByCategory).forEach(([categoryName, tasks]) => {
-      tasks.forEach((task) => {
-        if (task.checked) {
-          checkedTaskNames.push(task.categoryItems);
-        }
-      });
-    });
-    return checkedTaskNames;
-  };
+  // const getCheckedTaskNames = () => {
+  //   const checkedTaskNames = [];
+  //   Object.entries(tasksByCategory).forEach(([categoryName, tasks]) => {
+  //     tasks.forEach((task) => {
+  //       if (task.checked) {
+  //         checkedTaskNames.push(task.categoryItems);
+  //       }
+  //     });
+  //   });
+  //   return checkedTaskNames;
+  // };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -90,9 +90,9 @@ const HomeScreen = (props) => {
             {tasks.length === 0 ? (
               <Text style={styles.noTasksText}>No tasks available. Go add one now</Text>
             ) : (
-              tasks.map((task) => (
+              tasks.map((task) => ( 
                 <TouchableOpacity
-                  key={task.id}
+                  key={task.categoryId}
                   style={{ ...styles.taskBlock, backgroundColor: task.categoryColor.toLowerCase() }}
                   onPress={() => toggleTaskChecked(categoryName, task.categoryId)}
                 >

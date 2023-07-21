@@ -17,6 +17,9 @@ const HomeScreen = (props) => {
   const [tasksByCategory, setTasksByCategory] = useState({});
   const auth = getAuth();
 
+    // const todayDayoftheWeek = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+    const todayDayoftheWeek = new Date().toLocaleDateString('kr-KO', { weekday: 'long' });
+
   useEffect(() => {
     const checkedTaskNames = [];
     Object.entries(tasksByCategory).forEach(([categoryName, tasks]) => {
@@ -26,10 +29,12 @@ const HomeScreen = (props) => {
         }
       });
     });
-    console.log('Checked task names:', checkedTaskNames);
   }, [tasksByCategory]);
 
   useEffect(() => {
+    const today = new Date().toLocaleDateString('kr-KO', { weekday: 'long' });
+    const string = today.split(" ");
+    const todayDay = string[3][0];
     const user = auth.currentUser;
     const categoryNames = ['Sport', 'Learning', 'Morning Routine'];
     const unsubscribeTasks = categoryNames.map((categoryName) => {
@@ -39,7 +44,9 @@ const HomeScreen = (props) => {
         const taskList = [];
         snapshot.forEach((doc) => {
           const taskData = doc.data();
+          if (todayDay.includes(taskData.categoryDays)) {
           taskList.push({ ...taskData, checked: false }); // Add checked property to task data
+          }
         });
         setTasksByCategory((prevTasksByCategory) => ({
           ...prevTasksByCategory,
@@ -80,10 +87,12 @@ const HomeScreen = (props) => {
   //   return checkedTaskNames;
   // };
 
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <Text style={styles.heading}>Todo Tasks</Text>
+        <Text style={{...styles.heading, fontSize: 15, fontWeight: "normal"}}>{todayDayoftheWeek}</Text>
         {Object.entries(tasksByCategory).map(([categoryName, tasks]) => (
           <View key={categoryName} style={styles.categoryContainer}>
             <Text style={styles.categoryName}>{categoryName}</Text>

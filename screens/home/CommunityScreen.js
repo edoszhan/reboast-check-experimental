@@ -10,19 +10,22 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { collection, query, onSnapshot, orderBy, deleteDoc, doc } from 'firebase/firestore';
+import { collection, query, onSnapshot, orderBy, deleteDoc, doc, where, setDoc, updateDoc} from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { FIREBASE_AUTH } from '../../config/firebase';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
-import { Entypo } from '@expo/vector-icons';
+import { AntDesign, Entypo } from '@expo/vector-icons';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { Ionicons } from '@expo/vector-icons';
+import { set } from 'react-native-reanimated';
 
 const CommunityScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [sessions, setSessions] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [likeClicked, setLikeClicked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
 
   useEffect(() => {
     const fetchSessions = async () => { 
@@ -49,13 +52,6 @@ const CommunityScreen = () => {
     };
 
     setTimeout(loadData, 1000);
-
-    // return () => {
-    //   // Cleanup the subscription on component unmount
-    //   // if (unsubscribe) {
-    //   //   unsubscribe();
-    //   // }
-    // };
   }, []);
 
   const onRefresh = React.useCallback(async () => {
@@ -142,9 +138,45 @@ const CommunityScreen = () => {
       </View>
     );
   }
+  const handleLike = async (postId) => {
+      const q = query(collection(FIREBASE_DB, 'community-chat'), where('postId', '==', postId));
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          setLikesCount(data.likesCount);
+        });
+        
+        setIsLoading(false); 
+      });
+
+      if (!likeClicked) {
+        setLikeClicked(true);
+      }
+      else if (likeClicked) {
+        setLikeClicked(false);
+      }
+      
+      try {
+        if (likeClicked) {
+        await updateDoc(doc(FIREBASE_DB, 'community-chat', postId), {
+          likesCount: likesCount + 1,
+        });
+      } else {
+        await updateDoc(doc(FIREBASE_DB, 'community-chat', postId), {
+          likesCount: likesCount - 1,
+        });
+      }
+      } catch (error) {
+        console.log('Error updating document: ', error);
+      }
+
+      return unsubscribe;
+    }
+
+
 
   return (
-    <ScrollView
+    <ScrollView 
       style={styles.container}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
@@ -154,6 +186,13 @@ const CommunityScreen = () => {
       <View style={styles.container}>
         {sessions.map((session, index) => (
           <View key={index} style={styles.sessionContainer}>
+            <View style={styles.likeContainer}>
+              <TouchableOpacity onPress={() => [handleLike(session.postId)]}>
+                { likeClicked ? <AntDesign name="like1" size={24} color="black" /> : <AntDesign name="like2" size={24} color="black" />}
+              </TouchableOpacity>
+              <Text style={styles.likeText}>{session.likesCount}</Text>
+            </View>
+            <View style={styles.postContent}>
             <View style={styles.sessionHeader}>
               <View style={styles.sessionHeaderLeft}>
                 {session.photoURL ? (
@@ -186,6 +225,7 @@ const CommunityScreen = () => {
                 <Text style={styles.sessionText}>{session.postContent ? session.postContent : 'No content'}</Text>
               </View>
             </TouchableOpacity>
+            </View>
           </View>
         ))}
       </View>
@@ -204,6 +244,8 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     padding: 10,
     borderRadius: 5,
+    flexDirection: 'row',
+    alignItems: 'center'
   },
   sessionBlock: {
     flexDirection: 'row',
@@ -240,6 +282,18 @@ const styles = StyleSheet.create({
   sessionHeaderLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  likeContainer: {
+    width: 40, // Width for the like container
+    justifyContent: 'center', // To horizontally center the content
+    alignItems: 'center', // To vertically center the content
+    marginRight: 10, // Add some spacing between like container and post content
+  },
+  likeText: {
+    fontSize: 10, // Size for the like text
+  },
+  postContent: {
+    flex: 1, // Let the post content take the remaining width
   },
 });
 

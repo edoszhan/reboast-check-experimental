@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { collection, query, getDocs, orderBy } from 'firebase/firestore';
+import { collection, query, getDocs, orderBy, getDoc } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { FIREBASE_AUTH } from '../../config/firebase';
 
 import { ScrollView } from 'react-native-gesture-handler';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { deleteDoc, doc } from 'firebase/firestore';
+import { deleteDoc, doc} from 'firebase/firestore';
 
 const TimerLogs = () => {
   const [sessions, setSessions] = useState([]);
@@ -19,14 +19,25 @@ const TimerLogs = () => {
     );
     const querySnapshot = await getDocs(q);
     const sessionData = [];
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
+  
+    for (const docSnap of querySnapshot.docs) {
+      const data = docSnap.data();
       if (data.userId === uid) {
-        sessionData.push({ id: doc.id, ...data });
+        const categoryName = data.categoryName;
+        const categoryDocRef = doc(FIREBASE_DB, 'timer-logs', uid, 'category', categoryName);
+
+      try {
+        const categoryDocSnapshot = await getDoc(categoryDocRef);
+        const color = categoryDocSnapshot.exists() ? categoryDocSnapshot.data().color : 'defaultColor';
+        sessionData.push({ id: docSnap.id, ...data, color });
+      } catch (error) {
+        console.log('Error fetching category document:', error);
       }
-    });
-    setSessions(sessionData);
-  };
+    }
+   };
+   setSessions(sessionData);
+}
+  
 
   useEffect(() => {
     fetchSessions();
@@ -44,15 +55,16 @@ const TimerLogs = () => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.container}>
-        <Text style={styles.title}>History of Timer Sessions</Text>
+        {/* <Text style={styles.title}>History of Timer Sessions</Text> */}
         {sessions.length < 1 ? ( // Check if sessions array is empty
           <Text style={styles.noSessionsText}>No current timer sessions</Text>
         ) : (
           sessions.map((session, index) => (
-            <View key={index} style={styles.sessionContainer}>
+            <View key={index} style={{...styles.sessionContainer, backgroundColor: session.color}}>
               <View style={styles.sessionBlock}>
-                <Text style={styles.sessionTitle}>Topic:</Text>
+                {/* <Text style={styles.sessionTitle}>Topic:</Text> */}
                 <Text style={styles.sessionText}>{session.sessionTopic}</Text>
+                <Text style={{...styles.sessionText, position: 'absolute', marginLeft: 150}}>{session.sessionFinishTime}</Text>
               </View>
           {/* <View style={styles.sessionBlock}> //memo only shown when you click on the session
             <Text style={styles.sessionTitle}>Memo:</Text>
@@ -60,18 +72,18 @@ const TimerLogs = () => {
               {session.sessionMemo ? session.sessionMemo : 'No memo'}
             </Text>
           </View> */}
-              <View style={styles.sessionBlock}>
+              {/* <View style={styles.sessionBlock}>
                 <Text style={styles.sessionTitle}>Duration:</Text>
                 <Text style={styles.sessionText}>
                   {`${Math.floor(session.sessionDuration / 60)} minutes ${
                     session.sessionDuration % 60
                   } seconds`}
                 </Text>
-              </View>
-              <View style={styles.sessionBlock}>
+              </View> */}
+              {/* <View style={styles.sessionBlock}>
                 <Text style={styles.sessionTitle}>Finished time:</Text>
                 <Text style={styles.sessionText}>{session.sessionFinishTime}</Text>
-              </View>
+              </View> */}
           {/* <View style={styles.sessionBlock}>
             <Text style={styles.sessionTitle}>Session Id:</Text>
             <Text style={styles.sessionText}>{session.sessionId}</Text>
@@ -126,7 +138,7 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     marginTop: 10,
-    backgroundColor: 'red',
+    backgroundColor: 'black', //will be placed and changed
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',

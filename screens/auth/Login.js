@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   // footer
   footer: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 0,   //previously 20
     textAlign: 'center',
     flexDirection: 'row',
   },
@@ -195,5 +195,8 @@ const styles = StyleSheet.create({
   },
   mr7: {
     marginRight: 7,
+  },
+  forgotPassBtn: {
+    marginTop: 7,
   },
 });

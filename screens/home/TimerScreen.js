@@ -10,12 +10,11 @@ import { doc, setDoc } from 'firebase/firestore';
 import uuid from 'react-native-uuid'; //for generating random id, and it does not really matter for us
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Dropdown } from 'react-native-element-dropdown';
-import { set } from "react-native-reanimated";
 
 const TimerScreen = () => {
  
   const auth = FIREBASE_AUTH;
-  const uid = auth.currentUser.uid;
+  const uid = auth.currentUser.uid; //const was added
   const session_random = uuid.v4();
 
   const create = async (uid) => {
@@ -35,7 +34,7 @@ const TimerScreen = () => {
   };
 
   const sendData = async () => {
-    await create(uid);
+    await create(uid); 
   };
 
   const navigation = useNavigation();
@@ -64,11 +63,10 @@ const TimerScreen = () => {
   const sessionFinishTime = currentDayTime;
 
   const data = [
-    { label: 'Morning Routine', value: '1' },
-    { label: 'Sport', value: '2' },
-    { label: 'Learning', value: '3' },
+    { label: 'Morning Routine', value: '1', color: 'blue' },
+    { label: 'Sport', value: '1', color: 'beige' },
+    { label: 'Learning', value: '1', color: 'red' },
   ];
-
   useEffect(() => {
     if (isActive && !isPaused) {
       intervalRef.current = setInterval(() => {
@@ -228,17 +226,19 @@ const TimerScreen = () => {
       <View>
         <Dropdown
                 iconColor="black"
+                activeColor="gray"
                 labelField="label"
                 valueField="value"
+                colorField = "color"
                 onChange={(item) => {
                   console.log(item);
                   setSelectedTask(item.label);
                   setSelectedTaskParams(item.label);
                   setDropdownEnabled(true);
                 }}
-                // placeholder=" Select todo task"
+                itemContainerStyle={{backgroundColor: '#fff',}}
                 placeholder = {selectedTask ? selectedTask : "Select todo task"}
-                style={{ width: 200, borderColor: 'black', borderWidth: 1, borderRadius: 10 }}
+                style={{ width: 200, borderColor: 'black', borderWidth: 1, borderRadius: 10, padding: 10,}}
                 data={data}
               />
       </View>
@@ -248,8 +248,9 @@ const TimerScreen = () => {
         <Modal animationType="slide" transparent={true} visible={isPopupVisible} onRequestClose={togglePopup}>
           <View style={styles.modalContainer}>
             <View style={styles.popup}>
-              <Text style={styles.popupText}>Session Details</Text>
+              <Text style={styles.popupText}>Todo</Text>
               <Text>Duration: {Math.floor(sessionDuration / 60)} minutes {sessionDuration % 60} seconds</Text> 
+              {/* <Text>2023.06.28 15:30</Text> */}
               <TextInput
                 style={styles.input}
                 value={sessionTopic}
@@ -349,10 +350,11 @@ const styles = StyleSheet.create({
     padding: 100,
     borderRadius: 10,
     alignItems: "center",
-    position: "absolute",
     left: 0,
     right: 0,
-    maxHeight: height / 1.2,    //size of the popUp box
+    // maxHeight: height / 1.2,   //size of the popUp box
+    position: "absolute",
+    bottom: 3,
   },
   popupText: {
     fontSize: 20,
@@ -363,11 +365,11 @@ const styles = StyleSheet.create({
   closeButton: {
     marginTop: 20,
     padding: 10,
-    backgroundColor: "gray",
-    borderRadius: 5,
+    backgroundColor: "yellow",
+    borderRadius: 10,
   },
   closeButtonText: {
-    color: "white",
+    color: "black",
     fontWeight: "bold",
   },
   input: {

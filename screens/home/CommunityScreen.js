@@ -104,7 +104,7 @@ const CommunityScreen = () => {
         <Menu>
           <MenuTrigger>
             <Entypo name="dots-three-vertical" size={24} color="black" />
-          </MenuTrigger>
+          </MenuTrigger> 
           <MenuOptions>
             <MenuOption onSelect={() => navigation.navigate(ROUTES.POST_INFORMATION, { postId: session.id })}>
               <Text style={{ color: 'blue' }}>More details</Text>

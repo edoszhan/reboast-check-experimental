@@ -6,6 +6,7 @@ import { FIREBASE_DB } from '../../config/firebase';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
+import { AntDesign } from '@expo/vector-icons';
 
 
 const CustomCheckbox = ({ checked }) => {
@@ -40,7 +41,7 @@ const HomeScreen = () => {
     const string = today.split(" ");
     const todayDay = string[3][0];
     const user = auth.currentUser;
-    const categoryNames = ['Sport', 'Learning', 'Morning Routine'];
+    const categoryNames = ['Sport', 'Learning', 'Morning Routine']; //can be appended later if the "add category" feature is added
     const unsubscribeTasks = categoryNames.map((categoryName) => {
       const categoryRef = collection(FIREBASE_DB, 'todo-list', user.uid, categoryName);
       const q = query(categoryRef, orderBy('createdAt', 'desc'));
@@ -79,19 +80,6 @@ const HomeScreen = () => {
     });
   };
 
-  // const getCheckedTaskNames = () => {
-  //   const checkedTaskNames = [];
-  //   Object.entries(tasksByCategory).forEach(([categoryName, tasks]) => {
-  //     tasks.forEach((task) => {
-  //       if (task.checked) {
-  //         checkedTaskNames.push(task.categoryItems);
-  //       }
-  //     });
-  //   });
-  //   return checkedTaskNames;
-  // };
-
-
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
@@ -107,7 +95,7 @@ const HomeScreen = () => {
                 <TouchableOpacity
                   key={task.categoryId}
                   style={{ ...styles.taskBlock, backgroundColor: task.categoryColor.toLowerCase() }}
-                  onPress={() => [toggleTaskChecked(categoryName, task.categoryId), navigation.navigate(ROUTES.TODO_INFORMATION)]}
+                  onPress={() => [toggleTaskChecked(categoryName, task.categoryId)]}
                 >
                   <CustomCheckbox checked={task.checked}/>
                   <View style={styles.taskContent}>
@@ -120,6 +108,9 @@ const HomeScreen = () => {
                     {task.categoryItems}
                   </Text>
                   </View>
+                  <TouchableOpacity onPress={() => navigation.navigate(ROUTES.TODO_INFORMATION, { taskId: task.categoryId })}>
+                    <AntDesign name="caretright" size={20} color="black" />
+                  </TouchableOpacity>
                 </TouchableOpacity>
               ))
             )}

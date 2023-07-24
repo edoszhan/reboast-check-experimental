@@ -62,9 +62,8 @@ const TimerLogs = () => {
           sessions.map((session, index) => (
             <View key={index} style={{...styles.sessionContainer, backgroundColor: session.color}}>
               <View style={styles.sessionBlock}>
-                {/* <Text style={styles.sessionTitle}>Topic:</Text> */}
+                <Text style={styles.sessionTitle}>Topic:</Text>
                 <Text style={styles.sessionText}>{session.sessionTopic}</Text>
-                <Text style={{...styles.sessionText, position: 'absolute', marginLeft: 150}}>{session.sessionFinishTime}</Text>
               </View>
           {/* <View style={styles.sessionBlock}> //memo only shown when you click on the session
             <Text style={styles.sessionTitle}>Memo:</Text>
@@ -72,18 +71,18 @@ const TimerLogs = () => {
               {session.sessionMemo ? session.sessionMemo : 'No memo'}
             </Text>
           </View> */}
-              {/* <View style={styles.sessionBlock}>
+              <View style={styles.sessionBlock}>
                 <Text style={styles.sessionTitle}>Duration:</Text>
                 <Text style={styles.sessionText}>
                   {`${Math.floor(session.sessionDuration / 60)} minutes ${
                     session.sessionDuration % 60
                   } seconds`}
                 </Text>
-              </View> */}
-              {/* <View style={styles.sessionBlock}>
+              </View>
+              <View style={styles.sessionBlock}>
                 <Text style={styles.sessionTitle}>Finished time:</Text>
                 <Text style={styles.sessionText}>{session.sessionFinishTime}</Text>
-              </View> */}
+              </View>
           {/* <View style={styles.sessionBlock}>
             <Text style={styles.sessionTitle}>Session Id:</Text>
             <Text style={styles.sessionText}>{session.sessionId}</Text>

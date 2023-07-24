@@ -183,7 +183,17 @@ function MainComponent() {
         categoryDays: selectedDays,
         categoryId: category_random_Id,
         createdAt: serverTimestamp(),
-      });
+      }); 
+      await setDoc(doc(FIREBASE_DB, 'todo-list', uid, "All", category_random_Id), {  //session3 should not be manually entered, we need to update number of sessions  
+        categoryName: selectedCategory,
+        categoryColor: selectedColor,
+        isChecked: false,
+        categoryItems: taskName,
+        categoryDays: selectedDays,
+        categoryId: category_random_Id,
+        createdAt: serverTimestamp(),
+      }); 
+
     } catch (error) {
       console.log("Error writing document: ", error);
     }

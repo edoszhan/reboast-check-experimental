@@ -78,7 +78,7 @@ function StackRoutes() {
 const BottomTabNavigator = () => {
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
+  useEffect(() => { 
     setTimeout(() => {
       setIsLoading(false);
     }, 1000);

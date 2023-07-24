@@ -10,12 +10,12 @@ import { doc, setDoc } from 'firebase/firestore';
 import uuid from 'react-native-uuid'; //for generating random id, and it does not really matter for us
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Dropdown } from 'react-native-element-dropdown';
+import { set } from "react-native-reanimated";
 
 const TimerScreen = () => {
  
   const auth = FIREBASE_AUTH;
-
-  uid = auth.currentUser.uid;
+  const uid = auth.currentUser.uid;
   const session_random = uuid.v4();
 
   const create = async (uid) => {
@@ -27,6 +27,7 @@ const TimerScreen = () => {
         sessionDuration: sessionDuration,
         sessionFinishTime: sessionFinishTime,
         sessionId: session_random,
+        categoryName: selectedTaskParams,
       });
     } catch (error) {
       console.log("Error writing document: ", error);
@@ -51,6 +52,9 @@ const TimerScreen = () => {
   const intervalRef = useRef(null);
   
   const [sessionType, setSessionType] = useState("25");
+  const [dropdownEnabled, setDropdownEnabled] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [selectedTaskParams, setSelectedTaskParams] = useState(null);
 
   const now = new Date();
   const currentDay = now.toLocaleDateString('ko-KR');  //korean date format
@@ -88,6 +92,7 @@ const TimerScreen = () => {
   }, [isActive, isPaused, time]);
 
   const handleStart = (type) => {
+    if (dropdownEnabled) {
     setIsActive(true);
     setIsPaused(false);
     setSessionType(type);
@@ -95,6 +100,13 @@ const TimerScreen = () => {
       setTime(1500); // 25 minutes in seconds ~ pomodoro style
     } else {
       setTime(300); // 5 minutes in seconds
+    }
+    const task = data.find((item) => item.value === selectedTask);
+      if (task) {
+        setSelectedTask(task.label);
+      }
+    }else {
+      alert("Please select a task from the dropdown menu")
     }
   };
 
@@ -121,6 +133,8 @@ const TimerScreen = () => {
     // setTime(1500); // Reset time to 25 minutes for the next session
     setSessionTopic(""); // Clear the session topic input
     setSessionMemo(""); // Clear the session memo input
+    setDropdownEnabled(false);
+    setSelectedTask("Select todo task");
   }
 
   const handleSave = () => {  
@@ -217,13 +231,15 @@ const TimerScreen = () => {
                 labelField="label"
                 valueField="value"
                 onChange={(item) => {
-                  console.log('working');
+                  console.log(item);
+                  setSelectedTask(item.label);
+                  setSelectedTaskParams(item.label);
+                  setDropdownEnabled(true);
                 }}
-                placeholder=" Select todo task"
+                // placeholder=" Select todo task"
+                placeholder = {selectedTask ? selectedTask : "Select todo task"}
                 style={{ width: 200, borderColor: 'black', borderWidth: 1, borderRadius: 10 }}
                 data={data}
-                // value={selectedCategory} //attemp to fix the dropdown items unselect
-                // onChangeText={handleCategorySelect}
               />
       </View>
 

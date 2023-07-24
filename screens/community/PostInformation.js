@@ -29,7 +29,7 @@ const PostInformation = ({ route }) => {
 
   postId = params.postId;
   const fetchComments = async () => {
-    const q = query(collection(FIREBASE_DB, 'community-comment', postId, 'comments'), orderBy('createdAt', 'desc')); //PREVIOUSLY DESC
+    const q = query(collection(FIREBASE_DB, 'community-comment', postId, 'comments'), orderBy('createdAt', 'desc')); //PREVIOUSLY ASC
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const commentsData = [];
       snapshot.forEach((doc) => {

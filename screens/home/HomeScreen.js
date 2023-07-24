@@ -22,7 +22,7 @@ const HomeScreen = () => {
   const auth = getAuth();
 
     // const todayDayoftheWeek = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-    const todayDayoftheWeek = new Date().toLocaleDateString('kr-KO', { weekday: 'long' });
+  const todayDayoftheWeek = new Date().toLocaleDateString('kr-KO', { weekday: 'long' });
 
   useEffect(() => {
     const checkedTaskNames = [];

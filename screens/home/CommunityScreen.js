@@ -18,14 +18,13 @@ import { ROUTES } from '../../constants';
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { Ionicons } from '@expo/vector-icons';
-import { set } from 'react-native-reanimated';
+
 
 const CommunityScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [sessions, setSessions] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [likeClicked, setLikeClicked] = useState(false);
-  const [likesCount, setLikesCount] = useState(0);
 
   useEffect(() => {
     const fetchSessions = async () => { 
@@ -37,7 +36,7 @@ const CommunityScreen = () => {
           sessionData.push({ id: doc.id, ...data });
         });
         setSessions(sessionData);
-        setIsLoading(false);
+        setIsLoading(false); 
       });
 
       return unsubscribe;
@@ -138,42 +137,40 @@ const CommunityScreen = () => {
       </View>
     );
   }
+
+
   const handleLike = async (postId) => {
-      const q = query(collection(FIREBASE_DB, 'community-chat'), where('postId', '==', postId));
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          setLikesCount(data.likesCount);
-        });
-        
-        setIsLoading(false); 
+    const sessionToUpdate = sessions.find((session) => session.id === postId);
+
+    if (sessionToUpdate) {
+      const likesCountT = sessionToUpdate.likesCount;
+      let updatedLikesCount;
+      let updatedLikeClicked;
+
+      if (!likeClicked[postId]) {
+        updatedLikesCount = likesCountT + 1;
+        updatedLikeClicked = true;
+        console.log("was not liked before");
+      } else {
+        updatedLikesCount = likesCountT - 1;
+        updatedLikeClicked = false;
+        console.log("was liked before");
+      }
+
+      console.log("updated likesCount ", updatedLikesCount);
+
+      // Update the likesCount in the database
+      const postRef = doc(FIREBASE_DB, 'community-chat', postId);
+      updateDoc(postRef, {
+        likesCount: updatedLikesCount,
       });
 
-      if (!likeClicked) {
-        setLikeClicked(true);
-      }
-      else if (likeClicked) {
-        setLikeClicked(false);
-      }
-      
-      try {
-        if (likeClicked) {
-        await updateDoc(doc(FIREBASE_DB, 'community-chat', postId), {
-          likesCount: likesCount + 1,
-        });
-      } else {
-        await updateDoc(doc(FIREBASE_DB, 'community-chat', postId), {
-          likesCount: likesCount - 1,
-        });
-      }
-      } catch (error) {
-        console.log('Error updating document: ', error);
-      }
-
-      return unsubscribe;
+      // Update the state variables to reflect the changes
+      // setLikeClicked(updatedLikeClicked);
+      setLikeClicked(prevState => ({ ...prevState, [postId]: updatedLikeClicked }));
     }
-
-
+    return unsubscribe;
+}
 
   return (
     <ScrollView 

@@ -36,6 +36,7 @@ const AddPost = () => {
           createdAt: serverTimestamp() ? serverTimestamp() : postCreatedDateTime,
           photoURL: photo,
           likesCount: 0,
+          isLiked: [],
         });
       } catch (error) {
         console.log("Error writing document: ", error);

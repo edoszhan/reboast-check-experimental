@@ -139,38 +139,35 @@ const CommunityScreen = () => {
   }
 
 
-  const handleLike = async (postId) => {
+  const handleLike = async (postId, session) => {
+    const uid = FIREBASE_AUTH.currentUser.uid;
     const sessionToUpdate = sessions.find((session) => session.id === postId);
-
+  
     if (sessionToUpdate) {
-      const likesCountT = sessionToUpdate.likesCount;
-      let updatedLikesCount;
-      let updatedLikeClicked;
-
-      if (!likeClicked[postId]) {
-        updatedLikesCount = likesCountT + 1;
-        updatedLikeClicked = true;
-        console.log("was not liked before");
-      } else {
-        updatedLikesCount = likesCountT - 1;
-        updatedLikeClicked = false;
+      let updatedLikesCount = sessionToUpdate.likesCount;
+      let updatedIsLiked = sessionToUpdate.isLiked;
+      
+      const likedIndex = updatedIsLiked.indexOf(uid);
+      
+      if (likedIndex !== -1) {
+        updatedIsLiked.splice(likedIndex, 1);
+        updatedLikesCount--;
         console.log("was liked before");
+      } else {
+        updatedIsLiked.push(uid);
+        updatedLikesCount++;
+        console.log("was not liked before");
       }
-
-      console.log("updated likesCount ", updatedLikesCount);
-
-      // Update the likesCount in the database
+  
+      // Update the likesCount and isLiked in the database 
       const postRef = doc(FIREBASE_DB, 'community-chat', postId);
       updateDoc(postRef, {
         likesCount: updatedLikesCount,
+        isLiked: updatedIsLiked,
       });
-
-      // Update the state variables to reflect the changes
-      // setLikeClicked(updatedLikeClicked);
-      setLikeClicked(prevState => ({ ...prevState, [postId]: updatedLikeClicked }));
     }
-    return unsubscribe;
-}
+  }
+
 
   return (
     <ScrollView 
@@ -184,9 +181,13 @@ const CommunityScreen = () => {
         {sessions.map((session, index) => (
           <View key={index} style={styles.sessionContainer}>
             <View style={styles.likeContainer}>
-              <TouchableOpacity onPress={() => [handleLike(session.postId)]}>
-                { likeClicked ? <AntDesign name="like1" size={24} color="black" /> : <AntDesign name="like2" size={24} color="black" />}
-              </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleLike(session.id, session)}>
+            {session.isLiked.includes(FIREBASE_AUTH.currentUser.uid) ? (
+              <AntDesign name="like1" size={24} color="black" />
+            ) : (
+              <AntDesign name="like2" size={24} color="black" />
+            )}
+          </TouchableOpacity>
               <Text style={styles.likeText}>{session.likesCount}</Text>
             </View>
             <View style={styles.postContent}>

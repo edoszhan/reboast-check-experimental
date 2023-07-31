@@ -28,6 +28,7 @@ const TimerScreen = () => {
         sessionId: session_random,
         categoryName: selectedTaskParams,
       });
+
     } catch (error) {
       console.log("Error writing document: ", error);
     }
@@ -90,7 +91,7 @@ const TimerScreen = () => {
   }, [isActive, isPaused, time]);
 
   const handleStart = (type) => {
-    if (dropdownEnabled) {
+    if (dropdownEnabled === true || type === "5" ) {
     setIsActive(true);
     setIsPaused(false);
     setSessionType(type);

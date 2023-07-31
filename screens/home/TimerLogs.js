@@ -24,10 +24,10 @@ const TimerLogs = () => {
       const data = docSnap.data();
       if (data.userId === uid) {
         const categoryName = data.categoryName;
-        const categoryDocRef = doc(FIREBASE_DB, 'timer-logs', uid, 'category', categoryName);
+        const categoryDocRef = doc(FIREBASE_DB, 'constants', categoryName);
 
       try {
-        const categoryDocSnapshot = await getDoc(categoryDocRef);
+        const categoryDocSnapshot = await getDoc(categoryDocRef); //category collection does not exist for every sessions and user
         const color = categoryDocSnapshot.exists() ? categoryDocSnapshot.data().color : 'defaultColor';
         sessionData.push({ id: docSnap.id, ...data, color });
       } catch (error) {

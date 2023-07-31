@@ -127,10 +127,21 @@ function MainComponent() {
   };
 
   const handleDayPress = (index) => {
-    const updatedCheckboxes = [...checkboxes];
-    updatedCheckboxes[index].checked = !updatedCheckboxes[index].checked;
+    const updatedCheckboxes = checkboxes.map((checkbox, idx) => {
+      if (idx === index) {
+        return { ...checkbox, checked: !checkbox.checked };
+      }
+      return checkbox;
+    });
+  
+    const selectedDays = updatedCheckboxes
+      .filter((checkbox) => checkbox.checked)
+      .map((checkbox) => checkbox.day);
+  
     setCheckboxes(updatedCheckboxes);
+    setSelectedDays(selectedDays);
   };
+  
 
   const handleDailyPress = () => {
     setDailyPressed(!dailyPressed);

@@ -27,7 +27,7 @@ const TimerLogs = () => {
         const categoryDocRef = doc(FIREBASE_DB, 'constants', categoryName);
 
       try {
-        const categoryDocSnapshot = await getDoc(categoryDocRef); //category collection does not exist for every sessions and user
+        const categoryDocSnapshot = await getDoc(categoryDocRef); 
         const color = categoryDocSnapshot.exists() ? categoryDocSnapshot.data().color : 'defaultColor';
         sessionData.push({ id: docSnap.id, ...data, color });
       } catch (error) {

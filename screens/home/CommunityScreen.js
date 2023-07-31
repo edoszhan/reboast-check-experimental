@@ -152,11 +152,9 @@ const CommunityScreen = () => {
       if (likedIndex !== -1) {
         updatedIsLiked.splice(likedIndex, 1);
         updatedLikesCount--;
-        console.log("was liked before");
       } else {
         updatedIsLiked.push(uid);
         updatedLikesCount++;
-        console.log("was not liked before");
       }
   
       // Update the likesCount and isLiked in the database 
@@ -221,6 +219,11 @@ const CommunityScreen = () => {
               </View>
               <View style={styles.sessionBlock}>
                 <Text style={styles.sessionText}>{session.postContent ? session.postContent : 'No content'}</Text>
+              </View>
+              <View>
+                {session.postFile ? (
+                  <Image source={{ uri: session.postFile }} style={{ width: 200, height: 200 }} />
+                ) : null}
               </View>
             </TouchableOpacity>
             </View>

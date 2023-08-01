@@ -8,12 +8,13 @@ import { useNavigation } from '@react-navigation/native';
 import { FIREBASE_AUTH, FIREBASE_DB } from '../../config/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import uuid from 'react-native-uuid'; //for generating random id, and it does not really matter for us
+import { FontAwesome5 } from "@expo/vector-icons";
+import { Dropdown } from 'react-native-element-dropdown';
 
 const TimerScreen = () => {
  
   const auth = FIREBASE_AUTH;
-
-  uid = auth.currentUser.uid;
+  const uid = auth.currentUser.uid; //const was added
   const session_random = uuid.v4();
 
   const create = async (uid) => {
@@ -25,14 +26,16 @@ const TimerScreen = () => {
         sessionDuration: sessionDuration,
         sessionFinishTime: sessionFinishTime,
         sessionId: session_random,
+        categoryName: selectedTaskParams,
       });
+
     } catch (error) {
       console.log("Error writing document: ", error);
     }
   };
 
   const sendData = async () => {
-    await create(uid);
+    await create(uid); 
   };
 
   const navigation = useNavigation();
@@ -49,6 +52,9 @@ const TimerScreen = () => {
   const intervalRef = useRef(null);
   
   const [sessionType, setSessionType] = useState("25");
+  const [dropdownEnabled, setDropdownEnabled] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [selectedTaskParams, setSelectedTaskParams] = useState(null);
 
   const now = new Date();
   const currentDay = now.toLocaleDateString('ko-KR');  //korean date format
@@ -57,6 +63,11 @@ const TimerScreen = () => {
   const currentDayTime = currentDay + " " + currentTime;  //we might change the formatting later
   const sessionFinishTime = currentDayTime;
 
+  const data = [
+    { label: 'Morning Routine', value: '1', color: 'blue' },
+    { label: 'Sport', value: '1', color: 'beige' },
+    { label: 'Learning', value: '1', color: 'red' },
+  ];
   useEffect(() => {
     if (isActive && !isPaused) {
       intervalRef.current = setInterval(() => {
@@ -80,6 +91,7 @@ const TimerScreen = () => {
   }, [isActive, isPaused, time]);
 
   const handleStart = (type) => {
+    if (dropdownEnabled === true || type === "5" ) {
     setIsActive(true);
     setIsPaused(false);
     setSessionType(type);
@@ -87,6 +99,13 @@ const TimerScreen = () => {
       setTime(1500); // 25 minutes in seconds ~ pomodoro style
     } else {
       setTime(300); // 5 minutes in seconds
+    }
+    const task = data.find((item) => item.value === selectedTask);
+      if (task) {
+        setSelectedTask(task.label);
+      }
+    }else {
+      alert("Please select a task from the dropdown menu")
     }
   };
 
@@ -113,6 +132,8 @@ const TimerScreen = () => {
     // setTime(1500); // Reset time to 25 minutes for the next session
     setSessionTopic(""); // Clear the session topic input
     setSessionMemo(""); // Clear the session memo input
+    setDropdownEnabled(false);
+    setSelectedTask("Select todo task");
   }
 
   const handleSave = () => {  
@@ -133,18 +154,6 @@ const TimerScreen = () => {
     return `${formattedMinutes}:${formattedSeconds}`;
   };
 
-
-
-  const formatTime5min = () => {
-    const time = 300;
-    const minutes = Math.floor(time / 60);
-    const seconds = time % 60;
-
-    const formattedMinutes = String(minutes).padStart(2, "0");
-    const formattedSeconds = String(seconds).padStart(2, "0");
-    return `${formattedMinutes}:${formattedSeconds}`;
-  };
-
   const handleSessionTopicChange = (text) => {
     setSessionTopic(text);
     setIsSaveDisabled(text.trim().length === 0); // Enable or disable the save button based on the session topic entry
@@ -157,8 +166,13 @@ const TimerScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={{ justifyContent: 'flex-end' }}>
-      <Button title="History" onPress={() => navigation.navigate(ROUTES.TIMER_LOGS)} />
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.navigate(ROUTES.TIMER_LOGS)}>
+          <View style={styles.iconContainer}>
+            <FontAwesome5 name="history" size={24} color="black" />
+          </View>
+        </TouchableOpacity>
+        <Text style={styles.headerText}>History</Text>
       </View>
       <TouchableOpacity
         style={styles.timerContainer}
@@ -207,8 +221,27 @@ const TimerScreen = () => {
                 {isPaused ? "Resume" : "Pause"}
               </Text>
             </TouchableOpacity>
-          </>
+          </> 
         )}
+      </View>
+      <View>
+        <Dropdown
+                iconColor="black"
+                activeColor="gray"
+                labelField="label"
+                valueField="value"
+                colorField = "color"
+                onChange={(item) => {
+                  console.log(item);
+                  setSelectedTask(item.label);
+                  setSelectedTaskParams(item.label);
+                  setDropdownEnabled(true);
+                }}
+                itemContainerStyle={{backgroundColor: '#fff',}}
+                placeholder = {selectedTask ? selectedTask : "Select todo task"}
+                style={{ width: 200, borderColor: 'black', borderWidth: 1, borderRadius: 10, padding: 10,}}
+                data={data}
+              />
       </View>
 
 
@@ -216,8 +249,9 @@ const TimerScreen = () => {
         <Modal animationType="slide" transparent={true} visible={isPopupVisible} onRequestClose={togglePopup}>
           <View style={styles.modalContainer}>
             <View style={styles.popup}>
-              <Text style={styles.popupText}>Session Details</Text>
+              <Text style={styles.popupText}>Todo</Text>
               <Text>Duration: {Math.floor(sessionDuration / 60)} minutes {sessionDuration % 60} seconds</Text> 
+              {/* <Text>2023.06.28 15:30</Text> */}
               <TextInput
                 style={styles.input}
                 value={sessionTopic}
@@ -271,8 +305,9 @@ const styles = StyleSheet.create({
     padding: 10,   //some changes are needed to adjust the size
   },
   timerCircle: {
+    marginTop: -50,
     width: 200,
-    height: 200,
+    height: 200,  //was changed to free spae for the dropdown
     borderRadius: 100,
     backgroundColor: "#e3e3e3",
     alignItems: "center",
@@ -283,8 +318,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   button: {
+    marginTop: -30,
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     borderRadius: 5,
     marginBottom: 10,
   },
@@ -315,10 +351,11 @@ const styles = StyleSheet.create({
     padding: 100,
     borderRadius: 10,
     alignItems: "center",
-    position: "absolute",
     left: 0,
     right: 0,
-    maxHeight: height / 1.2,    //size of the popUp box
+    // maxHeight: height / 1.2,   //size of the popUp box
+    position: "absolute",
+    bottom: 3,
   },
   popupText: {
     fontSize: 20,
@@ -329,11 +366,11 @@ const styles = StyleSheet.create({
   closeButton: {
     marginTop: 20,
     padding: 10,
-    backgroundColor: "gray",
-    borderRadius: 5,
+    backgroundColor: "yellow",
+    borderRadius: 10,
   },
   closeButtonText: {
-    color: "white",
+    color: "black",
     fontWeight: "bold",
   },
   input: {
@@ -361,5 +398,21 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     backgroundColor: '#ccc',
+  },
+  header: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
+  iconContainer: {
+    borderRadius: 30,
+    backgroundColor: '#f0f0f0',
+    padding: 10,
+  },
+  headerText: {
+    marginTop: 10,
+    marginRight: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

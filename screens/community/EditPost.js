@@ -5,12 +5,12 @@ import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { FIREBASE_AUTH } from '../../config/firebase';
 import uuid from 'react-native-uuid';
-import { launchImageLibrary } from 'react-native-image-picker';
-import { Image } from 'react-native';
 
 
 
-const AddPost = () => {
+
+
+const EditPost = ({route}) => {
   const [postContent, setPostContent] = useState('');
   const [postTopic, setPostTopic] = useState('');
   const [postFile, setPostFile] = useState(null); //might need to change this to an array of files
@@ -51,24 +51,6 @@ const AddPost = () => {
     }
   };
 
-  const ImagePicker = () => {
-    let options = {
-      storageOptions: {
-        path: 'images',
-        aspect: [4, 3],
-        cameraRoll: true,
-        height: 100,
-      },
-    };
-    launchImageLibrary(options, async (response) => {
-
-      if (response.assets && response.assets.length > 0) {
-        setPostFile(response.assets[0].uri);
-
-      }
-    });
-  };
-
 
   const isPostButtonDisabled = !(postTopic);
 
@@ -89,17 +71,6 @@ const AddPost = () => {
           onChangeText={setPostContent}
         />
       </View>
-      {/* <TouchableOpacity style={{ marginBottom: 300, marginRight: 200}}
-      onPress={ImagePicker}>
-      {postFile ? (
-          <Image style={{ height: 100, width: '100%' }} source={{ uri: postFile }} />
-        ) : (
-          <Text style={{fontSize: 16,
-            textAlign: 'center',
-            marginTop: 200}}
-           >Upload an image</Text>
-        )}
-      </TouchableOpacity> */}
       <TouchableOpacity
         style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]}
         onPress={handlePostCreation}
@@ -160,4 +131,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddPost;
+export default EditPost;

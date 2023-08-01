@@ -29,7 +29,7 @@ const PostInformation = ({ route }) => {
 
   postId = params.postId;
   const fetchComments = async () => {
-    const q = query(collection(FIREBASE_DB, 'community-comment', postId, 'comments'), orderBy('createdAt', 'desc'));
+    const q = query(collection(FIREBASE_DB, 'community-comment', postId, 'comments'), orderBy('createdAt', 'desc')); //PREVIOUSLY ASC
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const commentsData = [];
       snapshot.forEach((doc) => {
@@ -87,6 +87,7 @@ const PostInformation = ({ route }) => {
     );
   };
   const handleComment = (comment) => {
+    const postAuthorName = `@${comment.replyAuthor} `;
     if (FIREBASE_AUTH.currentUser.uid !== comment.userId) {
       return (
         <Menu>
@@ -94,7 +95,7 @@ const PostInformation = ({ route }) => {
             <Entypo name="dots-three-vertical" size={24} color="black" />
           </MenuTrigger>
           <MenuOptions>
-            <MenuOption onSelect={() => setReplyEnabled(true)}>
+            <MenuOption onSelect={() => [setReplyEnabled(true), setReplyText(postAuthorName)]} onPress={() => setReplyEnabled(false)} >
               <Text style={{ color: 'blue' }}>Reply</Text>
             </MenuOption>
           </MenuOptions>
@@ -108,7 +109,7 @@ const PostInformation = ({ route }) => {
             <Entypo name="dots-three-vertical" size={24} color="black" />
           </MenuTrigger>
           <MenuOptions>
-          <MenuOption onSelect={() => setReplyEnabled(true)}>
+          <MenuOption onSelect={() => [setReplyEnabled(true), setReplyText(postAuthorName)]} onPress={() => setReplyEnabled(false)}>
               <Text style={{ color: 'blue' }}>Reply</Text>
             </MenuOption>
             <MenuOption onSelect={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)} text="Edit" />
@@ -188,6 +189,12 @@ const PostInformation = ({ route }) => {
               <View style={styles.sessionBlock}>
                 <Text style={styles.sessionText}>{session.postContent ? session.postContent : 'No content'}</Text>
               </View>
+              {session.postFile ? (
+                <Image source={{ uri: session.postFile }} style={{ width: 200, height: 200 }} />
+              ) : null}
+              {/* <View>
+                <Text style={{ color: 'grey', fontSize: 11 }}>{session.likesCount}</Text>
+              </View> */}
             </View>
           ))}
          <View style={styles.commentsContainer}> 

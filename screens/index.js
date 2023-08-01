@@ -7,6 +7,7 @@ export {default as TimerLogs} from './home/TimerLogs';
 export {default as UserProfile} from './home/UserProfile';
 export {default as ProfileSettings} from './home/ImageUpload';
 export {default as CommunityMain} from './home/CommunityScreen';
+export {default as TodoInformation} from './home/TodoInformation';
 // Auth Screens
 export {default as Login} from './auth/Login';
 export {default as Register} from './auth/Register';
@@ -14,7 +15,9 @@ export {default as ForgotPassword} from './auth/ForgotPassword';
 
 // Community Screens
 export {default as AddPost} from './community/AddPost';
+export {default as EditPost} from './community/EditPost';
 export {default as PostInformation} from './community/PostInformation';
+
 
 
 

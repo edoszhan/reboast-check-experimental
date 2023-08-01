@@ -3,7 +3,13 @@ import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity } from 'react-na
 import { getAuth } from 'firebase/auth';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
-import { ScrollView } from 'react-native-gesture-handler';
+import { FlatList, ScrollView } from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/native';
+import { ROUTES } from '../../constants';
+import { AntDesign } from '@expo/vector-icons';
+import CalendarStrip  from 'react-native-calendar-strip';
+import { ActivityIndicator } from 'react-native';
+
 
 const CustomCheckbox = ({ checked }) => {
   return (
@@ -13,12 +19,26 @@ const CustomCheckbox = ({ checked }) => {
   );
 };
 
-const HomeScreen = (props) => {
+const koreanDaysOfWeekTable = {
+  Sun: '일',
+  Mon: '월',
+  Tue: '화',
+  Wed: '수',
+  Thu: '목',
+  Fri: '금',
+  Sat: '토',
+};
+
+const HomeScreen = () => {
+  const navigation = useNavigation();
   const [tasksByCategory, setTasksByCategory] = useState({});
   const auth = getAuth();
+  const [selectDate, setSelectedDate] = useState(new Date().toLocaleDateString('kr-KO', { weekday: 'long' }));
+  const [searchDay, setSearchDay] = useState(new Date().toLocaleDateString('en-US', { weekday: 'long' }));
 
-    // const todayDayoftheWeek = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-    const todayDayoftheWeek = new Date().toLocaleDateString('kr-KO', { weekday: 'long' });
+  // const daysOfWeek = ['월', '화', '수', '목', '금', '토', '일'];
+
+  const todayDayoftheWeek = new Date().toLocaleDateString('kr-KO', { weekday: 'long' });
 
   useEffect(() => {
     const checkedTaskNames = [];
@@ -32,11 +52,14 @@ const HomeScreen = (props) => {
   }, [tasksByCategory]);
 
   useEffect(() => {
-    const today = new Date().toLocaleDateString('kr-KO', { weekday: 'long' });
-    const string = today.split(" ");
-    const todayDay = string[3][0];
+    // const today = new Date().toLocaleDateString('kr-KO', { weekday: 'long' });
+    const today = searchDay;
+    const dayPrefix = today.slice(0, 3);
+    const todayDay = koreanDaysOfWeekTable[dayPrefix];
+    // const string = today.split(" ");
+    // const todayDay = string[3][0];
     const user = auth.currentUser;
-    const categoryNames = ['Sport', 'Learning', 'Morning Routine'];
+    const categoryNames = ['Sport', 'Learning', 'Morning Routine']; //can be appended later if the "add category" feature is added
     const unsubscribeTasks = categoryNames.map((categoryName) => {
       const categoryRef = collection(FIREBASE_DB, 'todo-list', user.uid, categoryName);
       const q = query(categoryRef, orderBy('createdAt', 'desc'));
@@ -61,8 +84,8 @@ const HomeScreen = (props) => {
         unsubscribe();
       });
     };
-  }, []);
-
+  }, [searchDay]);
+  
   const toggleTaskChecked = (categoryName, taskId) => {
     setTasksByCategory((prevTasksByCategory) => {
       const updatedTasks = prevTasksByCategory[categoryName].map((task) =>
@@ -75,24 +98,38 @@ const HomeScreen = (props) => {
     });
   };
 
-  // const getCheckedTaskNames = () => {
-  //   const checkedTaskNames = [];
-  //   Object.entries(tasksByCategory).forEach(([categoryName, tasks]) => {
-  //     tasks.forEach((task) => {
-  //       if (task.checked) {
-  //         checkedTaskNames.push(task.categoryItems);
-  //       }
-  //     });
-  //   });
-  //   return checkedTaskNames;
-  // };
-
-
   return (
     <SafeAreaView style={styles.container}>
+      <Text style={{...styles.heading, marginBottom: 20}}>Todo Tasks</Text>
+      {/* <Text style={{...styles.heading, fontSize: 15, fontWeight: "normal"}}>Chosen date is {todayDayoftheWeek}</Text> */}
+      <Text style={{...styles.heading, fontSize: 15, fontWeight: "normal"}}>Chosen date is {selectDate}</Text>
+      <View style={{height: 80}}>
       <ScrollView>
-        <Text style={styles.heading}>Todo Tasks</Text>
-        <Text style={{...styles.heading, fontSize: 15, fontWeight: "normal"}}>{todayDayoftheWeek}</Text>
+      <CalendarStrip 
+          calendarColor={'#f2f2f2'}
+          calendarHeaderStyle={{color: 'black'}}
+          dateNumberStyle={{color: 'black'}}
+          dateNameStyle={{color: 'black'}}
+          highlightDateNumberStyle={{color: 'red'}}
+          highlightDateNameStyle={{color: 'black'}}
+          disabledDateNameStyle={{color: 'grey'}}
+          disabledDateNumberStyle={{color: 'grey'}}
+          iconContainer={{flex: 0.1}}
+          iconStyle={{width: 20, height: 20}}
+          // onDateSelected={(date) => [console.log(date.toLocaleString('ko-KR', { weekday: 'long' }))]}
+          selectedDate={new Date()}
+          // onDateSelected={(date) => [setSelectedDate(date.toLocaleString('ko-KR', { weekday: 'long' })), setSearchDay(date.toLocaleString('ko-KR', { weekday: 'long' }))]}
+          onDateSelected={(date) => {
+            const selectedDate = new Date(date).toDateString();
+            setSelectedDate(selectedDate.toLocaleString('ko-KR', { weekday: 'long' }));
+            setSearchDay(selectedDate.toLocaleString('ko-KR', { weekday: 'long' }));
+          }}          
+          startingDate={new Date()}
+          scrollable
+        />
+      </ScrollView>
+      </View>
+      <ScrollView>
         {Object.entries(tasksByCategory).map(([categoryName, tasks]) => (
           <View key={categoryName} style={styles.categoryContainer}>
             <Text style={styles.categoryName}>{categoryName}</Text>
@@ -103,9 +140,9 @@ const HomeScreen = (props) => {
                 <TouchableOpacity
                   key={task.categoryId}
                   style={{ ...styles.taskBlock, backgroundColor: task.categoryColor.toLowerCase() }}
-                  onPress={() => toggleTaskChecked(categoryName, task.categoryId)}
+                  onPress={() => [toggleTaskChecked(categoryName, task.categoryId)]}
                 >
-                  <CustomCheckbox checked={task.checked} />
+                  <CustomCheckbox checked={task.checked}/>
                   <View style={styles.taskContent}>
                   <Text
                     style={[
@@ -116,6 +153,9 @@ const HomeScreen = (props) => {
                     {task.categoryItems}
                   </Text>
                   </View>
+                  <TouchableOpacity onPress={() => navigation.navigate(ROUTES.TODO_INFORMATION, { taskId: task.categoryId })}>
+                    <AntDesign name="caretright" size={20} color="black" />
+                  </TouchableOpacity>
                 </TouchableOpacity>
               ))
             )}
@@ -199,6 +239,23 @@ const styles = StyleSheet.create({
     color: 'white',
     backgroundColor: 'black',
     borderRadius: 5,
+  },
+
+  daysOfWeekContainer: {
+    marginBottom: 10,
+  },
+  dayButton: {
+    paddingHorizontal: 30,
+    marginHorizontal: 5,
+    borderRadius: 5,
+    backgroundColor: '#f2f2f2',
+    borderWidth: 1,
+    borderColor: 'black',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dayButtonText: {
+    fontSize: 16,
   },
 });
 

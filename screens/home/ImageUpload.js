@@ -8,12 +8,16 @@ import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
 import { updateDoc } from 'firebase/firestore';
 import { updateProfile } from 'firebase/auth';
+import { ref, getDownloadURL } from 'firebase/storage';
+import { storage } from '../../config/firebase';
+import { useEffect } from 'react';
 
 
 const ImageUpload = () => {
   const navigation = useNavigation();
   const [selectImage, setSelectImage] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
   
   const [image, setImage] = useState("");
   const ImagePicker = () => {
@@ -38,6 +42,7 @@ const ImageUpload = () => {
         try {
           const uid = auth.currentUser.uid;
           await updateDoc(doc(FIREBASE_DB, 'users-info', uid), {
+            // photoURL: response.assets[0].uri,
             photoURL: response.assets[0].uri,
           });
           console.log('Document successfully updated!');
@@ -48,6 +53,23 @@ const ImageUpload = () => {
       }
     });
   };
+  // useEffect(() => {
+  //   // Function to fetch the image URL from Firebase Storage
+  //   const fetchImage = async () => {
+  //     try {
+  //       const uidString = FIREBASE_AUTH.currentUser.uid;
+  //       // console.log('/ProfilePictures/' + uidString + ".png");
+  //       const imageRef = ref(storage, '/ProfilePictures/' + uidString + ".png"); //firebase storage can be potentially used to store userPFP, and post images where names of those components is uid and postID respectively
+  //       const url = await getDownloadURL(imageRef);
+  //       setImageUrl(url);
+  //     } catch (error) {
+  //       console.log('Error fetching image URL: ', error);
+  //     }
+  //   };
+
+  //   fetchImage();
+  // }, []);
+  
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

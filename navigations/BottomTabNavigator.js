@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ROUTES } from '../constants';
-import { Home, Timer, Calendar, Community, UserProfile, AddPost, PostInformation } from '../screens';
-import { Ionicons, FontAwesome, MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
+import { Home, Timer, Calendar, UserProfile, AddPost, PostInformation, TodoInformation, Settings, EditPost } from '../screens';
+import { Ionicons, MaterialCommunityIcons, } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import TimerLogs from '../screens/home/TimerLogs';
 import { TouchableOpacity, View, Text, Modal, StyleSheet } from 'react-native';
@@ -20,17 +20,27 @@ const TimerStack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 const UserProfileStack = createStackNavigator();
+const HomeScreenStack = createStackNavigator();
 
-import { Dimensions } from 'react-native';
 import CommunityScreen from '../screens/home/CommunityScreen'; 
 import { ActivityIndicator } from 'react-native-paper';
-const { height } = Dimensions.get('window');
+import HomeScreen from '../screens/home/HomeScreen';
+
+const HomeStackScreen = () => {
+  return (
+    <HomeScreenStack.Navigator screenOptions={{ headerTitle: "" }}>
+      <HomeScreenStack.Screen name={ROUTES.HOME} component={HomeScreen} />
+      <HomeScreenStack.Screen name={ROUTES.TODO_INFORMATION} component={TodoInformation} />
+      </HomeScreenStack.Navigator>
+  );
+};
 
 const CommunityStackScreen = () => {
   return (
     <ProfileStack.Navigator screenOptions={{ headerShown: true }} id="tabs">
       <ProfileStack.Screen name={ROUTES.COMMUNITY_MAIN} component={CommunityScreen} /> 
       <ProfileStack.Screen name={ROUTES.ADD_POST_SCREEN} component={AddPost} />
+      <ProfileStack.Screen name={ROUTES.EDIT_POST_SCREEN} component={EditPost} />
       <ProfileStack.Screen name={ROUTES.POST_INFORMATION} component={PostInformation} />
     </ProfileStack.Navigator>
   );
@@ -49,6 +59,7 @@ const UserProfileStackScreen = () => {
   return (
     <UserProfileStack.Navigator>
       <UserProfileStack.Screen name="User Profile" component={UserProfile} />
+      <UserProfileStack.Screen name="Settings" component={Settings}/>
       <UserProfileStack.Screen name="User Profile Settings" component={ProfileSettings} />
     </UserProfileStack.Navigator>
   );
@@ -69,7 +80,7 @@ function StackRoutes() {
 const BottomTabNavigator = () => {
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
+  useEffect(() => { 
     setTimeout(() => {
       setIsLoading(false);
     }, 1000);
@@ -118,10 +129,23 @@ function MainComponent() {
   };
 
   const handleDayPress = (index) => {
-    const updatedCheckboxes = [...checkboxes];
-    updatedCheckboxes[index].checked = !updatedCheckboxes[index].checked;
+    const updatedCheckboxes = checkboxes.map((checkbox, idx) => {
+      if (idx === index) {
+        return { ...checkbox, checked: !checkbox.checked };
+      }
+      return checkbox;
+    });
+  
     setCheckboxes(updatedCheckboxes);
+  
+    const updatedSelectedDays = updatedCheckboxes
+      .filter((checkbox) => checkbox.checked)
+      .map((checkbox) => checkbox.day);
+  
+    setSelectedDays(updatedSelectedDays);
   };
+  
+  
 
   const handleDailyPress = () => {
     setDailyPressed(!dailyPressed);
@@ -174,7 +198,17 @@ function MainComponent() {
         categoryDays: selectedDays,
         categoryId: category_random_Id,
         createdAt: serverTimestamp(),
-      });
+      }); 
+      await setDoc(doc(FIREBASE_DB, 'todo-list', uid, "All", category_random_Id), {  //session3 should not be manually entered, we need to update number of sessions  
+        categoryName: selectedCategory,
+        categoryColor: selectedColor,
+        isChecked: false,
+        categoryItems: taskName,
+        categoryDays: selectedDays,
+        categoryId: category_random_Id,
+        createdAt: serverTimestamp(),
+      }); 
+
     } catch (error) {
       console.log("Error writing document: ", error);
     }
@@ -230,7 +264,7 @@ function MainComponent() {
           },
         })}
       >
-        <Tab.Screen component={StackRoutes} name={ROUTES.HOME_TAB} />
+        <Tab.Screen component={HomeStackScreen} name={ROUTES.HOME_TAB} />
         <Tab.Screen name={ROUTES.TIMER} component={TimerStackScreen} />
         <Tab.Screen
           name={ROUTES.BOTTOM_DRAWER}
@@ -258,7 +292,7 @@ function MainComponent() {
                   <TouchableOpacity
                     key={index}
                     style={[styles.dayButton, checkbox.checked && styles.checkedDayButton]}
-                    onPress={() => [handleDayPress(index), setSelectedDays(selectedDays => [checkboxes[index].day,])]}
+                    onPress={() => [handleDayPress(index), setSelectedDays(selectedDays => [checkboxes[index].day], console.log("current list ", selectedDays))]}
                   >
                     <Text style={[styles.dayButtonText, checkbox.checked && styles.checkedDayButtonText]}>
                       {checkbox.day}
@@ -279,7 +313,7 @@ function MainComponent() {
                 onChangeText={handleTaskNameChange}
               >
               </Input>
-              <Text style={styles.popupText}>Color</Text>
+              <Text style={styles.popupText}>Color</Text>  
               <Input
                 style={{ borderColor: 'black', borderWidth: 1, borderRadius: 5, marginLeft: -10 }}
                 placeholder=" Enter color name"

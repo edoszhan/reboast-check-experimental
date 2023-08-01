@@ -1,16 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { collection, query, getDocs, orderBy } from 'firebase/firestore';
+import { collection, query, getDocs, orderBy, getDoc } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { FIREBASE_AUTH } from '../../config/firebase';
 
 import { ScrollView } from 'react-native-gesture-handler';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { deleteDoc, doc } from 'firebase/firestore';
+import { deleteDoc, doc} from 'firebase/firestore';
+import { ActivityIndicator } from 'react-native-paper';
 
 const TimerLogs = () => {
   const [sessions, setSessions] = useState([]);
+  // const [isLoading, setIsLoading] = useState(true);
   const uid = FIREBASE_AUTH.currentUser.uid;
+
+  // if (isLoading) {
+  //   return (
+  //     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
+  //       <ActivityIndicator size="small" color="blue" />
+  //       <Text style={{ marginTop: 10 }}>Loading history...</Text>
+  //     </View>
+  //   );
+  // }
 
   const fetchSessions = async () => {
     const q = query(
@@ -19,14 +30,30 @@ const TimerLogs = () => {
     );
     const querySnapshot = await getDocs(q);
     const sessionData = [];
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
+  
+    for (const docSnap of querySnapshot.docs) {
+      const data = docSnap.data();
       if (data.userId === uid) {
-        sessionData.push({ id: doc.id, ...data });
+        const categoryName = data.categoryName;
+        const categoryDocRef = doc(FIREBASE_DB, 'constants', categoryName);
+
+      try {
+        const categoryDocSnapshot = await getDoc(categoryDocRef); 
+        const color = categoryDocSnapshot.exists() ? categoryDocSnapshot.data().color : 'defaultColor';
+        sessionData.push({ id: docSnap.id, ...data, color });
+      } catch (error) {
+        console.log('Error fetching category document:', error);
       }
-    });
-    setSessions(sessionData);
-  };
+    }
+   };
+   setSessions(sessionData);
+
+ 
+  //  setIsLoading(false);
+}
+
+
+  
 
   useEffect(() => {
     fetchSessions();
@@ -44,12 +71,12 @@ const TimerLogs = () => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.container}>
-        <Text style={styles.title}>History of Timer Sessions</Text>
+        {/* <Text style={styles.title}>History of Timer Sessions</Text> */}
         {sessions.length < 1 ? ( // Check if sessions array is empty
           <Text style={styles.noSessionsText}>No current timer sessions</Text>
         ) : (
           sessions.map((session, index) => (
-            <View key={index} style={styles.sessionContainer}>
+            <View key={index} style={{...styles.sessionContainer, backgroundColor: session.color}}>
               <View style={styles.sessionBlock}>
                 <Text style={styles.sessionTitle}>Topic:</Text>
                 <Text style={styles.sessionText}>{session.sessionTopic}</Text>
@@ -126,7 +153,7 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     marginTop: 10,
-    backgroundColor: 'red',
+    backgroundColor: 'black', //will be placed and changed
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',

@@ -6,6 +6,7 @@ import { storage } from '../../config/firebase';
 import { Image } from 'react-native';
 import { ref } from 'firebase/storage';
 import { getDownloadURL } from 'firebase/storage';
+import { FIREBASE_AUTH } from '../../config/firebase';
 
 
 export default function TodoInformation() {
@@ -15,7 +16,9 @@ export default function TodoInformation() {
       // Function to fetch the image URL from Firebase Storage
       const fetchImage = async () => {
         try {
-          const imageRef = ref(storage, '/6ede60dd5eafe20167423aace3ef378d.jpeg'); //firebase storage can be potentially used to store userPFP, and post images where names of those components is uid and postID respectively
+          const uidString = FIREBASE_AUTH.currentUser.uid;
+          console.log('/ProfilePictures/' + uidString + ".png");
+          const imageRef = ref(storage, '/ProfilePictures/' + uidString + ".png"); //firebase storage can be potentially used to store userPFP, and post images where names of those components is uid and postID respectively
           const url = await getDownloadURL(imageRef);
           setImageUrl(url);
         } catch (error) {

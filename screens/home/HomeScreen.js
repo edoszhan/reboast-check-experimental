@@ -8,6 +8,8 @@ import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
 import { AntDesign } from '@expo/vector-icons';
 import CalendarStrip  from 'react-native-calendar-strip';
+import { ActivityIndicator } from 'react-native';
+
 
 const CustomCheckbox = ({ checked }) => {
   return (
@@ -83,7 +85,7 @@ const HomeScreen = () => {
       });
     };
   }, [searchDay]);
-
+  
   const toggleTaskChecked = (categoryName, taskId) => {
     setTasksByCategory((prevTasksByCategory) => {
       const updatedTasks = prevTasksByCategory[categoryName].map((task) =>

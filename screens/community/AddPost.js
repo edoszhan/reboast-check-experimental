@@ -89,7 +89,7 @@ const AddPost = () => {
           onChangeText={setPostContent}
         />
       </View>
-      <TouchableOpacity style={{ marginBottom: 300, marginRight: 200}}
+      {/* <TouchableOpacity style={{ marginBottom: 300, marginRight: 200}}
       onPress={ImagePicker}>
       {postFile ? (
           <Image style={{ height: 100, width: '100%' }} source={{ uri: postFile }} />
@@ -99,7 +99,7 @@ const AddPost = () => {
             marginTop: 200}}
            >Upload an image</Text>
         )}
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <TouchableOpacity
         style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]}
         onPress={handlePostCreation}

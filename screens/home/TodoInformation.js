@@ -15,8 +15,7 @@ export default function TodoInformation() {
       // Function to fetch the image URL from Firebase Storage
       const fetchImage = async () => {
         try {
-        
-          const imageRef = ref(storage, '/6ede60dd5eafe20167423aace3ef378d.jpeg');
+          const imageRef = ref(storage, '/6ede60dd5eafe20167423aace3ef378d.jpeg'); //firebase storage can be potentially used to store userPFP, and post images where names of those components is uid and postID respectively
           const url = await getDownloadURL(imageRef);
           setImageUrl(url);
         } catch (error) {

@@ -3,11 +3,11 @@ import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity } from 'react-na
 import { getAuth } from 'firebase/auth';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
-import { ScrollView } from 'react-native-gesture-handler';
+import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
 import { AntDesign } from '@expo/vector-icons';
-
+import CalendarStrip  from 'react-native-calendar-strip';
 
 const CustomCheckbox = ({ checked }) => {
   return (
@@ -22,7 +22,8 @@ const HomeScreen = () => {
   const [tasksByCategory, setTasksByCategory] = useState({});
   const auth = getAuth();
 
-    // const todayDayoftheWeek = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+  // const daysOfWeek = ['월', '화', '수', '목', '금', '토', '일'];
+
   const todayDayoftheWeek = new Date().toLocaleDateString('kr-KO', { weekday: 'long' });
 
   useEffect(() => {
@@ -37,6 +38,7 @@ const HomeScreen = () => {
   }, [tasksByCategory]);
 
   useEffect(() => {
+    console.log(new Date());
     const today = new Date().toLocaleDateString('kr-KO', { weekday: 'long' });
     const string = today.split(" ");
     const todayDay = string[3][0];
@@ -82,6 +84,26 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={{height: 80}}>
+      <ScrollView>
+      <CalendarStrip 
+          calendarColor={'#f2f2f2'}
+          calendarHeaderStyle={{color: 'black'}}
+          dateNumberStyle={{color: 'black'}}
+          dateNameStyle={{color: 'black'}}
+          highlightDateNumberStyle={{color: 'red'}}
+          highlightDateNameStyle={{color: 'black'}}
+          disabledDateNameStyle={{color: 'grey'}}
+          disabledDateNumberStyle={{color: 'grey'}}
+          iconContainer={{flex: 0.1}}
+          iconStyle={{width: 20, height: 20}}
+          onDateSelected={(date) => [console.log(date.toLocaleString("kr-KO", {weekday: "long"}))]}
+          selectedDate={new Date()}
+          startingDate={new Date()}
+          scrollable
+        />
+      </ScrollView>
+      </View>
       <ScrollView>
         <Text style={styles.heading}>Todo Tasks</Text>
         <Text style={{...styles.heading, fontSize: 15, fontWeight: "normal"}}>{todayDayoftheWeek}</Text>
@@ -194,6 +216,23 @@ const styles = StyleSheet.create({
     color: 'white',
     backgroundColor: 'black',
     borderRadius: 5,
+  },
+
+  daysOfWeekContainer: {
+    marginBottom: 10,
+  },
+  dayButton: {
+    paddingHorizontal: 30,
+    marginHorizontal: 5,
+    borderRadius: 5,
+    backgroundColor: '#f2f2f2',
+    borderWidth: 1,
+    borderColor: 'black',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dayButtonText: {
+    fontSize: 16,
   },
 });
 

@@ -123,7 +123,7 @@ const CommunityScreen = () => {
             <Entypo name="dots-three-vertical" size={24} color="black" />
           </MenuTrigger>
           <MenuOptions>
-            <MenuOption onSelect={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)} text="Edit" />
+            <MenuOption onSelect={() => navigation.navigate(ROUTES.EDIT_POST_SCREEN)} text="Edit" />
             <MenuOption onSelect={() => deleteSession(session.id, session.userId)}>
               <Text style={{ color: 'red' }}>Delete</Text>
             </MenuOption>

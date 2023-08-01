@@ -44,6 +44,10 @@ const UserProfile = ({ route }) => {
     navigation.navigate(ROUTES.USER_PROFILE_SETTINGS);
   };
 
+  const handleSettings = () => {
+    navigation.navigate(ROUTES.SETTINGS);
+  };
+
   const user = {
     name: info.length > 0 ? info[0].displayName : 'Not found',
     photoURL: info.length > 0 ? `${info[0].photoURL}?timestamp=${Date.now()}` : null,
@@ -66,7 +70,10 @@ const UserProfile = ({ route }) => {
       <TouchableOpacity style={styles.settingsButton} onPress={handleSettingsPress}>
         <Text style={styles.settingsButtonText}>Upload Image</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.settingsButton} onPress={handleLogOut}>
+      <TouchableOpacity style={styles.settingsButton} onPress={handleSettings}>
+        <Text style={styles.settingsButtonText}>Settings</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={{...styles.settingsButton,marginTop: 60}} onPress={handleLogOut}>
         <Text style={styles.settingsButtonText}>Log out</Text>
       </TouchableOpacity>
     </SafeAreaView>

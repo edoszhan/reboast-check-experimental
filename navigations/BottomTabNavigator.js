@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ROUTES } from '../constants';
-import { Home, Timer, Calendar, UserProfile, AddPost, PostInformation, TodoInformation } from '../screens';
+import { Home, Timer, Calendar, UserProfile, AddPost, PostInformation, TodoInformation, Settings, EditPost } from '../screens';
 import { Ionicons, MaterialCommunityIcons, } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import TimerLogs from '../screens/home/TimerLogs';
@@ -40,6 +40,7 @@ const CommunityStackScreen = () => {
     <ProfileStack.Navigator screenOptions={{ headerShown: true }} id="tabs">
       <ProfileStack.Screen name={ROUTES.COMMUNITY_MAIN} component={CommunityScreen} /> 
       <ProfileStack.Screen name={ROUTES.ADD_POST_SCREEN} component={AddPost} />
+      <ProfileStack.Screen name={ROUTES.EDIT_POST_SCREEN} component={EditPost} />
       <ProfileStack.Screen name={ROUTES.POST_INFORMATION} component={PostInformation} />
     </ProfileStack.Navigator>
   );
@@ -58,6 +59,7 @@ const UserProfileStackScreen = () => {
   return (
     <UserProfileStack.Navigator>
       <UserProfileStack.Screen name="User Profile" component={UserProfile} />
+      <UserProfileStack.Screen name="Settings" component={Settings}/>
       <UserProfileStack.Screen name="User Profile Settings" component={ProfileSettings} />
     </UserProfileStack.Navigator>
   );

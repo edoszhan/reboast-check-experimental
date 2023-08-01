@@ -27,6 +27,7 @@ export default {
     // Community screens
     NOTICE_SCREEN: 'Notice Screen',
     ADD_POST_SCREEN: 'Add Post',
+    EDIT_POST_SCREEN: 'Edit Post',
 
     // Todo screens
     TODO_INFORMATION: 'Todo Information',

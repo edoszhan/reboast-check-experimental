@@ -15,6 +15,7 @@ export {default as ForgotPassword} from './auth/ForgotPassword';
 
 // Community Screens
 export {default as AddPost} from './community/AddPost';
+export {default as EditPost} from './community/EditPost';
 export {default as PostInformation} from './community/PostInformation';
 
 

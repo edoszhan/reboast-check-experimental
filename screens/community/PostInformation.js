@@ -192,9 +192,9 @@ const PostInformation = ({ route }) => {
               {session.postFile ? (
                 <Image source={{ uri: session.postFile }} style={{ width: 200, height: 200 }} />
               ) : null}
-              <View>
+              {/* <View>
                 <Text style={{ color: 'grey', fontSize: 11 }}>{session.likesCount}</Text>
-              </View>
+              </View> */}
             </View>
           ))}
          <View style={styles.commentsContainer}> 

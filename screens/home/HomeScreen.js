@@ -17,10 +17,22 @@ const CustomCheckbox = ({ checked }) => {
   );
 };
 
+const koreanDaysOfWeekTable = {
+  Sun: '일',
+  Mon: '월',
+  Tue: '화',
+  Wed: '수',
+  Thu: '목',
+  Fri: '금',
+  Sat: '토',
+};
+
 const HomeScreen = () => {
   const navigation = useNavigation();
   const [tasksByCategory, setTasksByCategory] = useState({});
   const auth = getAuth();
+  const [selectDate, setSelectedDate] = useState(new Date().toLocaleDateString('kr-KO', { weekday: 'long' }));
+  const [searchDay, setSearchDay] = useState(new Date().toLocaleDateString('en-US', { weekday: 'long' }));
 
   // const daysOfWeek = ['월', '화', '수', '목', '금', '토', '일'];
 
@@ -38,10 +50,12 @@ const HomeScreen = () => {
   }, [tasksByCategory]);
 
   useEffect(() => {
-    console.log(new Date());
-    const today = new Date().toLocaleDateString('kr-KO', { weekday: 'long' });
-    const string = today.split(" ");
-    const todayDay = string[3][0];
+    // const today = new Date().toLocaleDateString('kr-KO', { weekday: 'long' });
+    const today = searchDay;
+    const dayPrefix = today.slice(0, 3);
+    const todayDay = koreanDaysOfWeekTable[dayPrefix];
+    // const string = today.split(" ");
+    // const todayDay = string[3][0];
     const user = auth.currentUser;
     const categoryNames = ['Sport', 'Learning', 'Morning Routine']; //can be appended later if the "add category" feature is added
     const unsubscribeTasks = categoryNames.map((categoryName) => {
@@ -68,7 +82,7 @@ const HomeScreen = () => {
         unsubscribe();
       });
     };
-  }, []);
+  }, [searchDay]);
 
   const toggleTaskChecked = (categoryName, taskId) => {
     setTasksByCategory((prevTasksByCategory) => {
@@ -84,6 +98,9 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Text style={{...styles.heading, marginBottom: 20}}>Todo Tasks</Text>
+      {/* <Text style={{...styles.heading, fontSize: 15, fontWeight: "normal"}}>Chosen date is {todayDayoftheWeek}</Text> */}
+      <Text style={{...styles.heading, fontSize: 15, fontWeight: "normal"}}>Chosen date is {selectDate}</Text>
       <View style={{height: 80}}>
       <ScrollView>
       <CalendarStrip 
@@ -97,16 +114,20 @@ const HomeScreen = () => {
           disabledDateNumberStyle={{color: 'grey'}}
           iconContainer={{flex: 0.1}}
           iconStyle={{width: 20, height: 20}}
-          onDateSelected={(date) => [console.log(date.toLocaleString("kr-KO", {weekday: "long"}))]}
+          // onDateSelected={(date) => [console.log(date.toLocaleString('ko-KR', { weekday: 'long' }))]}
           selectedDate={new Date()}
+          // onDateSelected={(date) => [setSelectedDate(date.toLocaleString('ko-KR', { weekday: 'long' })), setSearchDay(date.toLocaleString('ko-KR', { weekday: 'long' }))]}
+          onDateSelected={(date) => {
+            const selectedDate = new Date(date).toDateString();
+            setSelectedDate(selectedDate.toLocaleString('ko-KR', { weekday: 'long' }));
+            setSearchDay(selectedDate.toLocaleString('ko-KR', { weekday: 'long' }));
+          }}          
           startingDate={new Date()}
           scrollable
         />
       </ScrollView>
       </View>
       <ScrollView>
-        <Text style={styles.heading}>Todo Tasks</Text>
-        <Text style={{...styles.heading, fontSize: 15, fontWeight: "normal"}}>{todayDayoftheWeek}</Text>
         {Object.entries(tasksByCategory).map(([categoryName, tasks]) => (
           <View key={categoryName} style={styles.categoryContainer}>
             <Text style={styles.categoryName}>{categoryName}</Text>

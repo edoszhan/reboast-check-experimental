@@ -71,7 +71,7 @@ const UserProfile = ({ route }) => {
         <Text style={styles.settingsButtonText}>Upload Image</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.settingsButton} onPress={handleSettings}>
-        <Text style={styles.settingsButtonText}>Settings</Text>
+        <Text style={styles.settingsButtonText}>Profile Settings</Text>
       </TouchableOpacity>
       <TouchableOpacity style={{...styles.settingsButton,marginTop: 60}} onPress={handleLogOut}>
         <Text style={styles.settingsButtonText}>Log out</Text>

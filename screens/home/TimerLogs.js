@@ -89,7 +89,7 @@ const TimerLogs = () => {
         >
           <View style={styles.modalContainer}>
           <View style={styles.popup}>
-          {renderMenu()} 
+            {renderMenu()} 
             <Text style={styles.modalTitle}>Topic: {selectedSession?.sessionTopic}</Text>
             <Text>Memo: {selectedSession?.sessionMemo || 'No memo'}</Text>
             <Text>
@@ -222,17 +222,18 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
+    zIndex: 8,
   },
   menuContainer: {
     alignItems: 'flex-end', // Align the menu to the right
     marginBottom: 10, // Add some margin if needed
-    zIndex: 10,
+    zIndex: 1,
   },
   menuOptions: {
     position: 'absolute', // this will take the menuOptions out of the flow
     right: 0, // align to the right
     top: 0, // align to the top
     backgroundColor: 'white', // give it a background color
-    zIndex: 21, // even higher than the menuContainer
+    zIndex: 10, // even higher than the menuContainer
   },
 });

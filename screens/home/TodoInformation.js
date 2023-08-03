@@ -17,7 +17,7 @@ export default function TodoInformation() {
       const fetchImage = async () => {
         try {
           const uidString = FIREBASE_AUTH.currentUser.uid;
-          console.log('/ProfilePictures/' + uidString + ".png");
+          // console.log('/ProfilePictures/' + uidString + ".png");
           const imageRef = ref(storage, '/ProfilePictures/' + uidString + ".png"); //firebase storage can be potentially used to store userPFP, and post images where names of those components is uid and postID respectively
           const url = await getDownloadURL(imageRef);
           setImageUrl(url);

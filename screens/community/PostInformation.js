@@ -78,7 +78,7 @@ const PostInformation = ({ route }) => {
           <Entypo name="dots-three-vertical" size={24} color="black" />
         </MenuTrigger>
         <MenuOptions>
-          <MenuOption onSelect={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)} text="Edit" />
+          <MenuOption onSelect={() => navigation.navigate(ROUTES.EDIT_POST_SCREEN, {postId: session.postId, postContent: session.postContent, postTopic: session.postTopic})} text="Edit" />
           <MenuOption onSelect={() => deleteSession(session.postId, session.userId)}>
             <Text style={{ color: 'red' }}>Delete</Text>
           </MenuOption>
@@ -97,7 +97,7 @@ const PostInformation = ({ route }) => {
           <MenuOptions>
             <MenuOption onSelect={() => [setReplyEnabled(true), setReplyText(postAuthorName)]} onPress={() => setReplyEnabled(false)} >
               <Text style={{ color: 'blue' }}>Reply</Text>
-            </MenuOption>
+            </MenuOption>x
           </MenuOptions>
         </Menu>
       );
@@ -112,7 +112,7 @@ const PostInformation = ({ route }) => {
           <MenuOption onSelect={() => [setReplyEnabled(true), setReplyText(postAuthorName)]} onPress={() => setReplyEnabled(false)}>
               <Text style={{ color: 'blue' }}>Reply</Text>
             </MenuOption>
-            <MenuOption onSelect={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)} text="Edit" />
+            <MenuOption onSelect={() => navigation.navigate(ROUTES.EDIT_POST_SCREEN, {postId: comment.postId, postContent: comment.replyContent, parentId: comment.parentId})} text="Edit" />
             <MenuOption onSelect={() => deleteSession(comment.id, comment.userId)}>
               <Text style={{ color: 'red' }}>Delete</Text>
             </MenuOption>
@@ -178,7 +178,7 @@ const PostInformation = ({ route }) => {
                   )}
                   <Text style={{ fontSize: 16 }}>  u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
                 </View>
-                {handlePost(session)}
+                {handlePost(session)} 
               </View>
               <View style={styles.sessionBlock}>
                 <Text style={{ color: 'grey', fontSize: 11 }}>{session.postCreatedDateTime}</Text>

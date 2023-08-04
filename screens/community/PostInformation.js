@@ -20,7 +20,7 @@ import uuid from 'react-native-uuid';
 
 const PostInformation = ({ route }) => {
   const params = route.params ? route.params : 'no post';
-  const navigation = useNavigation();
+  const navigation = useNavigation(); 
   const [sessions, setSessions] = useState([]);
   const [replyText, setReplyText] = useState('');
   const [comments, setComments] = useState([]);

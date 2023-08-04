@@ -10,7 +10,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { collection, query, onSnapshot, orderBy, deleteDoc, doc, where, setDoc, updateDoc} from 'firebase/firestore';
+import { collection, query, onSnapshot, orderBy, deleteDoc, doc, updateDoc} from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { FIREBASE_AUTH } from '../../config/firebase';
 import { useNavigation } from '@react-navigation/native';
@@ -18,34 +18,29 @@ import { ROUTES } from '../../constants';
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { Ionicons } from '@expo/vector-icons';
-import { ref, getDownloadURL } from 'firebase/storage';
-import { storage } from '../../config/firebase';
 
 
 const CommunityScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [sessions, setSessions] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [likeClicked, setLikeClicked] = useState(false);
 
-  const [imageUrl, setImageUrl] = useState(null); // State to store the image URL
   useEffect(() => {
     const fetchSessions = async () => { 
       const q = query(collection(FIREBASE_DB, 'community-chat'), orderBy('createdAt', 'desc'));
-      const unsubscribe = onSnapshot(q, async (snapshot) => {
+      const unsubscribe = onSnapshot(q, (snapshot) => {
         const sessionData = [];
-        for (const doc of snapshot.docs) {
+        snapshot.forEach((doc) => {
           const data = doc.data();
-          data.postAuthor = await fetchDisplayName(data.userId); // Fetching display name using userId
           sessionData.push({ id: doc.id, ...data });
-        }
+        });
         setSessions(sessionData);
         setIsLoading(false); 
       });
-  
+
       return unsubscribe;
     };
-  
+
     const loadData = async () => {
       try {
         await fetchSessions();
@@ -53,7 +48,7 @@ const CommunityScreen = () => {
         console.log('Error fetching sessions: ', error);
       }
     };
-  
+
     setTimeout(loadData, 1000);
   }, []);
 
@@ -132,35 +127,6 @@ const CommunityScreen = () => {
       );
     }
   };
-
-  const fetchDisplayName = async (uid) => {
-    try {
-      const userDoc = await doc(FIREBASE_DB, 'users-info', uid).get(); // Replace 'users' with your users collection name if different
-      console.log(userDoc.data().displayName);
-      return userDoc.data().displayName || 'No name'; // Assuming displayName is the field name
-    } catch (error) {
-      console.log('Error fetching display name: ', error);
-      return 'No name';
-    }
-  };
-  
-  // useEffect(() => {
-  //   // Function to fetch the image URL from Firebase Storage
-  //   const fetchImage = async () => {
-  //     try {
-  //       const uidString = FIREBASE_AUTH.currentUser.uid;
-  //       // console.log('/ProfilePictures/' + uidString + ".png");
-  //       const imageRef = ref(storage, '/ProfilePictures/' + uidString + ".png"); //firebase storage can be potentially used to store userPFP, and post images where names of those components is uid and postID respectively
-  //       const url = await getDownloadURL(imageRef);
-  //       setImageUrl(url);
-  //     } catch (error) {
-  //       console.log('Error fetching image URL: ', error);
-  //     }
-  //   };
-
-  //   fetchImage();
-  // }, []);
-
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
@@ -225,28 +191,15 @@ const CommunityScreen = () => {
               <View style={styles.sessionHeaderLeft}>
                 {session.photoURL ? (
                   <Image
-                    // source={{ uri: session.photoURL }}
                     source={{ uri: `${session.photoURL}?timestamp=${Date.now()}` }}
                     width={24}
                     height={24}
                     borderRadius={12}
                     style={styles.mr7}
-                    // key={session.photoURL} // Prevents caching
                   />
                 ) : (
                   <Ionicons name="person-outline" size={20} color="gray" style={styles.profileIcon} />
                 )}
-                {/* {session.photoURL && FIREBASE_AUTH.currentUser.uid == session.userId ? (
-                  <Image
-                    source={{ uri: imageUrl }}
-                    width={24}
-                    height={24}
-                    borderRadius={12}
-                    style={styles.mr7}
-                  />
-                ) : (
-                  <Ionicons name="person-outline" size={20} color="gray" style={styles.profileIcon} />
-                )} */}
                 <Text style={{ fontSize: 16 }}> u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
               </View>
               {handlePost(session)}

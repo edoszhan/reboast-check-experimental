@@ -168,11 +168,14 @@ const TimerScreen = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate(ROUTES.TIMER_LOGS)}>
+        <View style={styles.iconTextContainer}>
           <View style={styles.iconContainer}>
             <FontAwesome5 name="history" size={24} color="black" />
           </View>
+          <Text style={styles.headerText}>History</Text>
+        </View>
         </TouchableOpacity>
-        <Text style={styles.headerText}>History</Text>
+      
       </View>
       <TouchableOpacity
         style={styles.timerContainer}
@@ -251,7 +254,6 @@ const TimerScreen = () => {
             <View style={styles.popup}>
               <Text style={styles.popupText}>Todo</Text>
               <Text>Duration: {Math.floor(sessionDuration / 60)} minutes {sessionDuration % 60} seconds</Text> 
-              {/* <Text>2023.06.28 15:30</Text> */}
               <TextInput
                 style={styles.input}
                 value={sessionTopic}
@@ -403,15 +405,19 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     right: 10,
+    alignItems: 'center', // Align child elements to the center
+    marginRight: 10,
+  },
+  iconTextContainer: {
+    alignItems: 'center', // Center the icon and text horizontally
   },
   iconContainer: {
     borderRadius: 30,
     backgroundColor: '#f0f0f0',
     padding: 10,
+    marginBottom: 5, // Add some margin to separate the icon and text
   },
   headerText: {
-    marginTop: 10,
-    marginRight: 10,
     fontSize: 16,
     fontWeight: 'bold',
   },

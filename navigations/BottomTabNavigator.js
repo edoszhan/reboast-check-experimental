@@ -96,7 +96,7 @@ const BottomTabNavigator = () => {
   }
 
   return (
-    <Drawer.Navigator initialRouteName="Home" screenOptions={{ headerTitle: '' }}>
+    <Drawer.Navigator initialRouteName="Home" screenOptions={{ headerShown: false}}>
       <Drawer.Screen name="Home" component={MainComponent} />
       <Drawer.Screen name="Profile" component={UserProfileStackScreen} />
     </Drawer.Navigator>

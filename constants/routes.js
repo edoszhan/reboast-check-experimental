@@ -4,7 +4,7 @@ export default {
     FORGOT_PASSWORD: 'Forgot Password',
   
     HOME: 'Main Screen',
-    HOME_TAB: 'Home Tab',
+    HOME_TAB: 'Home ',
     HOME_DRAWER: 'Home Drawer',
   
     // PROFILE: 'Profile',

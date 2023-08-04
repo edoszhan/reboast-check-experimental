@@ -102,7 +102,7 @@ const HomeScreen = () => {
     <SafeAreaView style={styles.container}>
       <Text style={{...styles.heading, marginBottom: 20}}>Todo Tasks</Text>
       {/* <Text style={{...styles.heading, fontSize: 15, fontWeight: "normal"}}>Chosen date is {todayDayoftheWeek}</Text> */}
-      <Text style={{...styles.heading, fontSize: 15, fontWeight: "normal"}}>Chosen date is {selectDate}</Text>
+      <Text style={{...styles.heading, fontSize: 15, fontWeight: "normal"}}>Todo are shown for [{selectDate.slice(4,15)}]</Text>
       <View style={{height: 80}}>
       <ScrollView>
       <CalendarStrip 

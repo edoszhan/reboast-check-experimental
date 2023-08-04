@@ -38,7 +38,7 @@ const HomeStackScreen = () => {
 const CommunityStackScreen = () => {
   return (
     <ProfileStack.Navigator screenOptions={{ headerShown: true }} id="tabs">
-      <ProfileStack.Screen name={ROUTES.COMMUNITY_MAIN} component={CommunityScreen} /> 
+      <ProfileStack.Screen name="Communitу" component={CommunityScreen} /> 
       <ProfileStack.Screen name={ROUTES.ADD_POST_SCREEN} component={AddPost} />
       <ProfileStack.Screen name={ROUTES.EDIT_POST_SCREEN} component={EditPost} />
       <ProfileStack.Screen name={ROUTES.POST_INFORMATION} component={PostInformation} />
@@ -49,7 +49,7 @@ const CommunityStackScreen = () => {
 const TimerStackScreen = () => {
   return (
     <TimerStack.Navigator screenOptions={{ headerShown: true }}>
-      <TimerStack.Screen name="Timers" component={Timer} />
+      <TimerStack.Screen name=" " component={Timer} />
       <TimerStack.Screen name="History" component={TimerLogs} />
     </TimerStack.Navigator>
   );

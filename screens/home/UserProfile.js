@@ -49,10 +49,12 @@ const UserProfile = ({ route }) => {
   };
 
   const user = {
-    name: info.length > 0 ? info[0].displayName : 'Not found',
-    photoURL: info.length > 0 ? `${info[0].photoURL}?timestamp=${Date.now()}` : null,
+    name: info[0].displayName,
+    photoURL: info[0].photoURL,
   };
-  // photoURL: info.length > 0 ? `${info[0].photoURL}?timestamp=${Date.now()}` : null,
+
+  console.log(user.photoURL);
+
 
   return (
     <SafeAreaView style={styles.container}>

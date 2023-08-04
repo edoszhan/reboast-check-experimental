@@ -17,10 +17,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { setDoc, serverTimestamp } from 'firebase/firestore';
 import { TextInput } from 'react-native';
 import uuid from 'react-native-uuid';
+import { getDoc } from 'firebase/firestore';
 
 const PostInformation = ({ route }) => {
   const params = route.params ? route.params : 'no post';
   const navigation = useNavigation(); 
+  // const nav = navigation.getParent()?.setOptions({ tabBarBUtton: () => null }); //SOLELY TO REMOVE TABS ON THIS PAGE
   const [sessions, setSessions] = useState([]);
   const [replyText, setReplyText] = useState('');
   const [comments, setComments] = useState([]);
@@ -28,14 +30,36 @@ const PostInformation = ({ route }) => {
   const [replyEnabled, setReplyEnabled] = useState(false);
 
   postId = params.postId;
-  const fetchComments = async () => {
+
+
+  const fetchUserName = async (userId) => {
+    try {
+      const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId)); 
+      return userDoc.data()?.displayName; 
+    } catch (error) {
+      console.log('Error fetching user name: ', error);
+    }
+  };
+
+  const fetchUserPhoto = async (userId) => {
+    try {
+      const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId));
+      return userDoc.data()?.photoURL;
+    } catch (error) {
+      console.log('Error fetching user photo: ', error);
+    }
+  };
+
+  const fetchComments = async () => { 
     const q = query(collection(FIREBASE_DB, 'community-comment', postId, 'comments'), orderBy('createdAt', 'desc')); //PREVIOUSLY ASC
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
       const commentsData = [];
-      snapshot.forEach((doc) => {
+      for (const doc of snapshot.docs) {
         const data = doc.data();
+        data.replyAuthor = await fetchUserName(data.userId);
+        data.photoURL = await fetchUserPhoto(data.userId);
         commentsData.push({ id: doc.id, ...data });
-      });
+      }
       setComments(commentsData);
     });
 
@@ -46,14 +70,18 @@ const PostInformation = ({ route }) => {
     const q = query(collection(FIREBASE_DB, 'community-chat'));
     const querySnapshot = await getDocs(q);
     const sessionData = [];
-    querySnapshot.forEach((doc) => {
+    for (const doc of querySnapshot.docs) {
       const data = doc.data();
       if (data.postId === params.postId) {
+        // Here we fetch the user photo
+        data.postAuthor = await fetchUserName(data.userId);
+        data.photoURL = await fetchUserPhoto(data.userId);
         sessionData.push({ id: doc.id, ...data });
       }
-    });
+    }
     setSessions(sessionData);
   };
+  
 
   useEffect(() => {
     const fetchSessionsAndSetState = async () => {
@@ -97,7 +125,7 @@ const PostInformation = ({ route }) => {
           <MenuOptions>
             <MenuOption onSelect={() => [setReplyEnabled(true), setReplyText(postAuthorName)]} onPress={() => setReplyEnabled(false)} >
               <Text style={{ color: 'blue' }}>Reply</Text>
-            </MenuOption>x
+            </MenuOption>
           </MenuOptions>
         </Menu>
       );
@@ -142,7 +170,6 @@ const PostInformation = ({ route }) => {
   const commentCreatedDateTime = currentDay + ' ' + currentTime;
 
   const handleReply = async (postId) => {
-    // randomId = uuid.v4()
     randomId = FIREBASE_AUTH.currentUser.displayName + "-" + uuid.v4();
     try {
       await setDoc(doc(FIREBASE_DB, 'community-comment', parentId, 'comments', randomId), {
@@ -176,7 +203,7 @@ const PostInformation = ({ route }) => {
                   ) : (
                     <Ionicons name="person-outline" size={20} color="gray" style={styles.profileIcon} />
                   )}
-                  <Text style={{ fontSize: 16 }}>  u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
+                  <Text style={{ fontSize: 16 }}>  u/{session.postAuthor}</Text>
                 </View>
                 {handlePost(session)} 
               </View>

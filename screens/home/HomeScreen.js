@@ -36,9 +36,6 @@ const HomeScreen = () => {
   const [selectDate, setSelectedDate] = useState(new Date().toLocaleDateString('kr-KO', { weekday: 'long' }));
   const [searchDay, setSearchDay] = useState(new Date().toLocaleDateString('en-US', { weekday: 'long' }));
 
-  // const daysOfWeek = ['월', '화', '수', '목', '금', '토', '일'];
-
-  const todayDayoftheWeek = new Date().toLocaleDateString('kr-KO', { weekday: 'long' });
 
   useEffect(() => {
     const checkedTaskNames = [];
@@ -52,7 +49,6 @@ const HomeScreen = () => {
   }, [tasksByCategory]);
 
   useEffect(() => {
-    // const today = new Date().toLocaleDateString('kr-KO', { weekday: 'long' });
     const today = searchDay;
     const dayPrefix = today.slice(0, 3);
     const todayDay = koreanDaysOfWeekTable[dayPrefix];

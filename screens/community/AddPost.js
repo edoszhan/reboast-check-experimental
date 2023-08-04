@@ -33,7 +33,6 @@ const AddPost = () => {
         await setDoc(doc(FIREBASE_DB, 'community-chat', postId), {
           postTopic: postTopic,
           postContent: postContent,
-          postAuthor: auth.currentUser.displayName,
           postCreatedDateTime: postCreatedDateTime,
           userId: uid,
           postId: postId,

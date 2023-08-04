@@ -5,8 +5,11 @@ import { FIREBASE_DB } from '../../config/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 import { onSnapshot } from 'firebase/firestore';
 import { updateProfile } from 'firebase/auth';
+import { useNavigation } from '@react-navigation/native';
+
 
 const Settings = () => {
+  const navigation = useNavigation();
   const user = FIREBASE_AUTH.currentUser;
   const [userName, setUserName] = useState('');
 
@@ -47,6 +50,7 @@ const Settings = () => {
     } else {
       Alert.alert('Warning', 'Please enter a valid name');
     }
+    navigation.goBack();
   };
 
   return (

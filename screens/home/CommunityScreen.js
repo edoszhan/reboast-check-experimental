@@ -18,6 +18,8 @@ import { ROUTES } from '../../constants';
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { Ionicons } from '@expo/vector-icons';
+import { getDoc } from 'firebase/firestore';
+
 
 
 const CommunityScreen = () => {
@@ -25,22 +27,41 @@ const CommunityScreen = () => {
   const [sessions, setSessions] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
+  const fetchUserName = async (userId) => {
+    try {
+      const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId)); 
+      return userDoc.data()?.displayName;
+    } catch (error) {
+      console.log('Error fetching user name: ', error);
+    }
+  };
+
+  const fetchUserPhoto = async (userId) => {
+    try {
+      const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId));
+      return userDoc.data()?.photoURL;
+    } catch (error) {
+      console.log('Error fetching user photo: ', error);
+    }
+  };
+
+  const fetchSessions = async () => { 
+    const q = query(collection(FIREBASE_DB, 'community-chat'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
+      const sessionData = [];
+      for (const doc of snapshot.docs) {
+        const data = doc.data();
+        data.postAuthor = await fetchUserName(data.userId);
+        data.photoURL = await fetchUserPhoto(data.userId);
+        sessionData.push({ id: doc.id, ...data });
+      }
+      setSessions(sessionData);
+      setIsLoading(false);
+    });
+    return unsubscribe;
+  };
+
   useEffect(() => {
-    const fetchSessions = async () => { 
-      const q = query(collection(FIREBASE_DB, 'community-chat'), orderBy('createdAt', 'desc'));
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        const sessionData = [];
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          sessionData.push({ id: doc.id, ...data });
-        });
-        setSessions(sessionData);
-        setIsLoading(false); 
-      });
-
-      return unsubscribe;
-    };
-
     const loadData = async () => {
       try {
         await fetchSessions();
@@ -48,8 +69,8 @@ const CommunityScreen = () => {
         console.log('Error fetching sessions: ', error);
       }
     };
-
     setTimeout(loadData, 1000);
+    return () => fetchSessions(); // You might want to call the returned unsubscribe function here
   }, []);
 
   const onRefresh = React.useCallback(async () => {
@@ -208,7 +229,7 @@ const CommunityScreen = () => {
               <Text style={{ color: 'grey', fontSize: 11 }}>{session.postCreatedDateTime}</Text>
             </View>
             <TouchableOpacity
-              onPress={() => navigation.navigate(ROUTES.POST_INFORMATION, { postId: session.id })}
+              onPress={() => navigation.navigate(ROUTES.POST_INFORMATION, { postId: session.id, postAuthor: session.postAuthor})}
             >
               <View style={styles.sessionBlock}>
                 <Text style={{ fontWeight: 'bold', fontSize: 18 }}>{session.postTopic}</Text>

@@ -29,23 +29,23 @@ const CommunityScreen = () => {
   const [likeClicked, setLikeClicked] = useState(false);
 
   const [imageUrl, setImageUrl] = useState(null); // State to store the image URL
-
   useEffect(() => {
     const fetchSessions = async () => { 
       const q = query(collection(FIREBASE_DB, 'community-chat'), orderBy('createdAt', 'desc'));
-      const unsubscribe = onSnapshot(q, (snapshot) => {
+      const unsubscribe = onSnapshot(q, async (snapshot) => {
         const sessionData = [];
-        snapshot.forEach((doc) => {
+        for (const doc of snapshot.docs) {
           const data = doc.data();
+          data.postAuthor = await fetchDisplayName(data.userId); // Fetching display name using userId
           sessionData.push({ id: doc.id, ...data });
-        });
+        }
         setSessions(sessionData);
         setIsLoading(false); 
       });
-
+  
       return unsubscribe;
     };
-
+  
     const loadData = async () => {
       try {
         await fetchSessions();
@@ -53,7 +53,7 @@ const CommunityScreen = () => {
         console.log('Error fetching sessions: ', error);
       }
     };
-
+  
     setTimeout(loadData, 1000);
   }, []);
 
@@ -132,23 +132,34 @@ const CommunityScreen = () => {
       );
     }
   };
-  
-  useEffect(() => {
-    // Function to fetch the image URL from Firebase Storage
-    const fetchImage = async () => {
-      try {
-        const uidString = FIREBASE_AUTH.currentUser.uid;
-        // console.log('/ProfilePictures/' + uidString + ".png");
-        const imageRef = ref(storage, '/ProfilePictures/' + uidString + ".png"); //firebase storage can be potentially used to store userPFP, and post images where names of those components is uid and postID respectively
-        const url = await getDownloadURL(imageRef);
-        setImageUrl(url);
-      } catch (error) {
-        console.log('Error fetching image URL: ', error);
-      }
-    };
 
-    fetchImage();
-  }, []);
+  const fetchDisplayName = async (uid) => {
+    try {
+      const userDoc = await doc(FIREBASE_DB, 'users-info', uid).get(); // Replace 'users' with your users collection name if different
+      console.log(userDoc.data().displayName);
+      return userDoc.data().displayName || 'No name'; // Assuming displayName is the field name
+    } catch (error) {
+      console.log('Error fetching display name: ', error);
+      return 'No name';
+    }
+  };
+  
+  // useEffect(() => {
+  //   // Function to fetch the image URL from Firebase Storage
+  //   const fetchImage = async () => {
+  //     try {
+  //       const uidString = FIREBASE_AUTH.currentUser.uid;
+  //       // console.log('/ProfilePictures/' + uidString + ".png");
+  //       const imageRef = ref(storage, '/ProfilePictures/' + uidString + ".png"); //firebase storage can be potentially used to store userPFP, and post images where names of those components is uid and postID respectively
+  //       const url = await getDownloadURL(imageRef);
+  //       setImageUrl(url);
+  //     } catch (error) {
+  //       console.log('Error fetching image URL: ', error);
+  //     }
+  //   };
+
+  //   fetchImage();
+  // }, []);
 
   if (isLoading) {
     return (

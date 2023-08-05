@@ -49,11 +49,9 @@ const UserProfile = ({ route }) => {
   };
 
   const user = {
-    name: info[0].displayName,
-    photoURL: info[0].photoURL,
+    name: info.length > 0 ? info[0].displayName : 'Not found',
+    photoURL: info.length > 0 ? info[0].photoURL: null,
   };
-
-  console.log(user.photoURL);
 
 
   return (

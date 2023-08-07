@@ -8,7 +8,6 @@ import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
 import { AntDesign } from '@expo/vector-icons';
 import CalendarStrip  from 'react-native-calendar-strip';
-import { ActivityIndicator } from 'react-native';
 
 
 const CustomCheckbox = ({ checked }) => {
@@ -52,8 +51,6 @@ const HomeScreen = () => {
     const today = searchDay;
     const dayPrefix = today.slice(0, 3);
     const todayDay = koreanDaysOfWeekTable[dayPrefix];
-    // const string = today.split(" ");
-    // const todayDay = string[3][0];
     const user = auth.currentUser;
     const categoryNames = ['Sport', 'Learning', 'Morning Routine']; //can be appended later if the "add category" feature is added
     const unsubscribeTasks = categoryNames.map((categoryName) => {
@@ -63,7 +60,9 @@ const HomeScreen = () => {
         const taskList = [];
         snapshot.forEach((doc) => {
           const taskData = doc.data();
-          if (todayDay.includes(taskData.categoryDays)) {
+          console.log("todayDays is: ", todayDay);
+          console.log("taskData.categoryDays are: ", taskData.categoryDays);
+          if (taskData.categoryDays.includes(todayDay)) {
           taskList.push({ ...taskData, checked: false }); // Add checked property to task data
           }
         });

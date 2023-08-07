@@ -137,12 +137,14 @@ function MainComponent() {
     });
   
     setCheckboxes(updatedCheckboxes);
+
   
     const updatedSelectedDays = updatedCheckboxes
       .filter((checkbox) => checkbox.checked)
       .map((checkbox) => checkbox.day);
   
     setSelectedDays(updatedSelectedDays);
+    console.log("here", updatedSelectedDays);
   };
   
   
@@ -292,7 +294,7 @@ function MainComponent() {
                   <TouchableOpacity
                     key={index}
                     style={[styles.dayButton, checkbox.checked && styles.checkedDayButton]}
-                    onPress={() => [handleDayPress(index), setSelectedDays(selectedDays => [checkboxes[index].day], console.log("current list ", selectedDays))]}
+                    onPress={() => [handleDayPress(index)]}
                   >
                     <Text style={[styles.dayButtonText, checkbox.checked && styles.checkedDayButtonText]}>
                       {checkbox.day}

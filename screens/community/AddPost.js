@@ -1,32 +1,29 @@
 import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, TextInput, TouchableOpacity, View, Text } from 'react-native';
+import { SafeAreaView, StyleSheet, TextInput, TouchableOpacity, View, Text, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { FIREBASE_AUTH } from '../../config/firebase';
 import uuid from 'react-native-uuid';
 import { launchImageLibrary } from 'react-native-image-picker';
-import { Image } from 'react-native';
-
-
+import Icon from 'react-native-vector-icons/FontAwesome'; // Ensure you've installed this package
 
 const AddPost = () => {
   const [postContent, setPostContent] = useState('');
   const [postTopic, setPostTopic] = useState('');
-  const [postFile, setPostFile] = useState(null); //might need to change this to an array of files
+  const [postFile, setPostFile] = useState(null);
   const navigation = useNavigation();
 
-
   const now = new Date();
-  const currentDay = now.toLocaleDateString('en-US', {weekday: "long"});
-  const currentTime = now.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'});
+  const currentDay = now.toLocaleDateString('en-US', { weekday: "long" });
+  const currentTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const postCreatedDateTime = currentDay + " " + currentTime;
 
-  const postCreatedDateTime = currentDay + " " + currentTime;  //we might change the formatting later
   const handlePostCreation = async () => {
     if (postTopic && postContent) {
       const auth = FIREBASE_AUTH;
       const uid = auth.currentUser.uid;
-      const photo = auth.currentUser.photoURL;  //null right now
+      const photo = auth.currentUser.photoURL;
       const postId = uuid.v4();
       console.log(postFile);
       try {
@@ -45,8 +42,7 @@ const AddPost = () => {
       } catch (error) {
         console.log("Error writing document: ", error);
       } 
-      navigation.goBack(); //passing params was removed in favor of onSnapshot
-
+      navigation.goBack();
     }
   };
 
@@ -60,14 +56,15 @@ const AddPost = () => {
       },
     };
     launchImageLibrary(options, async (response) => {
-
       if (response.assets && response.assets.length > 0) {
         setPostFile(response.assets[0].uri);
-
       }
     });
   };
 
+  const removeImage = () => {
+    setPostFile(null);
+  };
 
   const isPostButtonDisabled = !(postTopic);
 
@@ -87,18 +84,19 @@ const AddPost = () => {
           value={postContent}
           onChangeText={setPostContent}
         />
-      </View>
-      {/* <TouchableOpacity style={{ marginBottom: 300, marginRight: 200}}
-      onPress={ImagePicker}>
-      {postFile ? (
-          <Image style={{ height: 100, width: '100%' }} source={{ uri: postFile }} />
-        ) : (
-          <Text style={{fontSize: 16,
-            textAlign: 'center',
-            marginTop: 200}}
-           >Upload an image</Text>
+        {postFile && (
+          <View style={styles.imageContainer}>
+            <Image style={styles.imagePreview} source={{ uri: postFile }} />
+            <TouchableOpacity style={styles.deleteButton} onPress={removeImage}>
+              <Text style={styles.deleteButtonText}>x</Text>
+            </TouchableOpacity>
+          </View>
         )}
-      </TouchableOpacity> */}
+        <TouchableOpacity style={styles.imagePickerButton} onPress={ImagePicker}>
+          <Icon name="image" size={30} color="#007AFF" />
+          <Text style={styles.imagePickerText}>Share an image</Text>
+        </TouchableOpacity>
+      </View>
       <TouchableOpacity
         style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]}
         onPress={handlePostCreation}
@@ -156,6 +154,40 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  imageContainer: {
+    alignItems: 'center',
+    position: 'relative',
+    marginTop: 10,
+  },
+  imagePreview: {
+    height: 100,
+    width: '100%',
+    resizeMode: 'contain',
+  },
+  deleteButton: {
+    position: 'absolute',
+    right: 10,
+    top: 10,
+    backgroundColor: 'red',
+    borderRadius: 15,
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  deleteButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  imagePickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  imagePickerText: {
+    marginLeft: 8,
+    color: '#007AFF',
   },
 });
 

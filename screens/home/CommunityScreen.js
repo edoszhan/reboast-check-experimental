@@ -19,6 +19,7 @@ import { AntDesign, Entypo } from '@expo/vector-icons';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { Ionicons } from '@expo/vector-icons';
 import { getDoc } from 'firebase/firestore';
+import { SearchBar } from '@rneui/themed';
 
 
 
@@ -26,35 +27,48 @@ const CommunityScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [sessions, setSessions] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [search, setSearch] = useState('');
 
-  const fetchUserName = async (userId) => {
-    try {
-      const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId)); 
-      return userDoc.data()?.displayName;
-    } catch (error) {
-      console.log('Error fetching user name: ', error);
-    }
-  };
+  // const fetchUserName = async (userId) => {
+  //   try {
+  //     const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId)); 
+  //     return userDoc.data()?.displayName;
+  //   } catch (error) {
+  //     console.log('Error fetching user name: ', error);
+  //   }
+  // };
 
-  const fetchUserPhoto = async (userId) => {
-    try {
-      const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId));
-      return userDoc.data()?.photoURL;
-    } catch (error) {
-      console.log('Error fetching user photo: ', error);
-    }
-  };
+  // const fetchUserPhoto = async (userId) => {
+  //   try {
+  //     const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId));
+  //     return userDoc.data()?.photoURL;
+  //   } catch (error) {
+  //     console.log('Error fetching user photo: ', error);
+  //   }
+  // };
 
-  const fetchSessions = async () => { 
+  const fetchSessions = async () => {
     const q = query(collection(FIREBASE_DB, 'community-chat'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, async (snapshot) => {
       const sessionData = [];
+  
+      // Extract unique userIDs
+      const userIds = [...new Set(snapshot.docs.map(doc => doc.data().userId))];
+  
+      // Fetch all users' information at once
+      const usersInfo = await Promise.all(userIds.map(async id => {
+        const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', id));
+        return { userId: id, ...userDoc.data() };
+      }));
+  
       for (const doc of snapshot.docs) {
         const data = doc.data();
-        data.postAuthor = await fetchUserName(data.userId);
-        data.photoURL = await fetchUserPhoto(data.userId);
+        const userInfo = usersInfo.find(user => user.userId === data.userId);
+        data.postAuthor = userInfo?.displayName;
+        data.photoURL = userInfo?.photoURL;
         sessionData.push({ id: doc.id, ...data });
       }
+  
       setSessions(sessionData);
       setIsLoading(false);
     });
@@ -191,6 +205,19 @@ const CommunityScreen = () => {
       style={styles.container}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
+
+      <SearchBar
+        style={{borderColor: 'white', borderWidth: 1, borderRadius: 5 }}
+        placeholder="Search"
+        onChangeText={text => setSearch(text)}
+        onClear={() => console.log('onClear')}
+        onCancel={() => console.log('onCancel')}
+        showLoading={false}
+        value={search}
+        lightTheme={true}
+        containerStyle={{backgroundColor: 'green', borderColor: 'white', borderWidth: 1, borderRadius: 5 }}
+        inputContainerStyle={{backgroundColor: 'white', borderColor: 'white', borderWidth: 1, borderRadius: 5 }}
+      />
       <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)}>
         <Text style={styles.deleteButtonText}>Add post</Text>
       </TouchableOpacity>
@@ -237,9 +264,9 @@ const CommunityScreen = () => {
               <View style={styles.sessionBlock}>
                 <Text style={styles.sessionText}>{session.postContent ? session.postContent : 'No content'}</Text>
               </View>
-              <View>
+              <View style={{alignItems: 'center'}}>
                 {session.postFile ? (
-                  <Image source={{ uri: session.postFile }} style={{ width: 200, height: 200 }} />
+                  <Image source={{ uri: session.postFile }} style={{ width: 200, height: 200}} />
                 ) : null}
               </View>
             </TouchableOpacity>

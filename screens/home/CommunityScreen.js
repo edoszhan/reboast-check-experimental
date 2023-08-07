@@ -29,24 +29,6 @@ const CommunityScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
 
-  // const fetchUserName = async (userId) => {
-  //   try {
-  //     const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId)); 
-  //     return userDoc.data()?.displayName;
-  //   } catch (error) {
-  //     console.log('Error fetching user name: ', error);
-  //   }
-  // };
-
-  // const fetchUserPhoto = async (userId) => {
-  //   try {
-  //     const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId));
-  //     return userDoc.data()?.photoURL;
-  //   } catch (error) {
-  //     console.log('Error fetching user photo: ', error);
-  //   }
-  // };
-
   const fetchSessions = async () => {
     const q = query(collection(FIREBASE_DB, 'community-chat'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, async (snapshot) => {
@@ -222,7 +204,14 @@ const CommunityScreen = () => {
         <Text style={styles.deleteButtonText}>Add post</Text>
       </TouchableOpacity>
       <View style={styles.container}>
-        {sessions.map((session, index) => (
+        {sessions.filter(session => {
+            const searchTerm = search.toLowerCase();
+            return (
+              session.postTopic.toLowerCase().includes(searchTerm) || 
+              session.postContent.toLowerCase().includes(searchTerm)
+            );
+          })
+        .map((session, index) => (
           <View key={index} style={styles.sessionContainer}>
             <View style={styles.likeContainer}>
             <TouchableOpacity onPress={() => handleLike(session.id, session)}>

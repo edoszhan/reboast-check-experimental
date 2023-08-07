@@ -8,6 +8,7 @@ import uuid from 'react-native-uuid';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Ensure you've installed this package
 
+
 const AddPost = () => {
   const [postContent, setPostContent] = useState('');
   const [postTopic, setPostTopic] = useState('');
@@ -55,6 +56,7 @@ const AddPost = () => {
         height: 100,
       },
     };
+
     launchImageLibrary(options, async (response) => {
       if (response.assets && response.assets.length > 0) {
         setPostFile(response.assets[0].uri);

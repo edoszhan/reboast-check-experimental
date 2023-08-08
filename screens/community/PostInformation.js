@@ -1,25 +1,18 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, TextInput, Image} from 'react-native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect } from 'react';
 import { useState } from 'react';
-import { collection, query, getDocs, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, getDocs, orderBy, onSnapshot, deleteDoc, doc, getDoc, updateDoc, arrayRemove, setDoc, serverTimestamp} from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
-import { Image } from 'react-native';
 import { ROUTES } from '../../constants';
-import Logo from '../../assets/icons/LOGO.svg';
-import { Entypo } from '@expo/vector-icons';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { FIREBASE_AUTH } from '../../config/firebase';
-import { deleteDoc, doc } from 'firebase/firestore';
-import { Ionicons } from '@expo/vector-icons';
-import { setDoc, serverTimestamp } from 'firebase/firestore';
-import { TextInput } from 'react-native';
+import { Ionicons, Entypo, AntDesign } from '@expo/vector-icons';
 import uuid from 'react-native-uuid';
-import { getDoc } from 'firebase/firestore'; 
-import { updateDoc } from 'firebase/firestore';
-import { FieldValue } from 'firebase/firestore';
+
+
 
 const PostInformation = ({ route }) => {
   const params = route.params ? route.params : 'no post';
@@ -157,8 +150,18 @@ const PostInformation = ({ route }) => {
       if (FIREBASE_AUTH.currentUser.uid !== userId) {
         return;
       }
+      // Delete the document from 'community-chat'
       await deleteDoc(doc(FIREBASE_DB, 'community-chat', postId));
+          
+      // Remove the postId from the commentsIds array in 'community-chat'
+      const communityChatRef = doc(FIREBASE_DB, 'community-chat', params.postId);
+      await updateDoc(communityChatRef, {
+        commentsIds: arrayRemove(postId)
+      });
+
+      // Delete the document from 'community-comment'
       await deleteDoc(doc(FIREBASE_DB, 'community-comment', parentId, 'comments', postId));
+
       await fetchSessions();
     } catch (error) {
       console.log('Error deleting document: ', error);
@@ -213,6 +216,35 @@ const PostInformation = ({ route }) => {
       }
   };
 
+  const handleLike = async (postId, session) => {
+    const uid = FIREBASE_AUTH.currentUser.uid;
+    const sessionToUpdate = sessions.find((session) => session.id === postId);
+
+    if (sessionToUpdate) {
+      let updatedLikesCount = sessionToUpdate.likesCount;
+      let updatedIsLiked = sessionToUpdate.isLiked;
+      
+      const likedIndex = updatedIsLiked.indexOf(uid);
+      
+      if (likedIndex !== -1) {
+        updatedIsLiked.splice(likedIndex, 1);
+        updatedLikesCount--;
+      } else {
+        updatedIsLiked.push(uid);
+        updatedLikesCount++;
+      }
+  
+      // Update the likesCount and isLiked in the database 
+      const postRef = doc(FIREBASE_DB, 'community-chat', postId);
+      updateDoc(postRef, {
+        likesCount: updatedLikesCount,
+        isLiked: updatedIsLiked,
+      });
+
+      fetchSessions();
+    }
+  }
+
   return (
     <View style={styles.parentContainer}>
       <ScrollView style={styles.container}>
@@ -244,7 +276,24 @@ const PostInformation = ({ route }) => {
                 <Image source={{ uri: session.postFile }} style={{ width: 200, height: 200 }} />
               ) : null}
               </View>
+
+            <View style={styles.interactionBar}>
+            <TouchableOpacity style={styles.interactionButton} onPress={() => handleLike(session.id, session)}>
+            {session.isLiked.includes(FIREBASE_AUTH.currentUser.uid) ? (
+              <AntDesign name="like1" size={20} color="black" />
+            ) : (
+              <AntDesign name="like2" size={20} color="black" />
+            )}
+            <Text style={styles.interactionText}>{session.likesCount}</Text>
+          </TouchableOpacity>
+          
+            <TouchableOpacity style={styles.interactionButton}>
+              <Ionicons name="chatbubbles-outline" size={20} color="black" />
+              <Text style={styles.interactionText}>{session.commentsIds ? session.commentsIds.length : 0}</Text> 
+            </TouchableOpacity>
             </View>
+      
+            </View> 
           ))}
          <View style={styles.commentsContainer}> 
             {comments.map((comment) => (
@@ -414,6 +463,25 @@ const styles = StyleSheet.create({
   commentHeaderLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+
+
+  interactionBar: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginTop: 10, // You can adjust this value
+  },
+  
+  interactionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 15, // Space between the like and comment buttons
+  },
+  
+  interactionText: {
+    marginLeft: 5, // Space between the icon and its text
+    fontSize: 14,
   },
 
 });

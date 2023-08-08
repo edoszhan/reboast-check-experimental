@@ -21,8 +21,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { getDoc } from 'firebase/firestore';
 import { SearchBar } from '@rneui/themed';
 
-
-
 const CommunityScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [sessions, setSessions] = useState([]);
@@ -228,7 +226,7 @@ const CommunityScreen = () => {
           })
         .map((session, index) => (
           <View key={index} style={styles.sessionContainer}>
-            <View style={styles.likeContainer}>
+            {/* <View style={styles.likeContainer}>
             <TouchableOpacity onPress={() => handleLike(session.id, session)}>
             {session.isLiked.includes(FIREBASE_AUTH.currentUser.uid) ? (
               <AntDesign name="like1" size={24} color="black" />
@@ -237,7 +235,7 @@ const CommunityScreen = () => {
             )}
           </TouchableOpacity>
               <Text style={styles.likeText}>{session.likesCount}</Text>
-            </View>
+            </View> */}
             <View style={styles.postContent}>
             <View style={styles.sessionHeader}>
               <View style={styles.sessionHeaderLeft}>
@@ -274,6 +272,27 @@ const CommunityScreen = () => {
                 ) : null}
               </View>
             </TouchableOpacity>
+
+            <View style={styles.interactionBar}>
+            {/* <TouchableOpacity style={styles.interactionButton} onPress={() => console.log("fefe")}>
+              <AntDesign name="like1" size={20} color="black" />
+              <Text style={styles.interactionText}>{session.likesCount}</Text>
+            </TouchableOpacity> */}
+
+            <TouchableOpacity style={styles.interactionButton} onPress={() => handleLike(session.id, session)}>
+            {session.isLiked.includes(FIREBASE_AUTH.currentUser.uid) ? (
+              <AntDesign name="like1" size={20} color="black" />
+            ) : (
+              <AntDesign name="like2" size={20} color="black" />
+            )}
+            <Text style={styles.interactionText}>{session.likesCount}</Text>
+          </TouchableOpacity>
+
+            <TouchableOpacity style={styles.interactionButton} onPress={() => navigation.navigate(ROUTES.POST_INFORMATION, { postId: session.id, postAuthor: session.postAuthor })}>
+              <Ionicons name="chatbubbles-outline" size={20} color="black" />
+              <Text style={styles.interactionText}>{session.commentsIds ? session.commentsIds.length : 0}</Text> 
+            </TouchableOpacity>
+            </View>
             </View>
           </View>
         ))}
@@ -343,6 +362,24 @@ const styles = StyleSheet.create({
   },
   postContent: {
     flex: 1, // Let the post content take the remaining width
+  },
+
+  interactionBar: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginTop: 10, // You can adjust this value
+  },
+  
+  interactionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 15, // Space between the like and comment buttons
+  },
+  
+  interactionText: {
+    marginLeft: 5, // Space between the icon and its text
+    fontSize: 14,
   },
 });
 

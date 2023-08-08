@@ -99,7 +99,22 @@ const CommunityScreen = () => {
             text: 'Delete',
             onPress: async () => {
               try {
-                await deleteDoc(doc(FIREBASE_DB, 'community-chat', postId));
+                const postDocRef = doc(FIREBASE_DB, 'community-chat', postId);
+                const postDocSnapshot = await getDoc(postDocRef);
+  
+                // If the document has the field "commentsIds"
+                if (postDocSnapshot.exists() && postDocSnapshot.data().commentsIds) {
+                  const commentsIds = postDocSnapshot.data().commentsIds;
+  
+                  // Loop through and delete each comment
+                  for (const commentId of commentsIds) {
+                    const commentDocRef = doc(FIREBASE_DB, 'community-comment', postId, 'comments', commentId);
+                    await deleteDoc(commentDocRef);
+                  }
+                }
+  
+                // Now, delete the main post after all associated comments are deleted
+                await deleteDoc(postDocRef);
               } catch (error) {
                 console.log('Error deleting document: ', error);
               }

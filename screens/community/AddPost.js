@@ -39,6 +39,7 @@ const AddPost = () => {
           isLiked: [],
           likesCount: 0,
           postFile: postFile,
+          commentsIds: [],
         });
       } catch (error) {
         console.log("Error writing document: ", error);

@@ -18,6 +18,8 @@ import { setDoc, serverTimestamp } from 'firebase/firestore';
 import { TextInput } from 'react-native';
 import uuid from 'react-native-uuid';
 import { getDoc } from 'firebase/firestore'; 
+import { updateDoc } from 'firebase/firestore';
+import { FieldValue } from 'firebase/firestore';
 
 const PostInformation = ({ route }) => {
   const params = route.params ? route.params : 'no post';
@@ -181,6 +183,7 @@ const PostInformation = ({ route }) => {
         timeShown: commentCreatedDateTime,
         userId: FIREBASE_AUTH.currentUser.uid,
         photoURL: FIREBASE_AUTH.currentUser.photoURL,
+        isLiked: [],
       });
       console.log('Document successfully written!');
       setReplyText('');
@@ -188,6 +191,26 @@ const PostInformation = ({ route }) => {
     } catch (error) {
       console.log('Error writing document: ', error);
     }
+
+    try {
+      const docRef = doc(FIREBASE_DB, 'community-chat', parentId);
+      const docSnapshot = await getDoc(docRef);
+  
+      if (docSnapshot.exists()) {
+          const data = docSnapshot.data();
+          let commentsIds = data.commentsIds || []; // Ensure it's an array, even if the field doesn't exist yet
+          
+          // Check if postId is not already in the array, then push it
+          if (!commentsIds.includes(randomId)) {
+              commentsIds.push(randomId);
+          }
+  
+          // Update the document with the new array
+          await updateDoc(docRef, { commentsIds: commentsIds });
+      }
+      } catch (error) {
+          console.log('Error updating commentIds: ', error);
+      }
   };
 
   return (

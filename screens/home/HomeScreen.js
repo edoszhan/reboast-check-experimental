@@ -60,8 +60,6 @@ const HomeScreen = () => {
         const taskList = [];
         snapshot.forEach((doc) => {
           const taskData = doc.data();
-          console.log("todayDays is: ", todayDay);
-          console.log("taskData.categoryDays are: ", taskData.categoryDays);
           if (taskData.categoryDays.includes(todayDay)) {
           taskList.push({ ...taskData, checked: false }); // Add checked property to task data
           }

@@ -228,7 +228,7 @@ const CommunityScreen = () => {
               <View style={styles.sessionHeaderLeft}>
                 {session.photoURL ? (
                   <Image
-                    source={{ uri: `${session.photoURL}?timestamp=${Date.now()}` }}
+                    source={{ uri: session.photoURL }}
                     width={24}
                     height={24}
                     borderRadius={12}

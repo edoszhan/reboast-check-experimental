@@ -57,7 +57,7 @@ function AuthNavigator() {
     name={ROUTES.FORGOT_PASSWORD} 
     component={ForgotPassword} 
     options={ ({route}) => ({
-        title: route.params.userID,
+        title: " ",
     }) }
     />
       {/* <Stack.Screen name={ROUTES.LOGIN}  component={Login}/> */}

@@ -40,7 +40,7 @@ const HomeScreen = () => {
     const checkedTaskNames = [];
     Object.entries(tasksByCategory).forEach(([categoryName, tasks]) => {
       tasks.forEach((task) => {
-        if (task.checked) {
+        if (task.checked) { 
           checkedTaskNames.push(task.categoryItems);
         }
       });

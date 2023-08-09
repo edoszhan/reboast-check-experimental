@@ -4,8 +4,8 @@ import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { FIREBASE_AUTH, FIREBASE_DB } from '../../config/firebase';
 import { COLORS, ROUTES } from '../../constants';
 import { doc, setDoc } from 'firebase/firestore';
-
-import uuid from 'react-native-uuid';
+import { Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const Register = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -13,8 +13,11 @@ const Register = ({ navigation }) => {
   const [repeatPassword, setRepeatPassword] = useState('');
   const [agreed, setAgreed] = useState(false);
 
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
+
+
   const [name, setName] = useState('');
-  const userId_random = uuid.v4();
   const create = async (uid, name) => {
     console.log("uid", uid);
     try {
@@ -64,9 +67,13 @@ const Register = ({ navigation }) => {
   };
 
   return (
+    <KeyboardAvoidingView 
+    style={{ flex: 1 }} 
+    behavior={Platform.OS === "ios" ? "padding" : "height"}
+    keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+  >
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <View style={styles.container}>
-      <Text style={styles.header}>Register</Text>
-
       <Text style={styles.inputLabel}>Name
         <Text style={styles.mandatoryApostrophe}>*</Text>
       </Text>
@@ -77,7 +84,6 @@ const Register = ({ navigation }) => {
         autoCapitalize="none"
         onChangeText={(name) => setName(name)}
       />
-
       <Text style={styles.inputLabel}>Email
         <Text style={styles.mandatoryApostrophe}>*</Text>
       </Text>
@@ -88,29 +94,36 @@ const Register = ({ navigation }) => {
         autoCapitalize="none"
         onChangeText={(email) => setEmail(email)}
       />
-
       <Text style={styles.inputLabel}>Password
         <Text style={styles.mandatoryApostrophe}>*</Text>
       </Text>
-      <TextInput
-        style={styles.input}
+      <View style={styles.passwordContainer}>
+        <TextInput
+        style={{...styles.input, flex: 1}}
         value={password}
         placeholder="Password"
-        secureTextEntry={true}
+        secureTextEntry={!isPasswordVisible}
         onChangeText={(text) => setPassword(text)}
       />
-
-      <Text style={styles.inputLabel}>Confirm Password
+      <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
+        <Text style={{right: 10, position: 'absolute', marginTop: -5}}>{isPasswordVisible ? '🙈' : '👁'}</Text>
+      </TouchableOpacity>
+    </View>
+      <Text style={{...styles.inputLabel}}>Confirm Password
         <Text style={styles.mandatoryApostrophe}>*</Text>
       </Text>
+      <View style={styles.passwordContainer}>
       <TextInput
-        style={styles.input}
+         style={{...styles.input, flex: 1}}
         value={repeatPassword}
         placeholder="Repeat Password"
-        secureTextEntry={true}
+        secureTextEntry={!isConfirmPasswordVisible}
         onChangeText={(text) => setRepeatPassword(text)}
       />
-
+      <TouchableOpacity onPress={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)}>
+        <Text style={{right: 10, position: 'absolute', marginTop: -5}}>{isConfirmPasswordVisible ? '🙈' : '👁'}</Text>
+      </TouchableOpacity>
+      </View>
       <View style={styles.checkBoxContainer}>
         <TouchableOpacity
           style={styles.checkBox}
@@ -136,6 +149,8 @@ const Register = ({ navigation }) => {
         </TouchableOpacity>
       </View>
     </View>
+    </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -145,11 +160,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
+    bottom: 70,
   },
   header: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 30,
+    marginBottom: 40,
   },
   input: {
     borderWidth: 1,
@@ -173,7 +189,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 32,
     borderRadius: 5,
-    marginBottom: 10,
+    bottom: -10,
   },
   buttonText: {
     color: COLORS.white,
@@ -189,7 +205,8 @@ const styles = StyleSheet.create({
   checkBoxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
+    marginTop: 20,
   },
   checkBox: {
     width: 24,
@@ -217,7 +234,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     position: 'absolute',
-    bottom: 55,
+    bottom: 0,
     textAlign: 'center',
     flexDirection: 'row',
   },
@@ -229,6 +246,11 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontWeight: 'bold',
   },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  }
 });
 
 export default Register;

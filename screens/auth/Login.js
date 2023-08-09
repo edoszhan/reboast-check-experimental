@@ -6,14 +6,18 @@ import {
   TextInput,
   SafeAreaView,
   TouchableOpacity,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Platform,
 } from 'react-native';
-// import LinearGradient from 'react-native-linear-gradient';
 import {LinearGradient} from 'expo-linear-gradient';
 import {COLORS, ROUTES} from '../../constants';
 
 import Logo from '../../assets/icons/LOGO.svg';
 import {FIREBASE_AUTH} from '../../config/firebase';
 import {signInWithEmailAndPassword } from 'firebase/auth';
+
 
 
 
@@ -31,7 +35,6 @@ const Login = (props) => {
     try {
       const response = await signInWithEmailAndPassword(auth, email, password);
       console.log(response);
-      // alert("Login Success");
       navigation.replace(ROUTES.HOME);
     } catch (error) {
       console.log(error);
@@ -42,6 +45,11 @@ const Login = (props) => {
   };
   const {navigation} = props;
   return (
+    <KeyboardAvoidingView 
+    style={{ flex: 1 }} 
+    behavior={Platform.OS === "ios" ? "padding" : "height"}
+    keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <SafeAreaView style={styles.main}>
       <View style={styles.container}>
         <View style={styles.wFull}>
@@ -89,6 +97,8 @@ const Login = (props) => {
         </View>
       </View>
     </SafeAreaView>
+    </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
   );
 };
 

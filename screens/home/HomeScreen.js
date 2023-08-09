@@ -32,7 +32,7 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   const [tasksByCategory, setTasksByCategory] = useState({});
   const auth = getAuth();
-  const [selectDate, setSelectedDate] = useState(new Date().toLocaleDateString('kr-KO', { weekday: 'long' }));
+  const [selectDate, setSelectedDate] = useState(new Date().toDateString('en-US', { weekday: 'long' }));
   const [searchDay, setSearchDay] = useState(new Date().toLocaleDateString('en-US', { weekday: 'long' }));
 
 

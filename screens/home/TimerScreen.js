@@ -6,10 +6,11 @@ const { height } = Dimensions.get('window');
 import { useNavigation } from '@react-navigation/native';
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '../../config/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, collection } from 'firebase/firestore';
 import uuid from 'react-native-uuid'; //for generating random id, and it does not really matter for us
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Dropdown } from 'react-native-element-dropdown';
+import { onSnapshot, query, where, orderBy } from 'firebase/firestore';
 
 const TimerScreen = () => {
  
@@ -62,6 +63,32 @@ const TimerScreen = () => {
 
   const currentDayTime = currentDay + " " + currentTime;  //we might change the formatting later
   const sessionFinishTime = currentDayTime;
+
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [taskData, setTaskData] = useState([]);
+
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (selectedCategory) {
+      console.log(selectedCategory);
+      const tasksRef = collection(FIREBASE_DB, 'todo-list', user.uid, selectedCategory);
+      const q = query(tasksRef);
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const tasksForCategory = [];
+        snapshot.forEach((doc) => {
+          tasksForCategory.push({
+            label: doc.data().categoryItems,  // replace with your field name for task name
+            value: doc.id  // using doc.id as a unique identifier for each task
+          }); 
+        });
+        setTaskData(tasksForCategory);
+        console.log(taskData[0]);
+      });
+  
+      return () => unsubscribe();  // Cleanup listener
+    }
+  }, [selectedCategory]);
+  
 
   const data = [
     { label: 'Morning Routine', value: '1', color: 'blue' },
@@ -133,7 +160,7 @@ const TimerScreen = () => {
     setSessionTopic(""); // Clear the session topic input
     setSessionMemo(""); // Clear the session memo input
     setDropdownEnabled(false);
-    setSelectedTask("Select todo task");
+    setSelectedTask("Select category");
   }
 
   const handleSave = () => {  
@@ -238,12 +265,33 @@ const TimerScreen = () => {
                   console.log(item);
                   setSelectedTask(item.label);
                   setSelectedTaskParams(item.label);
+                  setSelectedCategory(item.label);
                   setDropdownEnabled(true);
                 }}
+
+                // onChange={(item) => {
+                //   setSelectedTask(item.label);
+                //   setSelectedTaskParams(item.label);
+                //   // Load the tasks related to this category
+                //   const tasksForCategory = todoArray.filter(todo => todo.categoryName === item.label);
+                //   setTaskData(tasksForCategory);
+                //   setDropdownEnabled(true);
+                // }}
                 itemContainerStyle={{backgroundColor: '#fff',}}
-                placeholder = {selectedTask ? selectedTask : "Select todo task"}
+                placeholder = {selectedTask ? selectedTask : "Select category"}
                 style={{ width: 200, borderColor: 'black', borderWidth: 1, borderRadius: 10, padding: 10,}}
                 data={data}
+              />
+
+          <Dropdown
+                iconColor="black"
+                activeColor="gray"
+                labelField="label"
+                valueField="value"
+                itemContainerStyle={{backgroundColor: '#fff',}}
+                placeholder = {selectedTask ? selectedTask : "Select todo"}
+                style={{ width: 200, borderColor: 'black', borderWidth: 1, borderRadius: 10, padding: 10, marginTop: 10}}
+                data={taskData}
               />
       </View>
 
@@ -252,27 +300,25 @@ const TimerScreen = () => {
         <Modal animationType="slide" transparent={true} visible={isPopupVisible} onRequestClose={togglePopup}>
           <View style={styles.modalContainer}>
             <View style={styles.popup}>
+            <TouchableOpacity style={styles.closeIconContainer} onPress={togglePopup}>
+                <FontAwesome5 name="times" size={24} color="black" />
+           </TouchableOpacity>
               <Text style={styles.popupText}>Todo</Text>
-              <Text>Duration: {Math.floor(sessionDuration / 60)} minutes {sessionDuration % 60} seconds</Text> 
+              <Text style={styles.durationText}>Duration: {Math.floor(sessionDuration / 60)} minutes {sessionDuration % 60} seconds</Text> 
               <TextInput
                 style={styles.input}
                 value={sessionTopic}
                 onChangeText={handleSessionTopicChange}
-                placeholder="Enter session topic"
+                placeholder="Enter topic"
                 editable={!isActive}
               />
               <TextInput
                 style={styles.inputMemo}
                 value={sessionMemo}
                 onChangeText={setSessionMemo}
-                placeholder="Enter session memo"
+                placeholder="Enter memo"
                 editable={!isActive}
               />
-
-              <TouchableOpacity style={styles.closeButton} onPress={togglePopup}>
-                <Text style={styles.closeButtonText}>Close</Text>
-              </TouchableOpacity>
-              
               <TouchableOpacity style={[styles.closeButton, isSaveDisabled && styles.disabledButton]} onPress={handleSave} disabled={isSaveDisabled}>
                 <Text style={styles.closeButtonText}>Save</Text>
               </TouchableOpacity>
@@ -350,23 +396,24 @@ const styles = StyleSheet.create({
   },
   popup: {
     backgroundColor: "white",
-    padding: 100,
+    padding: 50,
     borderRadius: 10,
     alignItems: "center",
-    left: 0,
-    right: 0,
+    width: '90%',
+    // left: 0,
+    // right: 0,
     // maxHeight: height / 1.2,   //size of the popUp box
-    position: "absolute",
-    bottom: 3,
+    position: "relative",
+    // bottom: 3,
   },
   popupText: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 30,
+    marginBottom: 20,
   },
-
   closeButton: {
     marginTop: 20,
+    marginBottom: -30,
     padding: 10,
     backgroundColor: "#32CD32",
     borderRadius: 10,
@@ -420,5 +467,15 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  durationText: {   // Newly added for the Duration text
+    fontSize: 18,
+    marginVertical: 10,
+  },
+  closeIconContainer: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    padding: 10,  // Makes it easier to tap
   },
 });

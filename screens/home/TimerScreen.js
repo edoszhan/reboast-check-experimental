@@ -1,8 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Button,  View, Text, StyleSheet, TouchableOpacity, TextInput, Modal } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Modal } from "react-native";
 import { ROUTES } from '../../constants';
-import { Dimensions } from 'react-native';
-const { height } = Dimensions.get('window');
 import { useNavigation } from '@react-navigation/native';
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '../../config/firebase';
@@ -10,17 +8,17 @@ import { doc, setDoc, collection } from 'firebase/firestore';
 import uuid from 'react-native-uuid'; //for generating random id, and it does not really matter for us
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Dropdown } from 'react-native-element-dropdown';
-import { onSnapshot, query, where, orderBy } from 'firebase/firestore';
+import { onSnapshot, query } from 'firebase/firestore';
 
 const TimerScreen = () => {
  
   const auth = FIREBASE_AUTH;
-  const uid = auth.currentUser.uid; //const was added
+  const uid = auth.currentUser.uid;
   const session_random = uuid.v4();
 
   const create = async (uid) => {
     try {
-      await setDoc(doc(FIREBASE_DB, "timer-logs", uid, "sessions",session_random), {  //session3 should not be manually entered, we need to update number of sessions  
+      await setDoc(doc(FIREBASE_DB, "timer-logs", uid, "sessions",session_random), {   
         sessionTopic: sessionTopic,
         sessionMemo: sessionMemo,
         userId: uid,
@@ -77,12 +75,11 @@ const TimerScreen = () => {
         const tasksForCategory = [];
         snapshot.forEach((doc) => {
           tasksForCategory.push({
-            label: doc.data().categoryItems,  // replace with your field name for task name
-            value: doc.id  // using doc.id as a unique identifier for each task
+            label: doc.data().categoryItems,  
+            value: doc.id  
           }); 
         });
         setTaskData(tasksForCategory);
-        console.log(taskData[0]);
       });
   
       return () => unsubscribe();  // Cleanup listener
@@ -155,8 +152,6 @@ const TimerScreen = () => {
 
     setTime(sessionType === "25" ? 1500 : 300); // Reset time to 25 minutes or 5 minutes for the next session
 
-    // setSessionDuration(1500 - time); // Calculate the session duration
-    // setTime(1500); // Reset time to 25 minutes for the next session
     setSessionTopic(""); // Clear the session topic input
     setSessionMemo(""); // Clear the session memo input
     setDropdownEnabled(false);
@@ -268,15 +263,6 @@ const TimerScreen = () => {
                   setSelectedCategory(item.label);
                   setDropdownEnabled(true);
                 }}
-
-                // onChange={(item) => {
-                //   setSelectedTask(item.label);
-                //   setSelectedTaskParams(item.label);
-                //   // Load the tasks related to this category
-                //   const tasksForCategory = todoArray.filter(todo => todo.categoryName === item.label);
-                //   setTaskData(tasksForCategory);
-                //   setDropdownEnabled(true);
-                // }}
                 itemContainerStyle={{backgroundColor: '#fff',}}
                 placeholder = {selectedTask ? selectedTask : "Select category"}
                 style={{ width: 200, borderColor: 'black', borderWidth: 1, borderRadius: 10, padding: 10,}}

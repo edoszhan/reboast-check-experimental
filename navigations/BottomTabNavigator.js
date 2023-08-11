@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ROUTES } from '../constants';
-import { Home, Timer, Calendar, UserProfile, AddPost, PostInformation, TodoInformation, Settings, EditPost } from '../screens';
+import { Home, Timer, Calendar, UserProfile, AddPost, PostInformation, TodoInformation, Settings, EditPost, MemoScreen} from '../screens';
 import { Ionicons, MaterialCommunityIcons, } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import TimerLogs from '../screens/home/TimerLogs';
@@ -31,6 +31,7 @@ const HomeStackScreen = () => {
     <HomeScreenStack.Navigator screenOptions={{ headerTitle: "" }}>
       <HomeScreenStack.Screen name={ROUTES.HOME} component={HomeScreen} />
       <HomeScreenStack.Screen name={ROUTES.TODO_INFORMATION} component={TodoInformation} />
+      <HomeScreenStack.Screen name={ROUTES.MEMO_SCREEN} component={MemoScreen} />
       </HomeScreenStack.Navigator>
   );
 };
@@ -201,6 +202,7 @@ function MainComponent() {
         categoryId: category_random_Id,
         createdAt: serverTimestamp(),
         checkedTimestamps: [],
+        memo: null,
       }); 
     } catch (error) {
       console.log("Error writing document: ", error);

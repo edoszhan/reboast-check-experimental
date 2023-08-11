@@ -146,7 +146,7 @@ const HomeScreen = () => {
                     {task.categoryItems}
                   </Text>
                   </View>
-                  <TouchableOpacity onPress={() => navigation.navigate(ROUTES.TODO_INFORMATION, { taskId: task.categoryId, categoryName: task.categoryName })}>
+                  <TouchableOpacity onPress={() => navigation.navigate(ROUTES.TODO_INFORMATION, { taskId: task.categoryId, categoryName: task.categoryName, createdAt: task.createdAt, categoryItems: task.categoryItems })}>
                     <AntDesign name="caretright" size={20} color="black" />
                   </TouchableOpacity>
                 </TouchableOpacity>

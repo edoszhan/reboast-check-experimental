@@ -31,4 +31,5 @@ export default {
 
     // Todo screens
     TODO_INFORMATION: 'Todo Information',
+    MEMO_SCREEN: 'Edit Memo',
   };

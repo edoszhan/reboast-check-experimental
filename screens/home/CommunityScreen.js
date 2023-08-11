@@ -274,11 +274,6 @@ const CommunityScreen = () => {
             </TouchableOpacity>
 
             <View style={styles.interactionBar}>
-            {/* <TouchableOpacity style={styles.interactionButton} onPress={() => console.log("fefe")}>
-              <AntDesign name="like1" size={20} color="black" />
-              <Text style={styles.interactionText}>{session.likesCount}</Text>
-            </TouchableOpacity> */}
-
             <TouchableOpacity style={styles.interactionButton} onPress={() => handleLike(session.id, session)}>
             {session.isLiked.includes(FIREBASE_AUTH.currentUser.uid) ? (
               <AntDesign name="like1" size={20} color="black" />
@@ -287,7 +282,7 @@ const CommunityScreen = () => {
             )}
             <Text style={styles.interactionText}>{session.likesCount}</Text>
           </TouchableOpacity>
-
+          
             <TouchableOpacity style={styles.interactionButton} onPress={() => navigation.navigate(ROUTES.POST_INFORMATION, { postId: session.id, postAuthor: session.postAuthor })}>
               <Ionicons name="chatbubbles-outline" size={20} color="black" />
               <Text style={styles.interactionText}>{session.commentsIds ? session.commentsIds.length : 0}</Text> 

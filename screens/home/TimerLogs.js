@@ -5,11 +5,14 @@ import { FIREBASE_DB } from '../../config/firebase';
 import { FIREBASE_AUTH } from '../../config/firebase';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { Entypo } from '@expo/vector-icons';
+import { ActivityIndicator } from 'react-native-paper';
+
 
 const TimerLogs = () => {
   const [sessions, setSessions] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const uid = FIREBASE_AUTH.currentUser.uid;
 
   const fetchSessions = async () => {
@@ -36,6 +39,7 @@ const TimerLogs = () => {
     }
    };
    setSessions(sessionData);
+   setIsLoading(false);
   };
 
   useEffect(() => {
@@ -63,6 +67,15 @@ const TimerLogs = () => {
   const editSession = (sessionId) => {
     // Add your logic to edit the session
   };
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
+        <ActivityIndicator size="small" color="blue" />
+        <Text style={{ marginTop: 10 }}>Loading history...</Text>
+      </View>
+    );
+  }
 
   const renderMenu = () => (
     <View style={styles.menuContainer}>

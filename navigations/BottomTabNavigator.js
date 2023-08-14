@@ -50,7 +50,13 @@ const CommunityStackScreen = () => {
 
 const TimerStackScreen = () => {
   return (
-    <TimerStack.Navigator screenOptions={{ headerShown: true }}>
+    <TimerStack.Navigator screenOptions={{ headerShown: true, 
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginLeft: 10 }}>
+          <Ionicons name="menu" size={30} color="black" />
+        </TouchableOpacity>
+      ),
+    }}>
       <TimerStack.Screen name=" " component={Timer} />
       <TimerStack.Screen name="History" component={TimerLogs} />
     </TimerStack.Navigator>

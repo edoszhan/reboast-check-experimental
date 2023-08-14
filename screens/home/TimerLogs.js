@@ -90,10 +90,13 @@ const TimerLogs = () => {
             <View key={index} style={{ ...styles.sessionContainer, backgroundColor: session.color }}>
               <View style={styles.topSection}>
                 <View style={styles.topicContainer}>
-                  <Text style={styles.sessionTitle}>Topic:</Text>
-                  <Text style={styles.sessionText}>{session.sessionTopic}</Text>
+                  <Text style={styles.sessionTitle}> {session.todoName ? session.todoName : null} </Text>
                 </View>
                 {renderMenu(session)}
+              </View>
+              <View style={styles.sessionBlock}>
+                <Text style={styles.sessionTitle}>Topic:</Text>
+                <Text style={styles.sessionText}>{session.sessionTopic}</Text>
               </View>
               <View style={styles.sessionBlock}>
                 <Text style={styles.sessionTitle}>Memo:</Text>
@@ -106,10 +109,6 @@ const TimerLogs = () => {
                 <Text style={styles.sessionText}>
                   {`${Math.floor(session.sessionDuration / 60)} minutes ${session.sessionDuration % 60} seconds`}
                 </Text>
-              </View>
-              <View style={styles.sessionBlock}>
-                <Text style={styles.sessionTitle}>Finished time:</Text>
-                <Text style={styles.sessionText}>{session.sessionFinishTime}</Text>
               </View>
             </View>
           ))
@@ -157,15 +156,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center', // aligns items vertically in center
-  },
-  topicContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    marginBottom: 10,
   },
   menuOptions: {
     position: 'absolute', 
     right: 0,
-    top: 0, 
+    top: 10, 
     backgroundColor: 'white', 
+  },
+  topicContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    maxWidth: '90%',  // set a maximum width
   },
 });

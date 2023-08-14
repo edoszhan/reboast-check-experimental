@@ -380,15 +380,13 @@ function MainComponent() {
               <Dropdown
                 labelField="label"
                 valueField="value"
+                value={selectedCategory}
                 onChange={(item) => {
                   setSelectedCategory(item.label);
-                  console.log('selected days:', selectedDays);
                 }}
                 placeholder=" Select category"
                 style={{ width: 330, borderColor: 'black', borderWidth: 1, borderRadius: 10 }}
                 data={data}
-                // value={selectedCategory} //attemp to fix the dropdown items unselect
-                onChangeText={handleCategorySelect}
               />
               <TouchableOpacity style={styles.closeButton} onPress={togglePopup}>
               </TouchableOpacity>

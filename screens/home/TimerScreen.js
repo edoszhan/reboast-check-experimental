@@ -18,7 +18,7 @@ const TimerScreen = () => {
 
   const create = async (uid) => {
     try {
-      await setDoc(doc(FIREBASE_DB, "timer-logs", uid, "sessions",session_random), {   
+      await setDoc(doc(FIREBASE_DB, "timer-logs", uid, "sessions", session_random), {   
         sessionTopic: sessionTopic,
         sessionMemo: sessionMemo,
         userId: uid,
@@ -26,6 +26,7 @@ const TimerScreen = () => {
         sessionFinishTime: sessionFinishTime,
         sessionId: session_random,
         categoryName: selectedTaskParams,
+        todoName: selectedTodo,
       });
 
     } catch (error) {
@@ -64,6 +65,8 @@ const TimerScreen = () => {
 
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [taskData, setTaskData] = useState([]);
+  const [selectedTodo, setSelectedTodo] = useState(null);
+
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -274,6 +277,9 @@ const TimerScreen = () => {
                 activeColor="gray"
                 labelField="label"
                 valueField="value"
+                onChange={(item) => {
+                  setSelectedTodo(item.label);
+                }}
                 itemContainerStyle={{backgroundColor: '#fff',}}
                 placeholder = {selectedTask ? selectedTask : "Select todo"}
                 style={{ width: 200, borderColor: 'black', borderWidth: 1, borderRadius: 10, padding: 10, marginTop: 10}}

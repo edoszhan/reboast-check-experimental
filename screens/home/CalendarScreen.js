@@ -48,7 +48,7 @@ const CalendarScreen = (props) => {
           }
         });
 
-        const checkedCount = tasksForCategory.filter(task => task.checked).length;
+        const checkedCount = tasksForCategory.filter(task => task.isChecked).length;
         const ratio = `${checkedCount}/${tasksForCategory.length}`;
 
         setCategoryRatios(prev => ({

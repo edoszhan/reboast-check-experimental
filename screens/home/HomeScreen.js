@@ -45,6 +45,7 @@ const HomeScreen = () => {
         }
       });
     });
+    console.log(checkedTaskNames);
   }, [tasksByCategory]);
 
   useEffect(() => {

@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { getAuth } from 'firebase/auth';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, where, doc} from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
 import { AntDesign } from '@expo/vector-icons';
 import CalendarStrip  from 'react-native-calendar-strip';
+import moment from 'moment';
+import { updateDoc } from 'firebase/firestore';
 
 
 const CustomCheckbox = ({ checked }) => {
@@ -45,8 +47,20 @@ const HomeScreen = () => {
         }
       });
     });
-    console.log(checkedTaskNames);
   }, [tasksByCategory]);
+
+  function formatDateToYYYYMMDD(inputDate) {
+    const date = new Date(inputDate);
+    const year = date.getFullYear();
+    
+    // JavaScript's getMonth() returns 0-11. Add 1 to get 1-12 and pad with 0 if needed
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    
+    // Pad day with 0 if needed
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    return `${year}.${month}.${day}`;
+}
 
   useEffect(() => {
     const today = searchDay;
@@ -54,9 +68,12 @@ const HomeScreen = () => {
     const todayDay = koreanDaysOfWeekTable[dayPrefix];
     const user = auth.currentUser;
     const categoryNames = ['Sport', 'Learning', 'Morning Routine']; //can be appended later if the "add category" feature is added
+
+    const chosen = formatDateToYYYYMMDD(selectDate);
+
     const unsubscribeTasks = categoryNames.map((categoryName) => {
       const categoryRef = collection(FIREBASE_DB, 'todo-list', user.uid, categoryName);
-      const q = query(categoryRef, orderBy('createdAt', 'desc'));
+      const q = query(categoryRef, where("date", "==", chosen));
       return onSnapshot(q, (snapshot) => {
         const taskList = [];
         snapshot.forEach((doc) => {
@@ -73,18 +90,28 @@ const HomeScreen = () => {
     });
 
     return () => {
-      // Unsubscribe from task listeners for each category
       unsubscribeTasks.forEach((unsubscribe) => {
         unsubscribe();
       });
     };
   }, [searchDay]);
   
-  const toggleTaskChecked = (categoryName, taskId) => {
+  const toggleTaskChecked = async (categoryName, taskId) => {
     setTasksByCategory((prevTasksByCategory) => {
-      const updatedTasks = prevTasksByCategory[categoryName].map((task) =>
-        task.categoryId === taskId ? { ...task, checked: !task.checked } : task
-      );
+      const updatedTasks = prevTasksByCategory[categoryName].map((task) => {
+        if (task.categoryId === taskId) {
+          const newCheckedState = !task.checked;
+  
+          // Update in Firebase
+          const taskRef = doc(FIREBASE_DB, 'todo-list', auth.currentUser.uid, categoryName, taskId);
+          updateDoc(taskRef, {
+            isChecked: newCheckedState
+          });
+  
+          return { ...task, checked: newCheckedState };
+        }
+        return task;
+      });
       return {
         ...prevTasksByCategory,
         [categoryName]: updatedTasks,
@@ -92,10 +119,10 @@ const HomeScreen = () => {
     });
   };
 
-  return (
+
+    return (
     <SafeAreaView style={styles.container}>
       <Text style={{...styles.heading, marginBottom: 20}}>Todo Tasks</Text>
-      {/* <Text style={{...styles.heading, fontSize: 15, fontWeight: "normal"}}>Chosen date is {todayDayoftheWeek}</Text> */}
       <Text style={{...styles.heading, fontSize: 15, fontWeight: "normal"}}>Todo are shown for [{selectDate.slice(4,15)}]</Text>
       <View style={{height: 80}}>
       <ScrollView>
@@ -110,9 +137,7 @@ const HomeScreen = () => {
           disabledDateNumberStyle={{color: 'grey'}}
           iconContainer={{flex: 0.1}}
           iconStyle={{width: 20, height: 20}}
-          // onDateSelected={(date) => [console.log(date.toLocaleString('ko-KR', { weekday: 'long' }))]}
           selectedDate={new Date()}
-          // onDateSelected={(date) => [setSelectedDate(date.toLocaleString('ko-KR', { weekday: 'long' })), setSearchDay(date.toLocaleString('ko-KR', { weekday: 'long' }))]}
           onDateSelected={(date) => {
             const selectedDate = new Date(date).toDateString();
             setSelectedDate(selectedDate.toLocaleString('ko-KR', { weekday: 'long' }));

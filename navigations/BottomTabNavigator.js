@@ -25,6 +25,7 @@ const HomeScreenStack = createStackNavigator();
 import CommunityScreen from '../screens/home/CommunityScreen'; 
 import { ActivityIndicator } from 'react-native-paper';
 import HomeScreen from '../screens/home/HomeScreen';
+import moment from 'moment';
 
 const HomeStackScreen = () => {
   return (
@@ -188,25 +189,86 @@ function MainComponent() {
   const auth = FIREBASE_AUTH;
   const uid = auth.currentUser.uid;
 
+  const getNextTwoMonthsDatesForDay = (day) => {
+    const daysMap = {
+      '일': 0,
+      '월': 1,
+      '화': 2,
+      '수': 3,
+      '목': 4,
+      '금': 5,
+      '토': 6,
+    };
+  
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setMonth(startDate.getMonth() + 1);  // Move 1 months into the future
+    
+    const dates = [];
+    while (startDate <= endDate) {
+      if (startDate.getDay() === daysMap[day]) {
+        dates.push(new Date(startDate));  // Save a copy of the current date
+      }
+      startDate.setDate(startDate.getDate() + 1);  // Move to the next day
+    }
+    
+    return dates;
+  };
+
+  function formatDateToYYYYMMDD(inputDate) {
+    const date = new Date(inputDate);
+    const year = date.getFullYear();
+    
+    // JavaScript's getMonth() returns 0-11. Add 1 to get 1-12 and pad with 0 if needed
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    
+    // Pad day with 0 if needed
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    return `${year}.${month}.${day}`;
+}
+
   //sending todo data to firebase
   const create = async (uid, categoryName) => {
-    console.log(categoryName);
-    console.log("reached here too")
     try {
-      await setDoc(doc(FIREBASE_DB, 'todo-list', uid, categoryName, category_random_Id), {  //session3 should not be manually entered, we need to update number of sessions  
-        categoryName: selectedCategory,
-        categoryColor: selectedColor,
-        categoryItems: taskName,
-        categoryDays: selectedDays,
-        categoryId: category_random_Id,
-        createdAt: serverTimestamp(),
-        checkedTimestamps: [],
-        memo: null,
-      }); 
+      for (const day of selectedDays) {
+        const datesForNextTwoMonths = getNextTwoMonthsDatesForDay(day);
+        
+        const parentId = uuid.v4();
+        await setDoc(doc(FIREBASE_DB, 'todo-list', uid, "All", parentId), {
+          categoryName: selectedCategory,
+          categoryColor: selectedColor,
+          categoryItems: taskName,
+          categoryDays: [day],
+          categoryId: parentId,
+          createdAt: serverTimestamp(),
+        });
+        
+        for (const date of datesForNextTwoMonths) {
+          const uniqueId = uuid.v4();  
+          
+          // Data specific to category name path
+          const childData = {
+            categoryName: selectedCategory,
+            categoryColor: selectedColor,
+            categoryItems: taskName,
+            categoryDays: [day],
+            memo: '',  // Initialize it with an empty string or whatever default value you want
+            date: formatDateToYYYYMMDD(date),
+            isChecked: false,
+            categoryId: uniqueId,
+            parentId: parentId,
+            createdAt: serverTimestamp(),
+          };
+    
+          // Store under the categoryName path
+          await setDoc(doc(FIREBASE_DB, 'todo-list', uid, categoryName, uniqueId), childData);
+        }
+      }
     } catch (error) {
       console.log("Error writing document: ", error);
     }
-  };
+  };  
 
   const sendData = async () => {
     console.log("reached here")

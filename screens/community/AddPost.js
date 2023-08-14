@@ -7,6 +7,8 @@ import { FIREBASE_AUTH } from '../../config/firebase';
 import uuid from 'react-native-uuid';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Ensure you've installed this package
+import { ref, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
+import { storage } from '../../config/firebase';
 
 
 const AddPost = () => {
@@ -22,29 +24,69 @@ const AddPost = () => {
 
   const handlePostCreation = async () => {
     if (postTopic && postContent) {
-      const auth = FIREBASE_AUTH;
-      const uid = auth.currentUser.uid;
-      const photo = auth.currentUser.photoURL;
-      const postId = uuid.v4();
-      console.log(postFile);
-      try {
-        await setDoc(doc(FIREBASE_DB, 'community-chat', postId), {
-          postTopic: postTopic,
-          postContent: postContent,
-          postCreatedDateTime: postCreatedDateTime,
-          userId: uid,
-          postId: postId,
-          createdAt: serverTimestamp() ? serverTimestamp() : postCreatedDateTime,
-          photoURL: photo,
-          isLiked: [],
-          likesCount: 0,
-          postFile: postFile,
-          commentsIds: [],
-        });
-      } catch (error) {
-        console.log("Error writing document: ", error);
-      } 
-      navigation.goBack();
+        const user = FIREBASE_AUTH.currentUser;
+        const uidString = user.uid;
+        const postId = uuid.v4();
+
+        const storageRef = ref(storage, `/postImages/${uidString}_${postId}.png`);
+        
+        if (postFile) {
+            try {
+                const file = await fetch(postFile);
+                const blob = await file.blob();
+
+
+                const uploadTask = uploadBytesResumable(storageRef, blob);
+
+                uploadTask.on('state_changed', 
+                  () => {},
+                  (error) => {
+                    console.log('Error uploading image: ', error);
+                  }, 
+                  async () => {
+    
+                    const imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                    
+                    await setDoc(doc(FIREBASE_DB, 'community-chat', postId), {
+                        postTopic: postTopic,
+                        postContent: postContent,
+                        postCreatedDateTime: postCreatedDateTime,
+                        userId: uidString,
+                        postId: postId,
+                        createdAt: serverTimestamp() ? serverTimestamp() : postCreatedDateTime,
+                        photoURL: user.photoURL,
+                        isLiked: [],
+                        likesCount: 0,
+                        postFile: imageUrl,
+                        commentsIds: [],
+                    });
+
+                    navigation.goBack();
+                  }
+                );
+            } catch (error) {
+                console.log("Error handling image: ", error);
+            }
+        } else {
+            try {
+                await setDoc(doc(FIREBASE_DB, 'community-chat', postId), {
+                    postTopic: postTopic,
+                    postContent: postContent,
+                    postCreatedDateTime: postCreatedDateTime,
+                    userId: uidString,
+                    postId: postId,
+                    createdAt: serverTimestamp() ? serverTimestamp() : postCreatedDateTime,
+                    photoURL: user.photoURL,
+                    isLiked: [],
+                    likesCount: 0,
+                    commentsIds: [],
+                });
+
+                navigation.goBack();
+            } catch (error) {
+                console.log("Error writing document: ", error);
+            }
+        }
     }
   };
 

@@ -97,29 +97,35 @@ const HomeScreen = () => {
   }, [searchDay]);
   
   const toggleTaskChecked = async (categoryName, taskId) => {
-    setTasksByCategory((prevTasksByCategory) => {
-      const updatedTasks = prevTasksByCategory[categoryName].map((task) => {
-        if (task.categoryId === taskId) {
-          const newCheckedState = !task.checked;
+    const taskRef = doc(FIREBASE_DB, 'todo-list', auth.currentUser.uid, categoryName, taskId);
+    
+    const taskToUpdate = tasksByCategory[categoryName].find(task => task.categoryId === taskId);
+    if (!taskToUpdate) return;
   
-          // Update in Firebase
-          const taskRef = doc(FIREBASE_DB, 'todo-list', auth.currentUser.uid, categoryName, taskId);
-          updateDoc(taskRef, {
-            isChecked: newCheckedState
-          });
-  
-          return { ...task, checked: newCheckedState };
-        }
-        return task;
+    const newCheckedState = !taskToUpdate.isChecked;
+    
+    try {
+      await updateDoc(taskRef, {
+        isChecked: newCheckedState
       });
-      return {
-        ...prevTasksByCategory,
-        [categoryName]: updatedTasks,
-      };
-    });
+  
+      setTasksByCategory((prevTasksByCategory) => {
+        const updatedTasks = prevTasksByCategory[categoryName].map((task) => {
+          if (task.categoryId === taskId) {
+            return { ...task, isChecked: newCheckedState };
+          }
+          return task;
+        });
+        return {
+          ...prevTasksByCategory,
+          [categoryName]: updatedTasks,
+        };
+      });
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
   };
-
-
+  
     return (
     <SafeAreaView style={styles.container}>
       <Text style={{...styles.heading, marginBottom: 20}}>Todo Tasks</Text>
@@ -161,12 +167,12 @@ const HomeScreen = () => {
                   style={{ ...styles.taskBlock, backgroundColor: task.categoryColor.toLowerCase() }}
                   onPress={() => [toggleTaskChecked(categoryName, task.categoryId)]}
                 >
-                  <CustomCheckbox checked={task.checked}/>
+                  <CustomCheckbox checked={task.isChecked}/>
                   <View style={styles.taskContent}>
                   <Text
                     style={[
                       styles.categoryItems,
-                      { textDecorationLine: task.checked ? 'line-through' : 'none', color: task.checked ? 'gray' : 'black' },
+                      { textDecorationLine: task.isChecked ? 'line-through' : 'none', color: task.isChecked ? 'gray' : 'black' },
                     ]}
                   >
                     {task.categoryItems}

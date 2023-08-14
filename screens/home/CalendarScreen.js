@@ -61,14 +61,27 @@ const CalendarScreen = (props) => {
 
   const renderTaskList = () => {
     if (showTasks) {
+      const totalCount = Object.values(categoryRatios)
+        .map(ratio => parseInt(ratio.split('/')[1]))
+        .reduce((acc, curr) => acc + curr, 0);
+  
+  
+      if (totalCount === 0) {
+        return (
+          <View style={styles.taskListContainer}>
+            <Text style={styles.taskListTitle}>You do not have any todos to complete</Text>
+          </View>
+        );
+      }
+    
+  
       return (
         <View style={styles.taskListContainer}>
           <Text style={styles.taskListTitle}>Tasks for {selected}:</Text>
           {Object.entries(categoryRatios).map(([categoryName, ratio]) => {
             const [completed, total] = ratio.split('/').map(Number);
             const percentage = total ? Math.round((completed / total) * 100) : 0;
-  
-            // Only return the task items if the percentage, completed, or total are non-zero.
+    
             if (total !== 0) {
               return (
                 <Text key={categoryName} style={styles.taskItem}>

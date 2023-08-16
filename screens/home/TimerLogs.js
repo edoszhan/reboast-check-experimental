@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { collection, query, getDocs, orderBy, getDoc, deleteDoc, doc } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { FIREBASE_AUTH } from '../../config/firebase';
@@ -7,12 +7,15 @@ import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-m
 import { Entypo } from '@expo/vector-icons';
 import { ActivityIndicator } from 'react-native-paper';
 
-
 const TimerLogs = () => {
   const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const uid = FIREBASE_AUTH.currentUser.uid;
+
+  // Category state
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const categories = ['All', 'Morning Routine', 'Sport', 'Learning'];
 
   const fetchSessions = async () => {
     const q = query(
@@ -28,22 +31,29 @@ const TimerLogs = () => {
         const categoryName = data.categoryName;
         const categoryDocRef = doc(FIREBASE_DB, 'constants', categoryName);
 
-      try {
-        const categoryDocSnapshot = await getDoc(categoryDocRef); 
-        const color = categoryDocSnapshot.exists() ? categoryDocSnapshot.data().color : 'defaultColor';
-        sessionData.push({ id: docSnap.id, ...data, color });
-      } catch (error) {
-        console.log('Error fetching category document:', error);
+        try {
+          const categoryDocSnapshot = await getDoc(categoryDocRef); 
+          const color = categoryDocSnapshot.exists() ? categoryDocSnapshot.data().color : 'defaultColor';
+          sessionData.push({ id: docSnap.id, ...data, color });
+        } catch (error) {
+          console.log('Error fetching category document:', error);
+        }
       }
+    };
+    
+    // If there is a selected category other than "All", filter the sessions by category
+    if (selectedCategory !== 'All') {
+      const filteredSessions = sessionData.filter(session => session.categoryName === selectedCategory);
+      setSessions(filteredSessions);
+    } else {
+      setSessions(sessionData);
     }
-   };
-   setSessions(sessionData);
-   setIsLoading(false);
+    setIsLoading(false);
   };
 
   useEffect(() => {
     fetchSessions();
-  }, []);
+  }, [selectedCategory]);
 
   const deleteSession = async (sessionId) => {
     try {
@@ -54,10 +64,28 @@ const TimerLogs = () => {
     }
   };
 
-
   const editSession = (sessionId) => {
     console.log('Function for Edit');
   };
+
+  const renderCategoryFilter = () => (
+  <ScrollView 
+      horizontal 
+      showsHorizontalScrollIndicator={false} 
+      style={styles.categoryFilter}
+      contentContainerStyle={styles.categoryFilterContent}
+    >
+      {categories.map(category => (
+        <TouchableOpacity
+          key={category}
+          style={[styles.categoryButton, selectedCategory === category && styles.selectedCategory]}
+          onPress={() => setSelectedCategory(category)}
+        >
+          <Text style={styles.categoryButtonText}>{category}</Text>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
+  );
 
   if (isLoading) {
     return (
@@ -81,8 +109,9 @@ const TimerLogs = () => {
   );
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.container}>
+    <View style={styles.container}>
+      {renderCategoryFilter()}
+      <ScrollView style={styles.sessionList}>
         {sessions.length < 1 ? (
           <Text style={styles.noSessionsText}>No current timer sessions</Text>
         ) : (
@@ -113,17 +142,40 @@ const TimerLogs = () => {
             </View>
           ))
         )}
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
-
-export default TimerLogs;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+  },
+  categoryFilter: {
+    flexDirection: 'row',
+    marginBottom: -240,
+    marginTop: -240,
+  },
+  categoryFilterContent: {
+    alignItems: 'center',
+  },
+  categoryButton: {
+    marginRight: 15,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 15,  // Rounded corners
+    borderWidth: 1,    // Black border
+    borderColor: 'black',
+  },
+  selectedCategory: {
+    backgroundColor: '#8fd400',
+  },
+  categoryButtonText: {
+    fontSize: 14,
+  },
+  sessionList: {
+    flex: 1,
   },
   sessionContainer: {
     marginBottom: 20,
@@ -131,7 +183,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     padding: 10,
     borderRadius: 5,
-    width: '110%',
+    width: '105%',
     marginLeft: -10,
   },
   sessionBlock: {
@@ -142,7 +194,8 @@ const styles = StyleSheet.create({
   sessionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginRight: 10,
+    marginRight: 7,
+    marginLeft: 10,
   },
   sessionText: {
     fontSize: 16,
@@ -170,3 +223,5 @@ const styles = StyleSheet.create({
     maxWidth: '90%',  // set a maximum width
   },
 });
+
+export default TimerLogs;

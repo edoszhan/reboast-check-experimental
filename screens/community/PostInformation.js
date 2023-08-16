@@ -23,6 +23,7 @@ const PostInformation = ({ route }) => {
   const [comments, setComments] = useState([]);
   const [replies, setReplies] = useState([]);
   const [replyEnabled, setReplyEnabled] = useState(false);
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
 
   postId = params.postId;
 
@@ -328,9 +329,11 @@ const PostInformation = ({ route }) => {
             placeholder="Add a comment"
             value={replyText}
             onChangeText={setReplyText}
+            onFocus={() => setIsKeyboardActive(true)}
+            onBlur={() => setIsKeyboardActive(false)}
             multiline
           />  
-          { replyEnabled ? (
+          { isKeyboardActive && replyEnabled ? (
           <TouchableOpacity
             style={{...styles.replyButton, backgroundColor: 'red'}}
             onPress={() => [handleReply(params.postId), setReplyEnabled(false)]}

@@ -8,7 +8,6 @@ import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
 import { AntDesign } from '@expo/vector-icons';
 import CalendarStrip  from 'react-native-calendar-strip';
-import moment from 'moment';
 import { updateDoc } from 'firebase/firestore';
 
 
@@ -37,7 +36,6 @@ const HomeScreen = () => {
   const [selectDate, setSelectedDate] = useState(new Date().toDateString('en-US', { weekday: 'long' }));
   const [searchDay, setSearchDay] = useState(new Date().toLocaleDateString('en-US', { weekday: 'long' }));
 
-
   useEffect(() => {
     const checkedTaskNames = [];
     Object.entries(tasksByCategory).forEach(([categoryName, tasks]) => {
@@ -60,7 +58,8 @@ const HomeScreen = () => {
     const day = String(date.getDate()).padStart(2, '0');
     
     return `${year}.${month}.${day}`;
-}
+
+  }
 
   useEffect(() => {
     const today = searchDay;
@@ -125,6 +124,12 @@ const HomeScreen = () => {
       console.error("Error updating task:", error);
     }
   };
+
+  function resetDate() {
+  const today = new Date().toDateString();
+    setSelectedDate(today.toLocaleString('ko-KR', { weekday: 'long' }));
+    setSearchDay(today.toLocaleString('ko-KR', { weekday: 'long' }));
+  }
   
     return (
     <SafeAreaView style={styles.container}>
@@ -143,7 +148,7 @@ const HomeScreen = () => {
           disabledDateNumberStyle={{color: 'grey'}}
           iconContainer={{flex: 0.1}}
           iconStyle={{width: 20, height: 20}}
-          selectedDate={new Date()}
+          selectedDate={new Date(selectDate)} 
           onDateSelected={(date) => {
             const selectedDate = new Date(date).toDateString();
             setSelectedDate(selectedDate.toLocaleString('ko-KR', { weekday: 'long' }));
@@ -154,6 +159,9 @@ const HomeScreen = () => {
         />
       </ScrollView>
       </View>
+      <TouchableOpacity style={styles.resetButton} onPress={resetDate}>
+        <Text style={styles.resetButtonText}>Show Todo for Today</Text>
+      </TouchableOpacity>
       <ScrollView>
         {Object.entries(tasksByCategory).map(([categoryName, tasks]) => (
           <View key={categoryName} style={styles.categoryContainer}>
@@ -281,6 +289,17 @@ const styles = StyleSheet.create({
   },
   dayButtonText: {
     fontSize: 16,
+  },
+  resetButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f2f2f2',
+    padding: 10,
+    borderRadius: 8,
+  },
+  resetButtonText: {
+    fontSize: 16,
+    color: 'black', // You can change this to whatever color you prefer
   },
 });
 

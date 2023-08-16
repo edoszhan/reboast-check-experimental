@@ -18,7 +18,6 @@ const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
 const TimerStack = createStackNavigator();
 const Drawer = createDrawerNavigator();
-const Stack = createStackNavigator();
 const UserProfileStack = createStackNavigator();
 const HomeScreenStack = createStackNavigator();
 const CalendarScreenStack = createStackNavigator();
@@ -62,7 +61,9 @@ const HomeStackScreen = () => {
       }}/>
       <HomeScreenStack.Screen name={ROUTES.MEMO_SCREEN} component={MemoScreen}
       options={{
+        headerTitle: "Memo",
         headerTitleAlign: 'center',
+        headerBackTitle: 'Back',
       }}/>
       </HomeScreenStack.Navigator>
   );
@@ -87,6 +88,7 @@ const CommunityStackScreen = () => {
       <ProfileStack.Screen name={ROUTES.EDIT_POST_SCREEN} component={EditPost} 
       options={{
         headerTitleAlign: 'center',
+        headerBackTitle: 'Back',
       }}/>
       <ProfileStack.Screen name={ROUTES.POST_INFORMATION} component={PostInformation} 
       options={{
@@ -96,23 +98,13 @@ const CommunityStackScreen = () => {
   );
 };
 
-const openDrawer = () => {
-  return (
-    <Drawer.Navigator initialRouteName="Home" screenOptions={{ headerShown: false}}>
-      <Drawer.Screen name="Home" component={MainComponent} />
-      <Drawer.Screen name="Profile" component={UserProfileStackScreen} />
-    </Drawer.Navigator>
-  );
-};
-
-
 const TimerStackScreen = () => {
   const navigation = useNavigation();
   return (
     <TimerStack.Navigator screenOptions={{
     headerTitleAlign: 'left',
     }}>
-      <TimerStack.Screen name="Timers" component={Timer} options={{headerLeft: () => (
+      <TimerStack.Screen name="Timer " component={Timer} options={{headerLeft: () => (
         <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginLeft: 10 }}>
           <Ionicons name="menu" size={30} color="black" />
         </TouchableOpacity>
@@ -142,18 +134,6 @@ const UserProfileStackScreen = () => {
     </UserProfileStack.Navigator>
   );
 };
-
-function StackRoutes() {
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen
-        name="home"
-        component={Home}  
-      />
-      <Stack.Screen name="UserProfile" component={UserProfile} />
-    </Stack.Navigator>
-  );
-}
 
 const BottomTabNavigator = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -278,7 +258,7 @@ function MainComponent() {
   
     const startDate = new Date();
     const endDate = new Date();
-    endDate.setMonth(startDate.getMonth() + 1);  // Move 1 months into the future
+    endDate.setMonth(startDate.getMonth() + 3);  // Move 3 months into the future
     
     const dates = [];
     while (startDate <= endDate) {

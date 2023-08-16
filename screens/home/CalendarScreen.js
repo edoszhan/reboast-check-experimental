@@ -74,6 +74,13 @@ const CalendarScreen = (props) => {
           </View>
         );
       }
+
+      const getProgressBarColor = (percentage) => {
+        if (percentage > 0.8) return 'green';
+        if (percentage >= 0.5 && percentage <= 0.8) return 'orange';
+        return 'red';
+      };
+      
     
   
       return (
@@ -89,8 +96,8 @@ const CalendarScreen = (props) => {
                 <Text key={categoryName} style={styles.taskItem}>
                   {categoryName}: {ratio} completed → {percentage}%
                 </Text>
-                <View style={{marginTop: 6}}>
-                <ProgressBar progress={percentage / 100} color={'green'} />
+                <View style={{marginTop: 6, marginBottom: 6}}>
+                <ProgressBar progress={percentage / 100}  color={getProgressBarColor(percentage / 100)}  />
                 </View>
                 </View>
               );
@@ -133,6 +140,7 @@ const styles = StyleSheet.create({
   },
   taskListContainer: {
     paddingHorizontal: 20,
+    marginBottom: 20,
   },
   taskListTitle: {
     fontSize: 18,

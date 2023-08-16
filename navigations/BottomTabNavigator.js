@@ -21,51 +21,121 @@ const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 const UserProfileStack = createStackNavigator();
 const HomeScreenStack = createStackNavigator();
+const CalendarScreenStack = createStackNavigator();
 
 import CommunityScreen from '../screens/home/CommunityScreen'; 
 import { ActivityIndicator } from 'react-native-paper';
 import HomeScreen from '../screens/home/HomeScreen';
-import moment from 'moment';
+import { useNavigation } from '@react-navigation/native';
+
+const CalendarStackScreen = () => {
+  const navigation = useNavigation();
+  return (
+    <CalendarScreenStack.Navigator screenOptions={{ headerTitle: "Calendar",
+    headerTitleAlign: 'left',
+    headerLeft: () => (
+      <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginLeft: 10 }}>
+        <Ionicons name="menu" size={30} color="black" />
+      </TouchableOpacity>
+    ),
+    }}>
+      <CalendarScreenStack.Screen name=" " component={Calendar} />
+    </CalendarScreenStack.Navigator>
+  );
+};
 
 const HomeStackScreen = () => {
+  const navigation = useNavigation();
   return (
-    <HomeScreenStack.Navigator screenOptions={{ headerTitle: "" }}>
-      <HomeScreenStack.Screen name={ROUTES.HOME} component={HomeScreen} />
-      <HomeScreenStack.Screen name={ROUTES.TODO_INFORMATION} component={TodoInformation} />
-      <HomeScreenStack.Screen name={ROUTES.MEMO_SCREEN} component={MemoScreen} />
+    <HomeScreenStack.Navigator screenOptions={{ headerTitle: "Home",
+    headerTitleAlign: 'left',
+    }}>
+      <HomeScreenStack.Screen name={ROUTES.HOME} component={HomeScreen} options={{ headerLeft: () => (
+      <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginLeft: 10 }}>
+        <Ionicons name="menu" size={30} color="black" />
+      </TouchableOpacity>
+    ),}}/>
+      <HomeScreenStack.Screen name={ROUTES.TODO_INFORMATION} component={TodoInformation} 
+      options={{
+        headerTitle: "Todo Information",
+        headerTitleAlign: 'center',
+      }}/>
+      <HomeScreenStack.Screen name={ROUTES.MEMO_SCREEN} component={MemoScreen}
+      options={{
+        headerTitleAlign: 'center',
+      }}/>
       </HomeScreenStack.Navigator>
   );
 };
 
 const CommunityStackScreen = () => {
+  const navigation = useNavigation();
   return (
-    <ProfileStack.Navigator screenOptions={{ headerShown: true }}>
-      <ProfileStack.Screen name={ROUTES.COMMUNITY_MAIN} component={CommunityScreen} /> 
-      <ProfileStack.Screen name={ROUTES.ADD_POST_SCREEN} component={AddPost} />
-      <ProfileStack.Screen name={ROUTES.EDIT_POST_SCREEN} component={EditPost} />
-      <ProfileStack.Screen name={ROUTES.POST_INFORMATION} component={PostInformation} />
+    <ProfileStack.Navigator screenOptions={{ headerShown: true, 
+      headerTitleAlign: 'left',
+    }}>
+      <ProfileStack.Screen name={ROUTES.COMMUNITY_MAIN} component={CommunityScreen} 
+      options={{headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginLeft: 10 }}>
+          <Ionicons name="menu" size={30} color="black" />
+        </TouchableOpacity>
+      ),}}/> 
+      <ProfileStack.Screen name={ROUTES.ADD_POST_SCREEN} component={AddPost} 
+      options={{
+        headerTitleAlign: 'center',
+      }}/>
+      <ProfileStack.Screen name={ROUTES.EDIT_POST_SCREEN} component={EditPost} 
+      options={{
+        headerTitleAlign: 'center',
+      }}/>
+      <ProfileStack.Screen name={ROUTES.POST_INFORMATION} component={PostInformation} 
+      options={{
+        headerTitleAlign: 'center',
+      }} />
     </ProfileStack.Navigator>
   );
 };
 
-const TimerStackScreen = () => {
+const openDrawer = () => {
   return (
-    <TimerStack.Navigator screenOptions={{ headerShown: true, 
-      headerLeft: () => (
+    <Drawer.Navigator initialRouteName="Home" screenOptions={{ headerShown: false}}>
+      <Drawer.Screen name="Home" component={MainComponent} />
+      <Drawer.Screen name="Profile" component={UserProfileStackScreen} />
+    </Drawer.Navigator>
+  );
+};
+
+
+const TimerStackScreen = () => {
+  const navigation = useNavigation();
+  return (
+    <TimerStack.Navigator screenOptions={{
+    headerTitleAlign: 'left',
+    }}>
+      <TimerStack.Screen name="Timers" component={Timer} options={{headerLeft: () => (
         <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginLeft: 10 }}>
           <Ionicons name="menu" size={30} color="black" />
         </TouchableOpacity>
-      ),
-    }}>
-      <TimerStack.Screen name=" " component={Timer} />
-      <TimerStack.Screen name="History" component={TimerLogs} />
+      ),}} />
+      <TimerStack.Screen name="History" component={TimerLogs} options={{
+          headerTitle: "History",
+          headerTitleAlign: 'center',
+        }}/>
     </TimerStack.Navigator>
   );
 };
 
 const UserProfileStackScreen = () => {
+  const navigation = useNavigation();
   return (
-    <UserProfileStack.Navigator>
+    <UserProfileStack.Navigator screenOptions={{
+    headerTitleAlign: 'left',
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginLeft: 10 }}>
+          <Ionicons name="menu" size={30} color="black" />
+        </TouchableOpacity>
+      ),
+    }} >
       <UserProfileStack.Screen name="User Profile" component={UserProfile} />
       <UserProfileStack.Screen name="Settings" component={Settings}/>
       <UserProfileStack.Screen name="User Profile Settings" component={ProfileSettings} />
@@ -339,7 +409,7 @@ function MainComponent() {
             ),
           }}
         />
-        <Tab.Screen name={ROUTES.CALENDAR} component={Calendar} />
+        <Tab.Screen name={ROUTES.CALENDAR} component={CalendarStackScreen} />
         <Tab.Screen name={ROUTES.COMMUNITY} component={CommunityStackScreen} />
       </Tab.Navigator>
       {isPopupVisible && (

@@ -1,57 +1,130 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Button } from "react-native";
+import { View, Text, StyleSheet} from "react-native";
 import { Calendar } from 'react-native-calendars';
-import { ROUTES } from "../../constants";
+import { getAuth } from 'firebase/auth';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { FIREBASE_DB } from "../../config/firebase";
+import {ProgressBar} from 'react-native-paper';
+
+const koreanDaysOfWeekTable = {
+  Sun: '일',
+  Mon: '월',
+  Tue: '화',
+  Wed: '수',
+  Thu: '목',
+  Fri: '금',
+  Sat: '토',
+};
 
 const CalendarScreen = (props) => {
-  const {navigation} = props;
+  const { navigation } = props;
   const [selected, setSelected] = useState('');
   const [showTasks, setShowTasks] = useState(false);
-
-  const tasksForSelectedDay = [
-    { id: 1, title: 'Morning Routine' },
-    { id: 2, title: 'Sport' },
-    { id: 3, title: 'Learning' },
-  ];
+  const [categoryRatios, setCategoryRatios] = useState({});
 
   const handleDayPress = (day) => {
     setSelected(day.dateString);
     setShowTasks(true);
+    fetchTasksForDate(day.dateString);
   };
-  
+
+  const fetchTasksForDate = (date) => {
+    const formattedDate = date.replace(/-/g, '.');
+    const dayPrefix = new Date(date).toLocaleDateString('en-US', { weekday: 'long' }).slice(0, 3);
+    const todayDay = koreanDaysOfWeekTable[dayPrefix];
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    const categoryNames = ['Sport', 'Learning', 'Morning Routine'];
+    categoryNames.forEach((categoryName) => {
+      const categoryRef = collection(FIREBASE_DB, 'todo-list', user.uid, categoryName);
+      const q = query(categoryRef, orderBy('createdAt', 'desc'));
+
+      onSnapshot(q, (snapshot) => {
+        const tasksForCategory = [];
+        snapshot.forEach((doc) => {
+          const taskData = doc.data();
+          if (taskData.categoryDays.includes(todayDay) && taskData.date === formattedDate) {
+            tasksForCategory.push(taskData);
+          }
+        });
+
+        const checkedCount = tasksForCategory.filter(task => task.isChecked).length;
+        const ratio = `${checkedCount}/${tasksForCategory.length}`;
+
+        setCategoryRatios(prev => ({
+          ...prev,
+          [categoryName]: ratio
+        }));
+      });
+    });
+  };
+
   const renderTaskList = () => {
     if (showTasks) {
+      const totalCount = Object.values(categoryRatios)
+        .map(ratio => parseInt(ratio.split('/')[1]))
+        .reduce((acc, curr) => acc + curr, 0);
+  
+  
+      if (totalCount === 0) {
+        return (
+          <View style={styles.taskListContainer}>
+            <Text style={styles.taskListTitle}>You do not have any todos to complete</Text>
+          </View>
+        );
+      }
+
+      const getProgressBarColor = (percentage) => {
+        if (percentage > 0.8) return 'green';
+        if (percentage >= 0.5 && percentage <= 0.8) return 'orange';
+        return 'red';
+      };
+      
+    
+  
       return (
         <View style={styles.taskListContainer}>
           <Text style={styles.taskListTitle}>Tasks for {selected}:</Text>
-          {tasksForSelectedDay.map((task) => (
-            <Text key={task.id} style={styles.taskItem}>{task.title}</Text>
-          ))}
-        <Button title="Go to Timer" onPress={() => navigation.navigate(ROUTES.TIMER)} />
+          {Object.entries(categoryRatios).map(([categoryName, ratio]) => {
+            const [completed, total] = ratio.split('/').map(Number);
+            const percentage = total ? Math.round((completed / total) * 100) : 0;
     
+            if (total !== 0) {
+              return (
+                <View key={categoryName}>
+                <Text style={styles.taskItem}>
+                  {categoryName}: {ratio} completed → {percentage}%
+                </Text>
+                <View style={{marginTop: 6, marginBottom: 6}}>
+                <ProgressBar progress={percentage / 100}  color={getProgressBarColor(percentage / 100)}  />
+                </View>
+                </View>
+              );
+            } else {
+              return null;  
+            }
+          })}
         </View>
-
-
-       
       );
     }
     return null;
   };
+  
 
   return (
     <View style={styles.container}>
       <Calendar
-        style={styles.calendar} // Add this style prop to modify the calendar's size
+        style={styles.calendar}
         onDayPress={handleDayPress}
         markedDates={{
-          [selected]: { selected: true, disableTouchEvent: true, selectedDotColor: 'orange' }
+          [selected]: { selected: true, disableTouchEvent: true }
         }}
       />
       {renderTaskList()}
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -61,12 +134,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   calendar: {
-    width: '100%', // Adjust the width as needed
+    width: '100%',
     marginBottom: 20,
     height: 400,
   },
   taskListContainer: {
     paddingHorizontal: 20,
+    marginBottom: 20,
   },
   taskListTitle: {
     fontSize: 18,

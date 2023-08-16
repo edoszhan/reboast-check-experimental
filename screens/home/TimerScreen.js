@@ -1,25 +1,24 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Button,  View, Text, StyleSheet, TouchableOpacity, TextInput, Modal } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Modal } from "react-native";
 import { ROUTES } from '../../constants';
-import { Dimensions } from 'react-native';
-const { height } = Dimensions.get('window');
 import { useNavigation } from '@react-navigation/native';
 
 import { FIREBASE_AUTH, FIREBASE_DB } from '../../config/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, collection } from 'firebase/firestore';
 import uuid from 'react-native-uuid'; //for generating random id, and it does not really matter for us
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Dropdown } from 'react-native-element-dropdown';
+import { onSnapshot, query } from 'firebase/firestore';
 
 const TimerScreen = () => {
  
   const auth = FIREBASE_AUTH;
-  const uid = auth.currentUser.uid; //const was added
+  const uid = auth.currentUser.uid;
   const session_random = uuid.v4();
 
   const create = async (uid) => {
     try {
-      await setDoc(doc(FIREBASE_DB, "timer-logs", uid, "sessions",session_random), {  //session3 should not be manually entered, we need to update number of sessions  
+      await setDoc(doc(FIREBASE_DB, "timer-logs", uid, "sessions", session_random), {   
         sessionTopic: sessionTopic,
         sessionMemo: sessionMemo,
         userId: uid,
@@ -27,6 +26,7 @@ const TimerScreen = () => {
         sessionFinishTime: sessionFinishTime,
         sessionId: session_random,
         categoryName: selectedTaskParams,
+        todoName: selectedTodo,
       });
 
     } catch (error) {
@@ -62,6 +62,33 @@ const TimerScreen = () => {
 
   const currentDayTime = currentDay + " " + currentTime;  //we might change the formatting later
   const sessionFinishTime = currentDayTime;
+
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [taskData, setTaskData] = useState([]);
+  const [selectedTodo, setSelectedTodo] = useState(null);
+
+
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (selectedCategory) {
+      console.log(selectedCategory);
+      const tasksRef = collection(FIREBASE_DB, 'todo-list', user.uid, selectedCategory);
+      const q = query(tasksRef);
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const tasksForCategory = [];
+        snapshot.forEach((doc) => {
+          tasksForCategory.push({
+            label: doc.data().categoryItems,  
+            value: doc.id  
+          }); 
+        });
+        setTaskData(tasksForCategory);
+      });
+  
+      return () => unsubscribe();  // Cleanup listener
+    }
+  }, [selectedCategory]);
+  
 
   const data = [
     { label: 'Morning Routine', value: '1', color: 'blue' },
@@ -128,12 +155,10 @@ const TimerScreen = () => {
 
     setTime(sessionType === "25" ? 1500 : 300); // Reset time to 25 minutes or 5 minutes for the next session
 
-    // setSessionDuration(1500 - time); // Calculate the session duration
-    // setTime(1500); // Reset time to 25 minutes for the next session
     setSessionTopic(""); // Clear the session topic input
     setSessionMemo(""); // Clear the session memo input
     setDropdownEnabled(false);
-    setSelectedTask("Select todo task");
+    setSelectedTask("Select category");
   }
 
   const handleSave = () => {  
@@ -168,11 +193,14 @@ const TimerScreen = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate(ROUTES.TIMER_LOGS)}>
+        <View style={styles.iconTextContainer}>
           <View style={styles.iconContainer}>
             <FontAwesome5 name="history" size={24} color="black" />
           </View>
+          <Text style={styles.headerText}>History</Text>
+        </View>
         </TouchableOpacity>
-        <Text style={styles.headerText}>History</Text>
+      
       </View>
       <TouchableOpacity
         style={styles.timerContainer}
@@ -235,12 +263,27 @@ const TimerScreen = () => {
                   console.log(item);
                   setSelectedTask(item.label);
                   setSelectedTaskParams(item.label);
+                  setSelectedCategory(item.label);
                   setDropdownEnabled(true);
                 }}
                 itemContainerStyle={{backgroundColor: '#fff',}}
-                placeholder = {selectedTask ? selectedTask : "Select todo task"}
+                placeholder = {selectedTask ? selectedTask : "Select category"}
                 style={{ width: 200, borderColor: 'black', borderWidth: 1, borderRadius: 10, padding: 10,}}
                 data={data}
+              />
+
+          <Dropdown
+                iconColor="black"
+                activeColor="gray"
+                labelField="label"
+                valueField="value"
+                onChange={(item) => {
+                  setSelectedTodo(item.label);
+                }}
+                itemContainerStyle={{backgroundColor: '#fff',}}
+                placeholder = {selectedTask ? selectedTask : "Select todo"}
+                style={{ width: 200, borderColor: 'black', borderWidth: 1, borderRadius: 10, padding: 10, marginTop: 10}}
+                data={taskData}
               />
       </View>
 
@@ -249,28 +292,25 @@ const TimerScreen = () => {
         <Modal animationType="slide" transparent={true} visible={isPopupVisible} onRequestClose={togglePopup}>
           <View style={styles.modalContainer}>
             <View style={styles.popup}>
+            <TouchableOpacity style={styles.closeIconContainer} onPress={togglePopup}>
+                <FontAwesome5 name="times" size={24} color="black" />
+           </TouchableOpacity>
               <Text style={styles.popupText}>Todo</Text>
-              <Text>Duration: {Math.floor(sessionDuration / 60)} minutes {sessionDuration % 60} seconds</Text> 
-              {/* <Text>2023.06.28 15:30</Text> */}
+              <Text style={styles.durationText}>Duration: {Math.floor(sessionDuration / 60)} minutes {sessionDuration % 60} seconds</Text> 
               <TextInput
                 style={styles.input}
                 value={sessionTopic}
                 onChangeText={handleSessionTopicChange}
-                placeholder="Enter session topic"
+                placeholder="Enter topic"
                 editable={!isActive}
               />
               <TextInput
                 style={styles.inputMemo}
                 value={sessionMemo}
                 onChangeText={setSessionMemo}
-                placeholder="Enter session memo"
+                placeholder="Enter memo"
                 editable={!isActive}
               />
-
-              <TouchableOpacity style={styles.closeButton} onPress={togglePopup}>
-                <Text style={styles.closeButtonText}>Close</Text>
-              </TouchableOpacity>
-              
               <TouchableOpacity style={[styles.closeButton, isSaveDisabled && styles.disabledButton]} onPress={handleSave} disabled={isSaveDisabled}>
                 <Text style={styles.closeButtonText}>Save</Text>
               </TouchableOpacity>
@@ -348,25 +388,26 @@ const styles = StyleSheet.create({
   },
   popup: {
     backgroundColor: "white",
-    padding: 100,
+    padding: 50,
     borderRadius: 10,
     alignItems: "center",
-    left: 0,
-    right: 0,
+    width: '90%',
+    // left: 0,
+    // right: 0,
     // maxHeight: height / 1.2,   //size of the popUp box
-    position: "absolute",
-    bottom: 3,
+    position: "relative",
+    // bottom: 3,
   },
   popupText: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 30,
+    marginBottom: 20,
   },
-
   closeButton: {
     marginTop: 20,
+    marginBottom: -30,
     padding: 10,
-    backgroundColor: "yellow",
+    backgroundColor: "#32CD32",
     borderRadius: 10,
   },
   closeButtonText: {
@@ -403,16 +444,30 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     right: 10,
+    alignItems: 'center', // Align child elements to the center
+    marginRight: 10,
+  },
+  iconTextContainer: {
+    alignItems: 'center', // Center the icon and text horizontally
   },
   iconContainer: {
     borderRadius: 30,
     backgroundColor: '#f0f0f0',
     padding: 10,
+    marginBottom: 5, // Add some margin to separate the icon and text
   },
   headerText: {
-    marginTop: 10,
-    marginRight: 10,
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  durationText: {   // Newly added for the Duration text
+    fontSize: 18,
+    marginVertical: 10,
+  },
+  closeIconContainer: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    padding: 10,  // Makes it easier to tap
   },
 });

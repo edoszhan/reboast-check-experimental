@@ -7,6 +7,7 @@ import { FIREBASE_DB } from '../../config/firebase';
 import { collection, query, where, onSnapshot } from 'firebase/firestore'; // Updated import
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
+import { Linking } from 'react-native'; 
 
 const UserProfile = ({ route }) => {
   const params = route.params ? route.params : 'false'; //refreshing the page
@@ -16,6 +17,11 @@ const UserProfile = ({ route }) => {
   const uid = auth.currentUser.uid;
 
   const [info, setInfo] = useState([]);
+
+  const openGitHubProfile = () => {
+    Linking.openURL('https://github.com/edoszhan');
+  };
+
   
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -50,9 +56,9 @@ const UserProfile = ({ route }) => {
 
   const user = {
     name: info.length > 0 ? info[0].displayName : 'Not found',
-    photoURL: info.length > 0 ? `${info[0].photoURL}?timestamp=${Date.now()}` : null,
+    photoURL: info.length > 0 ? info[0].photoURL: null,
   };
-  // photoURL: info.length > 0 ? `${info[0].photoURL}?timestamp=${Date.now()}` : null,
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -71,11 +77,16 @@ const UserProfile = ({ route }) => {
         <Text style={styles.settingsButtonText}>Upload Image</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.settingsButton} onPress={handleSettings}>
-        <Text style={styles.settingsButtonText}>Settings</Text>
+        <Text style={styles.settingsButtonText}>Profile Settings</Text>
       </TouchableOpacity>
       <TouchableOpacity style={{...styles.settingsButton,marginTop: 60}} onPress={handleLogOut}>
         <Text style={styles.settingsButtonText}>Log out</Text>
       </TouchableOpacity>
+      <View style={styles.acknowledgements}>
+        <Text style={styles.grayText}>The app is developed by </Text>
+        <Text style={styles.githubName} onPress={openGitHubProfile}>Yersultan Doszhan</Text>
+        <Text style={styles.grayText}>DataUS ReBoast Team</Text>
+      </View>
     </SafeAreaView>
   );
 };
@@ -113,6 +124,19 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  acknowledgements: {
+    position: 'absolute',
+    bottom: 70,
+    alignItems: 'center'
+  },
+  grayText: {
+    color: 'gray',
+  },
+  githubName: {
+    color: 'gray',
+    fontWeight: 'bold',
+    textDecorationLine: 'underline',
   },
 });
 

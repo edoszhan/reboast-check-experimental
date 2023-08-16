@@ -10,7 +10,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { collection, query, onSnapshot, orderBy, deleteDoc, doc, where, setDoc, updateDoc} from 'firebase/firestore';
+import { collection, query, onSnapshot, orderBy, deleteDoc, doc, updateDoc} from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { FIREBASE_AUTH } from '../../config/firebase';
 import { useNavigation } from '@react-navigation/native';
@@ -18,34 +18,48 @@ import { ROUTES } from '../../constants';
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { Ionicons } from '@expo/vector-icons';
-import { ref, getDownloadURL } from 'firebase/storage';
-import { storage } from '../../config/firebase';
+import { getDoc } from 'firebase/firestore';
+import { SearchBar } from '@rneui/themed';
+
+import { SafeAreaView } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons'; 
 
 
 const CommunityScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [sessions, setSessions] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [likeClicked, setLikeClicked] = useState(false);
+  const [search, setSearch] = useState('');
 
-  const [imageUrl, setImageUrl] = useState(null); // State to store the image URL
+  const fetchSessions = async () => {
+    const q = query(collection(FIREBASE_DB, 'community-chat'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
+      const sessionData = [];
+  
+      // Extract unique userIDs
+      const userIds = [...new Set(snapshot.docs.map(doc => doc.data().userId))];
+  
+      // Fetch all users' information at once
+      const usersInfo = await Promise.all(userIds.map(async id => {
+        const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', id));
+        return { userId: id, ...userDoc.data() };
+      }));
+  
+      for (const doc of snapshot.docs) {
+        const data = doc.data();
+        const userInfo = usersInfo.find(user => user.userId === data.userId);
+        data.postAuthor = userInfo?.displayName;
+        data.photoURL = userInfo?.photoURL;
+        sessionData.push({ id: doc.id, ...data });
+      }
+  
+      setSessions(sessionData);
+      setIsLoading(false);
+    });
+    return unsubscribe;
+  };
 
   useEffect(() => {
-    const fetchSessions = async () => { 
-      const q = query(collection(FIREBASE_DB, 'community-chat'), orderBy('createdAt', 'desc'));
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        const sessionData = [];
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          sessionData.push({ id: doc.id, ...data });
-        });
-        setSessions(sessionData);
-        setIsLoading(false); 
-      });
-
-      return unsubscribe;
-    };
-
     const loadData = async () => {
       try {
         await fetchSessions();
@@ -53,8 +67,8 @@ const CommunityScreen = () => {
         console.log('Error fetching sessions: ', error);
       }
     };
-
     setTimeout(loadData, 1000);
+    return () => fetchSessions(); // You might want to call the returned unsubscribe function here
   }, []);
 
   const onRefresh = React.useCallback(async () => {
@@ -87,7 +101,22 @@ const CommunityScreen = () => {
             text: 'Delete',
             onPress: async () => {
               try {
-                await deleteDoc(doc(FIREBASE_DB, 'community-chat', postId));
+                const postDocRef = doc(FIREBASE_DB, 'community-chat', postId);
+                const postDocSnapshot = await getDoc(postDocRef);
+  
+                // If the document has the field "commentsIds"
+                if (postDocSnapshot.exists() && postDocSnapshot.data().commentsIds) {
+                  const commentsIds = postDocSnapshot.data().commentsIds;
+  
+                  // Loop through and delete each comment
+                  for (const commentId of commentsIds) {
+                    const commentDocRef = doc(FIREBASE_DB, 'community-comment', postId, 'comments', commentId);
+                    await deleteDoc(commentDocRef);
+                  }
+                }
+  
+                // Now, delete the main post after all associated comments are deleted
+                await deleteDoc(postDocRef);
               } catch (error) {
                 console.log('Error deleting document: ', error);
               }
@@ -123,7 +152,7 @@ const CommunityScreen = () => {
             <Entypo name="dots-three-vertical" size={24} color="black" />
           </MenuTrigger>
           <MenuOptions>
-            <MenuOption onSelect={() => navigation.navigate(ROUTES.EDIT_POST_SCREEN)} text="Edit" />
+            <MenuOption onSelect={() => navigation.navigate(ROUTES.EDIT_POST_SCREEN, {postId: session.postId, postContent: session.postContent, postTopic: session.postTopic})} text="Edit" />
             <MenuOption onSelect={() => deleteSession(session.id, session.userId)}>
               <Text style={{ color: 'red' }}>Delete</Text>
             </MenuOption>
@@ -132,24 +161,6 @@ const CommunityScreen = () => {
       );
     }
   };
-  
-  useEffect(() => {
-    // Function to fetch the image URL from Firebase Storage
-    const fetchImage = async () => {
-      try {
-        const uidString = FIREBASE_AUTH.currentUser.uid;
-        // console.log('/ProfilePictures/' + uidString + ".png");
-        const imageRef = ref(storage, '/ProfilePictures/' + uidString + ".png"); //firebase storage can be potentially used to store userPFP, and post images where names of those components is uid and postID respectively
-        const url = await getDownloadURL(imageRef);
-        setImageUrl(url);
-      } catch (error) {
-        console.log('Error fetching image URL: ', error);
-      }
-    };
-
-    fetchImage();
-  }, []);
-
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
@@ -189,17 +200,38 @@ const CommunityScreen = () => {
 
 
   return (
+    <SafeAreaView style={{ flex: 1 }}>
     <ScrollView 
       style={styles.container}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
-      <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)}>
+
+      <SearchBar
+        style={{borderColor: 'white', borderWidth: 1, borderRadius: 5 }}
+        placeholder="Search"
+        onChangeText={text => setSearch(text)}
+        onClear={() => console.log('onClear')}
+        onCancel={() => console.log('onCancel')}
+        showLoading={false}
+        value={search}
+        lightTheme={true}
+        containerStyle={{backgroundColor: 'green', borderColor: 'white', borderWidth: 1, borderRadius: 5 }}
+        inputContainerStyle={{backgroundColor: 'white', borderColor: 'white', borderWidth: 1, borderRadius: 5 }}
+      />
+      {/* <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)}>
         <Text style={styles.deleteButtonText}>Add post</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <View style={styles.container}>
-        {sessions.map((session, index) => (
+        {sessions.filter(session => {
+            const searchTerm = search.toLowerCase();
+            return (
+              session.postTopic.toLowerCase().includes(searchTerm) || 
+              session.postContent.toLowerCase().includes(searchTerm)
+            );
+          })
+        .map((session, index) => (
           <View key={index} style={styles.sessionContainer}>
-            <View style={styles.likeContainer}>
+            {/* <View style={styles.likeContainer}>
             <TouchableOpacity onPress={() => handleLike(session.id, session)}>
             {session.isLiked.includes(FIREBASE_AUTH.currentUser.uid) ? (
               <AntDesign name="like1" size={24} color="black" />
@@ -208,34 +240,21 @@ const CommunityScreen = () => {
             )}
           </TouchableOpacity>
               <Text style={styles.likeText}>{session.likesCount}</Text>
-            </View>
+            </View> */}
             <View style={styles.postContent}>
             <View style={styles.sessionHeader}>
               <View style={styles.sessionHeaderLeft}>
                 {session.photoURL ? (
                   <Image
-                    // source={{ uri: session.photoURL }}
-                    source={{ uri: `${session.photoURL}?timestamp=${Date.now()}` }}
+                    source={{ uri: session.photoURL }}
                     width={24}
                     height={24}
                     borderRadius={12}
                     style={styles.mr7}
-                    // key={session.photoURL} // Prevents caching
                   />
                 ) : (
                   <Ionicons name="person-outline" size={20} color="gray" style={styles.profileIcon} />
                 )}
-                {/* {session.photoURL && FIREBASE_AUTH.currentUser.uid == session.userId ? (
-                  <Image
-                    source={{ uri: imageUrl }}
-                    width={24}
-                    height={24}
-                    borderRadius={12}
-                    style={styles.mr7}
-                  />
-                ) : (
-                  <Ionicons name="person-outline" size={20} color="gray" style={styles.profileIcon} />
-                )} */}
                 <Text style={{ fontSize: 16 }}> u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
               </View>
               {handlePost(session)}
@@ -244,7 +263,7 @@ const CommunityScreen = () => {
               <Text style={{ color: 'grey', fontSize: 11 }}>{session.postCreatedDateTime}</Text>
             </View>
             <TouchableOpacity
-              onPress={() => navigation.navigate(ROUTES.POST_INFORMATION, { postId: session.id })}
+              onPress={() => navigation.navigate(ROUTES.POST_INFORMATION, { postId: session.id, postAuthor: session.postAuthor})}
             >
               <View style={styles.sessionBlock}>
                 <Text style={{ fontWeight: 'bold', fontSize: 18 }}>{session.postTopic}</Text>
@@ -252,17 +271,40 @@ const CommunityScreen = () => {
               <View style={styles.sessionBlock}>
                 <Text style={styles.sessionText}>{session.postContent ? session.postContent : 'No content'}</Text>
               </View>
-              <View>
+              <View style={{alignItems: 'center'}}>
                 {session.postFile ? (
-                  <Image source={{ uri: session.postFile }} style={{ width: 200, height: 200 }} />
+                  <Image source={{ uri: session.postFile }} style={{ width: 200, height: 200}} />
                 ) : null}
               </View>
             </TouchableOpacity>
+
+            <View style={styles.interactionBar}>
+            <TouchableOpacity style={styles.interactionButton} onPress={() => handleLike(session.id, session)}>
+            {session.isLiked.includes(FIREBASE_AUTH.currentUser.uid) ? (
+              <AntDesign name="like1" size={20} color="black" />
+            ) : (
+              <AntDesign name="like2" size={20} color="black" />
+            )}
+            <Text style={styles.interactionText}>{session.likesCount}</Text>
+          </TouchableOpacity>
+          
+            <TouchableOpacity style={styles.interactionButton} onPress={() => navigation.navigate(ROUTES.POST_INFORMATION, { postId: session.id, postAuthor: session.postAuthor })}>
+              <Ionicons name="chatbubbles-outline" size={20} color="black" />
+              <Text style={styles.interactionText}>{session.commentsIds ? session.commentsIds.length : 0}</Text> 
+            </TouchableOpacity>
+            </View>
             </View>
           </View>
         ))}
       </View>
     </ScrollView>
+    <TouchableOpacity 
+        style={styles.fab} 
+        onPress={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)}
+      >
+        <MaterialIcons name="edit" size={30} color="white" />
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 };
 
@@ -270,6 +312,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 5,
+    marginTop: 5,
   },
   sessionContainer: {
     marginBottom: 20,
@@ -327,6 +370,40 @@ const styles = StyleSheet.create({
   },
   postContent: {
     flex: 1, // Let the post content take the remaining width
+  },
+
+  interactionBar: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginTop: 10, // You can adjust this value
+  },
+  
+  interactionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 15, // Space between the like and comment buttons
+  },
+  
+  interactionText: {
+    marginLeft: 5, // Space between the icon and its text
+    fontSize: 14,
+  },
+  fab: {
+    position: 'absolute', // This ensures the button floats 
+    bottom: 20, // Position from the bottom
+    right: 20, // Position from the right
+    width: 50, // Width of the button
+    height: 50, // Height of the button
+    borderRadius: 30, // Makes it round
+    backgroundColor: 'green', // Color of the button
+    justifyContent: 'center', // To horizontally center the icon
+    alignItems: 'center', // To vertically center the icon
+    elevation: 5, // Shadow for Android
+    shadowOffset: { width: 1, height: 2 }, // Shadow for iOS
+    shadowColor: '#000', // Shadow color for iOS
+    shadowOpacity: 0.3, // Shadow opacity for iOS
+    shadowRadius: 2 // Shadow blur for iOS
   },
 });
 

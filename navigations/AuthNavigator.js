@@ -48,21 +48,22 @@ function AuthNavigator() {
         <Stack.Screen name={ROUTES.HOME} component={BottomTabNavigator} options={{headerShown: false }}  />
       ) : (
         <>
-        <Stack.Screen name={ROUTES.LOGIN}  component={Login} options={{headerShown: true }}/>
-        <Stack.Screen name={ROUTES.REGISTER} component={Register} />
-        {/* <Stack.Screen name={ROUTES.SETTINGS} component={Settings} options={{headerShown: false }}  /> */}
+        <Stack.Screen name={ROUTES.LOGIN} component={Login} 
+                    options={ ({route}) => ({
+                      title: " ",
+                  }) }
+        />
+        <Stack.Screen name={ROUTES.REGISTER} component={Register}
+        />
         </>
       )} 
     <Stack.Screen 
     name={ROUTES.FORGOT_PASSWORD} 
     component={ForgotPassword} 
     options={ ({route}) => ({
-        title: route.params.userID,
+        title: " ",
     }) }
     />
-      {/* <Stack.Screen name={ROUTES.LOGIN}  component={Login}/> */}
-      {/* <Stack.Screen name={ROUTES.REGISTER} component={Register} /> */}
-      {/* <Stack.Screen name={ROUTES.HOME} component={BottomTabNavigator} /> */}
     </Stack.Navigator>
   );
 }   

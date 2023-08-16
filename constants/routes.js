@@ -4,12 +4,12 @@ export default {
     FORGOT_PASSWORD: 'Forgot Password',
   
     HOME: 'Main Screen',
-    HOME_TAB: 'Home Tab',
+    HOME_TAB: 'Home ',
     HOME_DRAWER: 'Home Drawer',
   
     // PROFILE: 'Profile',
     COMMUNITY: 'Community',
-    COMMUNITY_MAIN: 'Community Main',
+    COMMUNITY_MAIN: 'Community  ',
     CALENDAR: 'Calendar',
     TIMER: 'Timer',
     TIMER_LOGS: 'History',
@@ -31,4 +31,5 @@ export default {
 
     // Todo screens
     TODO_INFORMATION: 'Todo Information',
+    MEMO_SCREEN: 'Edit Memo',
   };

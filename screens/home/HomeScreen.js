@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { getAuth } from 'firebase/auth';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, where, doc} from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import { ROUTES } from '../../constants';
 import { AntDesign } from '@expo/vector-icons';
 import CalendarStrip  from 'react-native-calendar-strip';
-import { ActivityIndicator } from 'react-native';
+import { updateDoc } from 'firebase/firestore';
 
 
 const CustomCheckbox = ({ checked }) => {
@@ -33,41 +33,51 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   const [tasksByCategory, setTasksByCategory] = useState({});
   const auth = getAuth();
-  const [selectDate, setSelectedDate] = useState(new Date().toLocaleDateString('kr-KO', { weekday: 'long' }));
+  const [selectDate, setSelectedDate] = useState(new Date().toDateString('en-US', { weekday: 'long' }));
   const [searchDay, setSearchDay] = useState(new Date().toLocaleDateString('en-US', { weekday: 'long' }));
-
-  // const daysOfWeek = ['월', '화', '수', '목', '금', '토', '일'];
-
-  const todayDayoftheWeek = new Date().toLocaleDateString('kr-KO', { weekday: 'long' });
 
   useEffect(() => {
     const checkedTaskNames = [];
     Object.entries(tasksByCategory).forEach(([categoryName, tasks]) => {
       tasks.forEach((task) => {
-        if (task.checked) {
+        if (task.checked) { 
           checkedTaskNames.push(task.categoryItems);
         }
       });
     });
   }, [tasksByCategory]);
 
+  function formatDateToYYYYMMDD(inputDate) {
+    const date = new Date(inputDate);
+    const year = date.getFullYear();
+    
+    // JavaScript's getMonth() returns 0-11. Add 1 to get 1-12 and pad with 0 if needed
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    
+    // Pad day with 0 if needed
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    return `${year}.${month}.${day}`;
+
+  }
+
   useEffect(() => {
-    // const today = new Date().toLocaleDateString('kr-KO', { weekday: 'long' });
     const today = searchDay;
     const dayPrefix = today.slice(0, 3);
     const todayDay = koreanDaysOfWeekTable[dayPrefix];
-    // const string = today.split(" ");
-    // const todayDay = string[3][0];
     const user = auth.currentUser;
     const categoryNames = ['Sport', 'Learning', 'Morning Routine']; //can be appended later if the "add category" feature is added
+
+    const chosen = formatDateToYYYYMMDD(selectDate);
+
     const unsubscribeTasks = categoryNames.map((categoryName) => {
       const categoryRef = collection(FIREBASE_DB, 'todo-list', user.uid, categoryName);
-      const q = query(categoryRef, orderBy('createdAt', 'desc'));
+      const q = query(categoryRef, where("date", "==", chosen));
       return onSnapshot(q, (snapshot) => {
         const taskList = [];
         snapshot.forEach((doc) => {
           const taskData = doc.data();
-          if (todayDay.includes(taskData.categoryDays)) {
+          if (taskData.categoryDays.includes(todayDay)) {
           taskList.push({ ...taskData, checked: false }); // Add checked property to task data
           }
         });
@@ -79,30 +89,52 @@ const HomeScreen = () => {
     });
 
     return () => {
-      // Unsubscribe from task listeners for each category
       unsubscribeTasks.forEach((unsubscribe) => {
         unsubscribe();
       });
     };
   }, [searchDay]);
   
-  const toggleTaskChecked = (categoryName, taskId) => {
-    setTasksByCategory((prevTasksByCategory) => {
-      const updatedTasks = prevTasksByCategory[categoryName].map((task) =>
-        task.categoryId === taskId ? { ...task, checked: !task.checked } : task
-      );
-      return {
-        ...prevTasksByCategory,
-        [categoryName]: updatedTasks,
-      };
-    });
+  const toggleTaskChecked = async (categoryName, taskId) => {
+    const taskRef = doc(FIREBASE_DB, 'todo-list', auth.currentUser.uid, categoryName, taskId);
+    
+    const taskToUpdate = tasksByCategory[categoryName].find(task => task.categoryId === taskId);
+    if (!taskToUpdate) return;
+  
+    const newCheckedState = !taskToUpdate.isChecked;
+    
+    try {
+      await updateDoc(taskRef, {
+        isChecked: newCheckedState
+      });
+  
+      setTasksByCategory((prevTasksByCategory) => {
+        const updatedTasks = prevTasksByCategory[categoryName].map((task) => {
+          if (task.categoryId === taskId) {
+            return { ...task, isChecked: newCheckedState };
+          }
+          return task;
+        });
+        return {
+          ...prevTasksByCategory,
+          [categoryName]: updatedTasks,
+        };
+      });
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
   };
 
-  return (
+  function resetDate() {
+  const today = new Date().toDateString();
+    setSelectedDate(today.toLocaleString('ko-KR', { weekday: 'long' }));
+    setSearchDay(today.toLocaleString('ko-KR', { weekday: 'long' }));
+  }
+  
+    return (
     <SafeAreaView style={styles.container}>
       <Text style={{...styles.heading, marginBottom: 20}}>Todo Tasks</Text>
-      {/* <Text style={{...styles.heading, fontSize: 15, fontWeight: "normal"}}>Chosen date is {todayDayoftheWeek}</Text> */}
-      <Text style={{...styles.heading, fontSize: 15, fontWeight: "normal"}}>Chosen date is {selectDate}</Text>
+      <Text style={{...styles.heading, fontSize: 15, fontWeight: "normal"}}>Todo are shown for [{selectDate.slice(4,15)}]</Text>
       <View style={{height: 80}}>
       <ScrollView>
       <CalendarStrip 
@@ -116,9 +148,7 @@ const HomeScreen = () => {
           disabledDateNumberStyle={{color: 'grey'}}
           iconContainer={{flex: 0.1}}
           iconStyle={{width: 20, height: 20}}
-          // onDateSelected={(date) => [console.log(date.toLocaleString('ko-KR', { weekday: 'long' }))]}
-          selectedDate={new Date()}
-          // onDateSelected={(date) => [setSelectedDate(date.toLocaleString('ko-KR', { weekday: 'long' })), setSearchDay(date.toLocaleString('ko-KR', { weekday: 'long' }))]}
+          selectedDate={new Date(selectDate)} 
           onDateSelected={(date) => {
             const selectedDate = new Date(date).toDateString();
             setSelectedDate(selectedDate.toLocaleString('ko-KR', { weekday: 'long' }));
@@ -129,6 +159,9 @@ const HomeScreen = () => {
         />
       </ScrollView>
       </View>
+      <TouchableOpacity style={styles.resetButton} onPress={resetDate}>
+        <Text style={styles.resetButtonText}>Show Todos for Today</Text>
+      </TouchableOpacity>
       <ScrollView>
         {Object.entries(tasksByCategory).map(([categoryName, tasks]) => (
           <View key={categoryName} style={styles.categoryContainer}>
@@ -142,18 +175,18 @@ const HomeScreen = () => {
                   style={{ ...styles.taskBlock, backgroundColor: task.categoryColor.toLowerCase() }}
                   onPress={() => [toggleTaskChecked(categoryName, task.categoryId)]}
                 >
-                  <CustomCheckbox checked={task.checked}/>
+                  <CustomCheckbox checked={task.isChecked}/>
                   <View style={styles.taskContent}>
                   <Text
                     style={[
                       styles.categoryItems,
-                      { textDecorationLine: task.checked ? 'line-through' : 'none', color: task.checked ? 'gray' : 'black' },
+                      { textDecorationLine: task.isChecked ? 'line-through' : 'none', color: task.isChecked ? 'gray' : 'black' },
                     ]}
                   >
                     {task.categoryItems}
                   </Text>
                   </View>
-                  <TouchableOpacity onPress={() => navigation.navigate(ROUTES.TODO_INFORMATION, { taskId: task.categoryId })}>
+                  <TouchableOpacity onPress={() => navigation.navigate(ROUTES.TODO_INFORMATION, { taskId: task.categoryId, categoryName: task.categoryName, createdAt: task.createdAt, categoryItems: task.categoryItems })}>
                     <AntDesign name="caretright" size={20} color="black" />
                   </TouchableOpacity>
                 </TouchableOpacity>
@@ -256,6 +289,17 @@ const styles = StyleSheet.create({
   },
   dayButtonText: {
     fontSize: 16,
+  },
+  resetButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f2f2f2',
+    padding: 10,
+    borderRadius: 8,
+  },
+  resetButtonText: {
+    fontSize: 16,
+    color: 'black', // You can change this to whatever color you prefer
   },
 });
 

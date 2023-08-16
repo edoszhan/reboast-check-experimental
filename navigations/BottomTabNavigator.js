@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ROUTES } from '../constants';
-import { Home, Timer, Calendar, UserProfile, AddPost, PostInformation, TodoInformation, Settings, EditPost } from '../screens';
+import { Home, Timer, Calendar, UserProfile, AddPost, PostInformation, TodoInformation, Settings, EditPost, MemoScreen} from '../screens';
 import { Ionicons, MaterialCommunityIcons, } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import TimerLogs from '../screens/home/TimerLogs';
@@ -18,64 +18,122 @@ const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
 const TimerStack = createStackNavigator();
 const Drawer = createDrawerNavigator();
-const Stack = createStackNavigator();
 const UserProfileStack = createStackNavigator();
 const HomeScreenStack = createStackNavigator();
+const CalendarScreenStack = createStackNavigator();
 
 import CommunityScreen from '../screens/home/CommunityScreen'; 
 import { ActivityIndicator } from 'react-native-paper';
 import HomeScreen from '../screens/home/HomeScreen';
+import { useNavigation } from '@react-navigation/native';
+
+const CalendarStackScreen = () => {
+  const navigation = useNavigation();
+  return (
+    <CalendarScreenStack.Navigator screenOptions={{ headerTitle: "Calendar",
+    headerTitleAlign: 'left',
+    headerLeft: () => (
+      <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginLeft: 10 }}>
+        <Ionicons name="menu" size={30} color="black" />
+      </TouchableOpacity>
+    ),
+    }}>
+      <CalendarScreenStack.Screen name=" " component={Calendar} />
+    </CalendarScreenStack.Navigator>
+  );
+};
 
 const HomeStackScreen = () => {
+  const navigation = useNavigation();
   return (
-    <HomeScreenStack.Navigator screenOptions={{ headerTitle: "" }}>
-      <HomeScreenStack.Screen name={ROUTES.HOME} component={HomeScreen} />
-      <HomeScreenStack.Screen name={ROUTES.TODO_INFORMATION} component={TodoInformation} />
+    <HomeScreenStack.Navigator screenOptions={{ headerTitle: "Home",
+    headerTitleAlign: 'left',
+    }}>
+      <HomeScreenStack.Screen name={ROUTES.HOME} component={HomeScreen} options={{ headerLeft: () => (
+      <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginLeft: 10 }}>
+        <Ionicons name="menu" size={30} color="black" />
+      </TouchableOpacity>
+    ),}}/>
+      <HomeScreenStack.Screen name={ROUTES.TODO_INFORMATION} component={TodoInformation} 
+      options={{
+        headerTitle: "Todo Information",
+        headerTitleAlign: 'center',
+      }}/>
+      <HomeScreenStack.Screen name={ROUTES.MEMO_SCREEN} component={MemoScreen}
+      options={{
+        headerTitle: "Memo",
+        headerTitleAlign: 'center',
+        headerBackTitle: 'Back',
+      }}/>
       </HomeScreenStack.Navigator>
   );
 };
 
 const CommunityStackScreen = () => {
+  const navigation = useNavigation();
   return (
-    <ProfileStack.Navigator screenOptions={{ headerShown: true }} id="tabs">
-      <ProfileStack.Screen name={ROUTES.COMMUNITY_MAIN} component={CommunityScreen} /> 
-      <ProfileStack.Screen name={ROUTES.ADD_POST_SCREEN} component={AddPost} />
-      <ProfileStack.Screen name={ROUTES.EDIT_POST_SCREEN} component={EditPost} />
-      <ProfileStack.Screen name={ROUTES.POST_INFORMATION} component={PostInformation} />
+    <ProfileStack.Navigator screenOptions={{ headerShown: true, 
+      headerTitleAlign: 'left',
+    }}>
+      <ProfileStack.Screen name={ROUTES.COMMUNITY_MAIN} component={CommunityScreen} 
+      options={{headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginLeft: 10 }}>
+          <Ionicons name="menu" size={30} color="black" />
+        </TouchableOpacity>
+      ),}}/> 
+      <ProfileStack.Screen name={ROUTES.ADD_POST_SCREEN} component={AddPost} 
+      options={{
+        headerTitleAlign: 'center',
+      }}/>
+      <ProfileStack.Screen name={ROUTES.EDIT_POST_SCREEN} component={EditPost} 
+      options={{
+        headerTitleAlign: 'center',
+        headerBackTitle: 'Back',
+      }}/>
+      <ProfileStack.Screen name={ROUTES.POST_INFORMATION} component={PostInformation} 
+      options={{
+        headerTitleAlign: 'center',
+      }} />
     </ProfileStack.Navigator>
   );
 };
 
 const TimerStackScreen = () => {
+  const navigation = useNavigation();
   return (
-    <TimerStack.Navigator screenOptions={{ headerShown: true }}>
-      <TimerStack.Screen name="Timers" component={Timer} />
-      <TimerStack.Screen name="History" component={TimerLogs} />
+    <TimerStack.Navigator screenOptions={{
+    headerTitleAlign: 'left',
+    }}>
+      <TimerStack.Screen name="Timer " component={Timer} options={{headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginLeft: 10 }}>
+          <Ionicons name="menu" size={30} color="black" />
+        </TouchableOpacity>
+      ),}} />
+      <TimerStack.Screen name="History" component={TimerLogs} options={{
+          headerTitle: "History",
+          headerTitleAlign: 'center',
+        }}/>
     </TimerStack.Navigator>
   );
 };
 
 const UserProfileStackScreen = () => {
+  const navigation = useNavigation();
   return (
-    <UserProfileStack.Navigator>
+    <UserProfileStack.Navigator screenOptions={{
+    headerTitleAlign: 'left',
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginLeft: 10 }}>
+          <Ionicons name="menu" size={30} color="black" />
+        </TouchableOpacity>
+      ),
+    }} >
       <UserProfileStack.Screen name="User Profile" component={UserProfile} />
       <UserProfileStack.Screen name="Settings" component={Settings}/>
       <UserProfileStack.Screen name="User Profile Settings" component={ProfileSettings} />
     </UserProfileStack.Navigator>
   );
 };
-
-function StackRoutes() {
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen
-        name="home"
-        component={Home}  
-      />
-      <Stack.Screen name="UserProfile" component={UserProfile} />
-    </Stack.Navigator>
-  );
-}
 
 const BottomTabNavigator = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -96,7 +154,7 @@ const BottomTabNavigator = () => {
   }
 
   return (
-    <Drawer.Navigator initialRouteName="Home" screenOptions={{ headerTitle: '' }}>
+    <Drawer.Navigator initialRouteName="Home" screenOptions={{ headerShown: false}}>
       <Drawer.Screen name="Home" component={MainComponent} />
       <Drawer.Screen name="Profile" component={UserProfileStackScreen} />
     </Drawer.Navigator>
@@ -137,6 +195,7 @@ function MainComponent() {
     });
   
     setCheckboxes(updatedCheckboxes);
+
   
     const updatedSelectedDays = updatedCheckboxes
       .filter((checkbox) => checkbox.checked)
@@ -185,37 +244,88 @@ function MainComponent() {
   const auth = FIREBASE_AUTH;
   const uid = auth.currentUser.uid;
 
+  const getNextTwoMonthsDatesForDay = (day) => {
+    const daysMap = {
+      '일': 0,
+      '월': 1,
+      '화': 2,
+      '수': 3,
+      '목': 4,
+      '금': 5,
+      '토': 6,
+    };
+  
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setMonth(startDate.getMonth() + 1);  // Move 1 months into the future
+    
+    const dates = [];
+    while (startDate <= endDate) {
+      if (startDate.getDay() === daysMap[day]) {
+        dates.push(new Date(startDate));  // Save a copy of the current date
+      }
+      startDate.setDate(startDate.getDate() + 1);  // Move to the next day
+    }
+    
+    return dates;
+  };
+
+  function formatDateToYYYYMMDD(inputDate) {
+    const date = new Date(inputDate);
+    const year = date.getFullYear();
+    
+    // JavaScript's getMonth() returns 0-11. Add 1 to get 1-12 and pad with 0 if needed
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    
+    // Pad day with 0 if needed
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    return `${year}.${month}.${day}`;
+}
+
   //sending todo data to firebase
   const create = async (uid, categoryName) => {
-    console.log(categoryName);
-    console.log("reached here too")
     try {
-      await setDoc(doc(FIREBASE_DB, 'todo-list', uid, categoryName, category_random_Id), {  //session3 should not be manually entered, we need to update number of sessions  
-        categoryName: selectedCategory,
-        categoryColor: selectedColor,
-        isChecked: false,
-        categoryItems: taskName,
-        categoryDays: selectedDays,
-        categoryId: category_random_Id,
-        createdAt: serverTimestamp(),
-      }); 
-      await setDoc(doc(FIREBASE_DB, 'todo-list', uid, "All", category_random_Id), {  //session3 should not be manually entered, we need to update number of sessions  
-        categoryName: selectedCategory,
-        categoryColor: selectedColor,
-        isChecked: false,
-        categoryItems: taskName,
-        categoryDays: selectedDays,
-        categoryId: category_random_Id,
-        createdAt: serverTimestamp(),
-      }); 
-
+      for (const day of selectedDays) {
+        const datesForNextTwoMonths = getNextTwoMonthsDatesForDay(day);
+        
+        const parentId = uuid.v4();
+        await setDoc(doc(FIREBASE_DB, 'todo-list', uid, "All", parentId), {
+          categoryName: selectedCategory,
+          categoryColor: selectedColor,
+          categoryItems: taskName,
+          categoryDays: [day],
+          categoryId: parentId,
+          createdAt: serverTimestamp(),
+        });
+        
+        for (const date of datesForNextTwoMonths) {
+          const uniqueId = uuid.v4();  
+          
+          // Data specific to category name path
+          const childData = {
+            categoryName: selectedCategory,
+            categoryColor: selectedColor,
+            categoryItems: taskName,
+            categoryDays: [day],
+            memo: '',  // Initialize it with an empty string or whatever default value you want
+            date: formatDateToYYYYMMDD(date),
+            isChecked: false,
+            categoryId: uniqueId,
+            parentId: parentId,
+            createdAt: serverTimestamp(),
+          };
+    
+          // Store under the categoryName path
+          await setDoc(doc(FIREBASE_DB, 'todo-list', uid, categoryName, uniqueId), childData);
+        }
+      }
     } catch (error) {
       console.log("Error writing document: ", error);
     }
-  };
+  };  
 
   const sendData = async () => {
-    console.log("reached here")
     await create(uid, selectedCategory);
   };
 
@@ -277,7 +387,7 @@ function MainComponent() {
             ),
           }}
         />
-        <Tab.Screen name={ROUTES.CALENDAR} component={Calendar} />
+        <Tab.Screen name={ROUTES.CALENDAR} component={CalendarStackScreen} />
         <Tab.Screen name={ROUTES.COMMUNITY} component={CommunityStackScreen} />
       </Tab.Navigator>
       {isPopupVisible && (
@@ -292,7 +402,7 @@ function MainComponent() {
                   <TouchableOpacity
                     key={index}
                     style={[styles.dayButton, checkbox.checked && styles.checkedDayButton]}
-                    onPress={() => [handleDayPress(index), setSelectedDays(selectedDays => [checkboxes[index].day], console.log("current list ", selectedDays))]}
+                    onPress={() => [handleDayPress(index)]}
                   >
                     <Text style={[styles.dayButtonText, checkbox.checked && styles.checkedDayButtonText]}>
                       {checkbox.day}
@@ -320,19 +430,17 @@ function MainComponent() {
                 onChangeText={handleColorSelect}
               >
               </Input>
-              <Text style={styles.popupText}>Category</Text>
+              <Text style={styles.popupText} numberOfLines={1}>Category</Text>
               <Dropdown
                 labelField="label"
                 valueField="value"
                 onChange={(item) => {
                   setSelectedCategory(item.label);
-                  console.log('selected days:', selectedDays);
                 }}
+                value={selectedCategory}
                 placeholder=" Select category"
                 style={{ width: 330, borderColor: 'black', borderWidth: 1, borderRadius: 10 }}
                 data={data}
-                // value={selectedCategory} //attemp to fix the dropdown items unselect
-                onChangeText={handleCategorySelect}
               />
               <TouchableOpacity style={styles.closeButton} onPress={togglePopup}>
               </TouchableOpacity>

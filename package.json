@@ -20,13 +20,18 @@
     "@react-navigation/native": "^6.1.7",
     "@react-navigation/native-stack": "^6.9.13",
     "@react-navigation/stack": "^6.3.17",
+    "@reduxjs/toolkit": "^1.9.5",
+    "@rneui/base": "^4.0.0-rc.8",
+    "@rneui/themed": "^4.0.0-rc.8",
     "@types/react-native-vector-icons": "^6.4.13",
     "expo": "~48.0.18",
+    "expo-font": "~11.1.1",
     "expo-image-picker": "~14.1.1",
     "expo-linear-gradient": "~12.1.2",
     "expo-splash-screen": "~0.18.2",
     "expo-status-bar": "~1.4.4",
     "firebase": "^9.23.0",
+    "moment": "^2.29.4",
     "native-base": "^3.4.28",
     "react": "18.2.0",
     "react-horizontal-scrolling-menu": "^4.1.0",
@@ -53,8 +58,9 @@
     "react-native-svg-transformer": "^1.0.0",
     "react-native-uuid": "^2.0.1",
     "react-navigation": "^4.4.4",
-    "react-redux": "^8.1.1",
-    "reanimated-bottom-sheet": "^1.0.0-alpha.22"
+    "react-redux": "^8.1.2",
+    "reanimated-bottom-sheet": "^1.0.0-alpha.22",
+    "redux": "^4.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

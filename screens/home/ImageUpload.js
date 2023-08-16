@@ -11,15 +11,13 @@ import { updateProfile } from 'firebase/auth';
 import { ref, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../config/firebase';
 import { useEffect } from 'react';
+import { uploadBytesResumable } from 'firebase/storage';
 
 
 const ImageUpload = () => {
   const navigation = useNavigation();
   const [selectImage, setSelectImage] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const [imageUrl, setImageUrl] = useState("");
   
-  const [image, setImage] = useState("");
   const ImagePicker = () => {
     let options = {
       storageOptions: {
@@ -27,48 +25,53 @@ const ImageUpload = () => {
       },
     };
     launchImageLibrary(options, async (response) => {
-
+  
       if (response.assets && response.assets.length > 0) {
         setSelectImage(response.assets[0].uri);
-        const auth = FIREBASE_AUTH;
-
-        const user = auth.currentUser;
-        console.log(user);
-        await updateProfile(user, {
-          photoURL: response.assets[0].uri,
-        });
-        console.log(user);
-        // Update Firestore with the new photoURL
-        try {
-          const uid = auth.currentUser.uid;
-          await updateDoc(doc(FIREBASE_DB, 'users-info', uid), {
-            // photoURL: response.assets[0].uri,
-            photoURL: response.assets[0].uri,
-          });
-          console.log('Document successfully updated!');
-        } catch (error) {
-          console.log('Error updating document: ', error);
-        }
-        navigation.navigate(ROUTES.USER_PROFILE, {refresh: "true"});
+        const user = FIREBASE_AUTH.currentUser;
+        const uidString = FIREBASE_AUTH.currentUser.uid;
+        const storageRef = ref(storage, '/ProfilePictures/' + uidString + '.png');
+  
+        // Fetch the file
+        const file = await fetch(response.assets[0].uri);
+        const blob = await file.blob();
+  
+        // Upload the file to Firebase Storage
+        const uploadTask = uploadBytesResumable(storageRef, blob);
+  
+        uploadTask.on('state_changed', 
+          (snapshot) => {
+            // You can add code to handle progress, pause, and resume events here
+          }, 
+          (error) => {
+            // Handle unsuccessful uploads
+            console.log('Error uploading image: ', error);
+          }, 
+          async () => {
+            // Handle successful uploads on complete
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+  
+            // Update the user's profile with the new photoURL
+            await updateProfile(user, {
+              photoURL: downloadURL,
+            });
+  
+            // Update Firestore with the new photoURL
+            try {
+              await updateDoc(doc(FIREBASE_DB, 'users-info', uidString), {
+                photoURL: downloadURL,
+              });
+              console.log('Document successfully updated!');
+            } catch (error) {
+              console.log('Error updating document: ', error);
+            }
+  
+            navigation.navigate(ROUTES.USER_PROFILE, { refresh: 'true' });
+          }
+        );
       }
     });
   };
-  // useEffect(() => {
-  //   // Function to fetch the image URL from Firebase Storage
-  //   const fetchImage = async () => {
-  //     try {
-  //       const uidString = FIREBASE_AUTH.currentUser.uid;
-  //       // console.log('/ProfilePictures/' + uidString + ".png");
-  //       const imageRef = ref(storage, '/ProfilePictures/' + uidString + ".png"); //firebase storage can be potentially used to store userPFP, and post images where names of those components is uid and postID respectively
-  //       const url = await getDownloadURL(imageRef);
-  //       setImageUrl(url);
-  //     } catch (error) {
-  //       console.log('Error fetching image URL: ', error);
-  //     }
-  //   };
-
-  //   fetchImage();
-  // }, []);
   
 
   return (
@@ -84,7 +87,6 @@ const ImageUpload = () => {
         )}
       </View>
       <TouchableOpacity onPress={ImagePicker}>
-      {/* <TouchableOpacity onPress={pickImage}> */}
         <Text style={{ fontSize: 20, textAlign: 'center' }}>Upload Image</Text>
       </TouchableOpacity>
     </SafeAreaView>

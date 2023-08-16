@@ -1,82 +1,77 @@
 import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, TextInput, TouchableOpacity, View, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
-import { FIREBASE_AUTH } from '../../config/firebase';
-import uuid from 'react-native-uuid';
-
-
-
-
+import { ROUTES } from '../../constants';
 
 const EditPost = ({route}) => {
+  const params = route.params ? route.params : {};
   const [postContent, setPostContent] = useState('');
   const [postTopic, setPostTopic] = useState('');
-  const [postFile, setPostFile] = useState(null); //might need to change this to an array of files
+  const [isPost, setIsPost] = useState(false);
   const navigation = useNavigation();
 
+  const handleTopicChange = (text) => {
+    setPostTopic(text);
+    setIsPost(true);
+  };
 
-  const now = new Date();
-  const currentDay = now.toLocaleDateString('en-US', {weekday: "long"});
-  const currentTime = now.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'});
-
-  const postCreatedDateTime = currentDay + " " + currentTime;  //we might change the formatting later
-  const handlePostCreation = async () => {
-    if (postTopic && postContent) {
-      const auth = FIREBASE_AUTH;
-      const uid = auth.currentUser.uid;
-      const photo = auth.currentUser.photoURL;  //null right now
-      const postId = uuid.v4();
-      console.log(postFile);
+  const handlePostEdit = async () => {
+    if (postContent) {
       try {
-        await setDoc(doc(FIREBASE_DB, 'community-chat', postId), {
-          postTopic: postTopic,
-          postContent: postContent,
-          postAuthor: auth.currentUser.displayName,
-          postCreatedDateTime: postCreatedDateTime,
-          userId: uid,
-          postId: postId,
-          createdAt: serverTimestamp() ? serverTimestamp() : postCreatedDateTime,
-          photoURL: photo,
-          isLiked: [],
-          likesCount: 0,
-          postFile: postFile,
-        });
+        const postId = params.postId;
+        if (isPost) {
+          const postRef = doc(FIREBASE_DB, 'community-chat', postId);
+          await updateDoc(postRef, {
+            postTopic: postTopic ? postTopic : null,
+            postContent: postContent,
+            postModifiedDateTime: serverTimestamp(),
+          });
+          setIsPost(false);
+        } else if (!isPost) {
+          const postRef = doc(FIREBASE_DB, 'community-comment', params.parentId, 'comments', postId);
+          await updateDoc(postRef, {
+            replyContent: postContent,
+            postModifiedDateTime: serverTimestamp(),
+          });
+        }
+        navigation.navigate(ROUTES.COMMUNITY_MAIN);
       } catch (error) {
         console.log("Error writing document: ", error);
-      } 
-      navigation.goBack(); //passing params was removed in favor of onSnapshot
-
+      }
     }
   };
 
-
-  const isPostButtonDisabled = !(postTopic);
+  const isPostButtonDisabled = !(postContent);
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.textInput}
-          placeholder="Enter post topic..."
-          value={postTopic}
-          onChangeText={setPostTopic}
-        />
+        {params.postTopic ?
+          <TextInput
+            style={styles.textInput}
+            placeholder={params.postTopic ? params.postTopic : "Enter post topic..."}
+            value={postTopic}
+            onChangeText={handleTopicChange}
+          />
+          :
+          <View></View>
+        }
         <TextInput
           style={styles.contentTextInput}
           multiline
-          placeholder="Enter post content..."
+          placeholder={params.postContent ? params.postContent : "Enter post content..."}
           value={postContent}
           onChangeText={setPostContent}
         />
       </View>
       <TouchableOpacity
         style={[styles.postButton, isPostButtonDisabled && styles.postButtonDisabled]}
-        onPress={handlePostCreation}
+        onPress={handlePostEdit}
         disabled={isPostButtonDisabled}
       >
-        <Text style={styles.postButtonText}>Post</Text>
+        <Text style={styles.postButtonText}>Change</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );

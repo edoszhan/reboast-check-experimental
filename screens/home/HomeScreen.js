@@ -160,7 +160,7 @@ const HomeScreen = () => {
       </ScrollView>
       </View>
       <TouchableOpacity style={styles.resetButton} onPress={resetDate}>
-        <Text style={styles.resetButtonText}>Show Todo for Today</Text>
+        <Text style={styles.resetButtonText}>Show Todos for Today</Text>
       </TouchableOpacity>
       <ScrollView>
         {Object.entries(tasksByCategory).map(([categoryName, tasks]) => (

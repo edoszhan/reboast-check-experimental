@@ -92,8 +92,8 @@ const CalendarScreen = (props) => {
     
             if (total !== 0) {
               return (
-                <View>
-                <Text key={categoryName} style={styles.taskItem}>
+                <View key={categoryName}>
+                <Text style={styles.taskItem}>
                   {categoryName}: {ratio} completed → {percentage}%
                 </Text>
                 <View style={{marginTop: 6, marginBottom: 6}}>
@@ -102,7 +102,7 @@ const CalendarScreen = (props) => {
                 </View>
               );
             } else {
-              return null;  // Return null if the conditions are not met.
+              return null;  
             }
           })}
         </View>

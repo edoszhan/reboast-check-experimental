@@ -4,6 +4,7 @@ import { Calendar } from 'react-native-calendars';
 import { getAuth } from 'firebase/auth';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { FIREBASE_DB } from "../../config/firebase";
+import {ProgressBar} from 'react-native-paper';
 
 const koreanDaysOfWeekTable = {
   Sun: '일',
@@ -84,9 +85,14 @@ const CalendarScreen = (props) => {
     
             if (total !== 0) {
               return (
+                <View>
                 <Text key={categoryName} style={styles.taskItem}>
                   {categoryName}: {ratio} completed → {percentage}%
                 </Text>
+                <View style={{marginTop: 6}}>
+                <ProgressBar progress={percentage / 100} color={'green'} />
+                </View>
+                </View>
               );
             } else {
               return null;  // Return null if the conditions are not met.

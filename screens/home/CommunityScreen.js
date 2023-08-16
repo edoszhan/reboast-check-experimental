@@ -21,6 +21,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { getDoc } from 'firebase/firestore';
 import { SearchBar } from '@rneui/themed';
 
+import { SafeAreaView } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons'; 
+
+
 const CommunityScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [sessions, setSessions] = useState([]);
@@ -196,6 +200,7 @@ const CommunityScreen = () => {
 
 
   return (
+    <SafeAreaView style={{ flex: 1 }}>
     <ScrollView 
       style={styles.container}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -213,9 +218,9 @@ const CommunityScreen = () => {
         containerStyle={{backgroundColor: 'green', borderColor: 'white', borderWidth: 1, borderRadius: 5 }}
         inputContainerStyle={{backgroundColor: 'white', borderColor: 'white', borderWidth: 1, borderRadius: 5 }}
       />
-      <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)}>
+      {/* <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)}>
         <Text style={styles.deleteButtonText}>Add post</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <View style={styles.container}>
         {sessions.filter(session => {
             const searchTerm = search.toLowerCase();
@@ -293,6 +298,13 @@ const CommunityScreen = () => {
         ))}
       </View>
     </ScrollView>
+    <TouchableOpacity 
+        style={styles.fab} 
+        onPress={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)}
+      >
+        <MaterialIcons name="edit" size={30} color="white" />
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 };
 
@@ -300,6 +312,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 5,
+    marginTop: 5,
   },
   sessionContainer: {
     marginBottom: 20,
@@ -375,6 +388,22 @@ const styles = StyleSheet.create({
   interactionText: {
     marginLeft: 5, // Space between the icon and its text
     fontSize: 14,
+  },
+  fab: {
+    position: 'absolute', // This ensures the button floats 
+    bottom: 20, // Position from the bottom
+    right: 20, // Position from the right
+    width: 50, // Width of the button
+    height: 50, // Height of the button
+    borderRadius: 30, // Makes it round
+    backgroundColor: 'green', // Color of the button
+    justifyContent: 'center', // To horizontally center the icon
+    alignItems: 'center', // To vertically center the icon
+    elevation: 5, // Shadow for Android
+    shadowOffset: { width: 1, height: 2 }, // Shadow for iOS
+    shadowColor: '#000', // Shadow color for iOS
+    shadowOpacity: 0.3, // Shadow opacity for iOS
+    shadowRadius: 2 // Shadow blur for iOS
   },
 });
 

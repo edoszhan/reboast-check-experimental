@@ -202,7 +202,6 @@ function MainComponent() {
       .map((checkbox) => checkbox.day);
   
     setSelectedDays(updatedSelectedDays);
-    console.log("here", updatedSelectedDays);
   };
   
   
@@ -258,7 +257,7 @@ function MainComponent() {
   
     const startDate = new Date();
     const endDate = new Date();
-    endDate.setMonth(startDate.getMonth() + 3);  // Move 3 months into the future
+    endDate.setMonth(startDate.getMonth() + 1);  // Move 1 months into the future
     
     const dates = [];
     while (startDate <= endDate) {
@@ -327,7 +326,6 @@ function MainComponent() {
   };  
 
   const sendData = async () => {
-    console.log("reached here")
     await create(uid, selectedCategory);
   };
 
@@ -432,14 +430,14 @@ function MainComponent() {
                 onChangeText={handleColorSelect}
               >
               </Input>
-              <Text style={styles.popupText}>Category</Text>
+              <Text style={styles.popupText} numberOfLines={1}>Category</Text>
               <Dropdown
                 labelField="label"
                 valueField="value"
-                value={selectedCategory}
                 onChange={(item) => {
                   setSelectedCategory(item.label);
                 }}
+                value={selectedCategory}
                 placeholder=" Select category"
                 style={{ width: 330, borderColor: 'black', borderWidth: 1, borderRadius: 10 }}
                 data={data}

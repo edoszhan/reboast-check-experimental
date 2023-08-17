@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ROUTES } from '../constants';
-import { Home, Timer, Calendar, UserProfile, AddPost, PostInformation, TodoInformation, Settings, EditPost, MemoScreen} from '../screens';
+import { Home, Timer, Calendar, UserProfile, AddPost, PostInformation, TodoInformation, Settings, EditPost, MemoScreen, TodoList} from '../screens';
 import { Ionicons, MaterialCommunityIcons, } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import TimerLogs from '../screens/home/TimerLogs';
@@ -21,6 +21,7 @@ const Drawer = createDrawerNavigator();
 const UserProfileStack = createStackNavigator();
 const HomeScreenStack = createStackNavigator();
 const CalendarScreenStack = createStackNavigator();
+const TodoListStack = createStackNavigator();
 
 import CommunityScreen from '../screens/home/CommunityScreen'; 
 import { ActivityIndicator } from 'react-native-paper';
@@ -135,6 +136,20 @@ const UserProfileStackScreen = () => {
   );
 };
 
+  const TodoListStackScreen = () => {
+    const navigation = useNavigation();
+    return (
+      <TodoListStack.Navigator>
+        <TodoListStack.Screen name="Todo List " component={TodoList} options={{headerTitleAlign: 'left', headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginLeft: 10 }}>
+            <Ionicons name="menu" size={30} color="black" />
+          </TouchableOpacity>
+        ),}} />
+      </TodoListStack.Navigator>
+    );
+  };
+
+
 const BottomTabNavigator = () => {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -156,6 +171,7 @@ const BottomTabNavigator = () => {
   return (
     <Drawer.Navigator initialRouteName="Home" screenOptions={{ headerShown: false}}>
       <Drawer.Screen name="Home" component={MainComponent} />
+      <Drawer.Screen name="Todo List" component={TodoListStackScreen}  />
       <Drawer.Screen name="Profile" component={UserProfileStackScreen} />
     </Drawer.Navigator>
   );

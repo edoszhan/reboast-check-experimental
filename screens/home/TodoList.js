@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     categoryFilter: {
         flexDirection: 'row',
         marginTop: -240,
-        marginBottom: -240,
+        marginBottom: -200,
     },
     categoryFilterContent: {
         alignItems: 'center',

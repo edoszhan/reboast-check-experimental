@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
-    bottom: 30,
+    bottom: 10,
   },
   header: {
     fontSize: 24,

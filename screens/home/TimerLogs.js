@@ -12,13 +12,27 @@ const TimerLogs = () => {
   const [isLoading, setIsLoading] = useState(true);
   const uid = FIREBASE_AUTH.currentUser.uid;
 
+  const getCategoryDisplayName = (category) => {
+    switch (category) {
+      case 'Morning Routine':
+        return '☀️ Morning Routine';
+      case 'Sport':
+        return '🏃 Sport';
+      case 'Learning':
+        return '📚 Learning';
+      default:
+        return category; // 'All' or any other category that doesn't have a specific emoji
+    }
+  };
+  
+
   // Category state
   const [selectedCategory, setSelectedCategory] = useState('All');
   const categories = [
     'All',
-    '☀️ Morning Routine',
-    '🏃 Sport',
-    '📚 Learning'
+    'Morning Routine',
+    'Sport',
+    'Learning'
   ];
 
   const fetchSessions = async () => {
@@ -85,7 +99,7 @@ const TimerLogs = () => {
           style={[styles.categoryButton, selectedCategory === category && styles.selectedCategory]}
           onPress={() => setSelectedCategory(category)}
         >
-          <Text style={styles.categoryButtonText}>{category}</Text>
+          <Text style={styles.categoryButtonText}>{getCategoryDisplayName(category)}</Text>
         </TouchableOpacity>
       ))}
     </ScrollView>

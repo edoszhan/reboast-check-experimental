@@ -9,13 +9,17 @@ import { ActivityIndicator } from 'react-native-paper';
 
 const TimerLogs = () => {
   const [sessions, setSessions] = useState([]);
-  const [selectedSession, setSelectedSession] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const uid = FIREBASE_AUTH.currentUser.uid;
 
   // Category state
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const categories = ['All', 'Morning Routine', 'Sport', 'Learning'];
+  const categories = [
+    'All',
+    '☀️ Morning Routine',
+    '🏃 Sport',
+    '📚 Learning'
+  ];
 
   const fetchSessions = async () => {
     const q = query(

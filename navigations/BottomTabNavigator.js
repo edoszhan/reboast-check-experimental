@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ROUTES } from '../constants';
-import { Home, Timer, Calendar, UserProfile, AddPost, PostInformation, TodoInformation, Settings, EditPost, MemoScreen} from '../screens';
+import { Home, Timer, Calendar, UserProfile, AddPost, PostInformation, TodoInformation, Settings, EditPost, MemoScreen, TodoList} from '../screens';
 import { Ionicons, MaterialCommunityIcons, } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import TimerLogs from '../screens/home/TimerLogs';
@@ -13,7 +13,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import uuid from 'react-native-uuid';
 import { FIREBASE_DB } from '../config/firebase';
 import { FIREBASE_AUTH } from '../config/firebase';
-import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { setDoc, doc, serverTimestamp, getDoc } from 'firebase/firestore';
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
 const TimerStack = createStackNavigator();
@@ -21,6 +21,7 @@ const Drawer = createDrawerNavigator();
 const UserProfileStack = createStackNavigator();
 const HomeScreenStack = createStackNavigator();
 const CalendarScreenStack = createStackNavigator();
+const TodoListStack = createStackNavigator();
 
 import CommunityScreen from '../screens/home/CommunityScreen'; 
 import { ActivityIndicator } from 'react-native-paper';
@@ -135,6 +136,20 @@ const UserProfileStackScreen = () => {
   );
 };
 
+  const TodoListStackScreen = () => {
+    const navigation = useNavigation();
+    return (
+      <TodoListStack.Navigator>
+        <TodoListStack.Screen name="Todo List " component={TodoList} options={{headerTitleAlign: 'left', headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginLeft: 10 }}>
+            <Ionicons name="menu" size={30} color="black" />
+          </TouchableOpacity>
+        ),}} />
+      </TodoListStack.Navigator>
+    );
+  };
+
+
 const BottomTabNavigator = () => {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -156,6 +171,7 @@ const BottomTabNavigator = () => {
   return (
     <Drawer.Navigator initialRouteName="Home" screenOptions={{ headerShown: false}}>
       <Drawer.Screen name="Home" component={MainComponent} />
+      <Drawer.Screen name="Todo List" component={TodoListStackScreen}  />
       <Drawer.Screen name="Profile" component={UserProfileStackScreen} />
     </Drawer.Navigator>
   );
@@ -169,21 +185,33 @@ function MainComponent() {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [dailyPressed, setDailyPressed] = useState(false);
 
+
   const togglePopup = () => {
     setSelectedDays([]); 
     setIsPopupVisible(!isPopupVisible);
   };
 
+  const fetchCategoryColor = async (categoryName) => {
+    const categoryDocRef = doc(FIREBASE_DB, 'constants', categoryName);
+
+    try {
+        const categoryDocSnapshot = await getDoc(categoryDocRef);
+        if (categoryDocSnapshot.exists()) {
+            return categoryDocSnapshot.data().color;
+        } else {
+            return 'beige';
+        }
+    } catch (error) {
+        console.log('Error getting document:', error);
+    }
+};
   const handleTaskNameChange = (text) => {
     setTaskName(text);
   };
 
-  const handleColorSelect = (color) => {
+  const handleColorSelect = async (category) => {
+    const color = await fetchCategoryColor(category);
     setSelectedColor(color);
-  };
-
-  const handleCategorySelect = (category) => {
-    setSelectedCategory(category);
   };
 
   const handleDayPress = (index) => {
@@ -240,7 +268,6 @@ function MainComponent() {
     }
   }, [isPopupVisible]);
 
-  const category_random_Id= uuid.v4();
   const auth = FIREBASE_AUTH;
   const uid = auth.currentUser.uid;
 
@@ -315,7 +342,7 @@ function MainComponent() {
             parentId: parentId,
             createdAt: serverTimestamp(),
           };
-    
+          
           // Store under the categoryName path
           await setDoc(doc(FIREBASE_DB, 'todo-list', uid, categoryName, uniqueId), childData);
         }
@@ -331,10 +358,17 @@ function MainComponent() {
 
   const handleSave = () => {  
     // Save the session details to the database
+    if (!canSave()) return;
     togglePopup(); // Close the popup
     sendData();
     setSelectedDays([]); 
   };
+
+  const canSave = () => {
+    const isDaySelected = checkboxes.some(checkbox => checkbox.checked);
+    return isDaySelected && taskName.trim() !== '';
+  };
+  
 
 
   return (
@@ -423,28 +457,26 @@ function MainComponent() {
                 onChangeText={handleTaskNameChange}
               >
               </Input>
-              <Text style={styles.popupText}>Color</Text>  
-              <Input
-                style={{ borderColor: 'black', borderWidth: 1, borderRadius: 5, marginLeft: -10 }}
-                placeholder=" Enter color name"
-                onChangeText={handleColorSelect}
-              >
-              </Input>
-              <Text style={styles.popupText} numberOfLines={1}>Category</Text>
+              <Text style={styles.popupText}>Category</Text>
               <Dropdown
                 labelField="label"
                 valueField="value"
                 onChange={(item) => {
                   setSelectedCategory(item.label);
+                  handleColorSelect(item.label);
                 }}
                 value={selectedCategory}
                 placeholder=" Select category"
-                style={{ width: 330, borderColor: 'black', borderWidth: 1, borderRadius: 10 }}
+                style={{ width: 300, borderColor: 'black', borderWidth: 1, borderRadius: 10 }}
                 data={data}
               />
               <TouchableOpacity style={styles.closeButton} onPress={togglePopup}>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+              <TouchableOpacity 
+                style={[styles.saveButton, !canSave() && styles.disabledSaveButton]} 
+                onPress={handleSave} 
+                disabled={!canSave()}
+              >
                 <Text style={styles.saveButtonText}>Save</Text>
               </TouchableOpacity>
             </View>
@@ -464,7 +496,7 @@ const styles = StyleSheet.create({
   },
   popup: {
     backgroundColor: 'white',
-    padding: 20,
+    padding: 15,
     borderRadius: 10,
     position: 'absolute',
     left: 0,
@@ -547,8 +579,10 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     marginLeft: 4,
-    
   },
+  disabledSaveButton: {
+    backgroundColor: '#ccc',
+  }
 });
 
 export default BottomTabNavigator;

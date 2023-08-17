@@ -2,8 +2,7 @@ import React from 'react';
 import { SafeAreaView, StyleSheet, Text, View, TextInput, Image} from 'react-native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
-import { useEffect } from 'react';
-import { useState } from 'react';
+import { useEffect, useState} from 'react';
 import { collection, query, getDocs, orderBy, onSnapshot, deleteDoc, doc, getDoc, updateDoc, arrayRemove, setDoc, serverTimestamp} from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { ROUTES } from '../../constants';
@@ -11,8 +10,6 @@ import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-m
 import { FIREBASE_AUTH } from '../../config/firebase';
 import { Ionicons, Entypo, AntDesign } from '@expo/vector-icons';
 import uuid from 'react-native-uuid';
-
-
 
 const PostInformation = ({ route }) => {
   const params = route.params ? route.params : 'no post';
@@ -25,9 +22,10 @@ const PostInformation = ({ route }) => {
   const [replyEnabled, setReplyEnabled] = useState(false);
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
 
+  const [replyingTo, setReplyingTo] = useState('');
+
+
   postId = params.postId;
-
-
   const fetchUserName = async (userId) => {
     try {
       const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId)); 
@@ -111,7 +109,7 @@ const PostInformation = ({ route }) => {
     );
   };
   const handleComment = (comment) => {
-    const postAuthorName = `@${comment.replyAuthor} `;
+    const postAuthorName = `${comment.replyAuthor} `;
     if (FIREBASE_AUTH.currentUser.uid !== comment.userId) {
       return (
         <Menu>
@@ -119,7 +117,7 @@ const PostInformation = ({ route }) => {
             <Entypo name="dots-three-vertical" size={24} color="black" />
           </MenuTrigger>
           <MenuOptions>
-            <MenuOption onSelect={() => [setReplyEnabled(true), setReplyText(postAuthorName)]} onPress={() => setReplyEnabled(false)} >
+            <MenuOption onSelect={() => [setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => setReplyEnabled(false)} >
               <Text style={{ color: 'blue' }}>Reply</Text>
             </MenuOption>
           </MenuOptions>
@@ -133,7 +131,7 @@ const PostInformation = ({ route }) => {
             <Entypo name="dots-three-vertical" size={24} color="black" />
           </MenuTrigger>
           <MenuOptions>
-          <MenuOption onSelect={() => [setReplyEnabled(true), setReplyText(postAuthorName)]} onPress={() => setReplyEnabled(false)}>
+          <MenuOption onSelect={() => [setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => setReplyEnabled(false)}>
               <Text style={{ color: 'blue' }}>Reply</Text>
             </MenuOption>
             <MenuOption onSelect={() => navigation.navigate(ROUTES.EDIT_POST_SCREEN, {postId: comment.postId, postContent: comment.replyContent, parentId: comment.parentId})} text="Edit" />
@@ -259,7 +257,7 @@ const PostInformation = ({ route }) => {
                   ) : (
                     <Ionicons name="person-outline" size={20} color="gray" style={styles.profileIcon} />
                   )}
-                  <Text style={{ fontSize: 16 }}>  u/{session.postAuthor}</Text>
+                  <Text style={{ fontSize: 16 }}>  {session.postAuthor}</Text>
                 </View>
                 {handlePost(session)} 
               </View>
@@ -274,10 +272,9 @@ const PostInformation = ({ route }) => {
               </View>
               <View style={{alignItems: 'center'}}>
               {session.postFile ? (
-                <Image source={{ uri: session.postFile }} style={{ width: 200, height: 200 }} />
-              ) : null}
+              <Image source={{ uri: session.postFile }} style={{ width: "100%", height: 200 }} />
+          ) : null}
               </View>
-
             <View style={styles.interactionBar}>
             <TouchableOpacity style={styles.interactionButton} onPress={() => handleLike(session.id, session)}>
             {session.isLiked.includes(FIREBASE_AUTH.currentUser.uid) ? (
@@ -293,7 +290,6 @@ const PostInformation = ({ route }) => {
               <Text style={styles.interactionText}>{session.commentsIds ? session.commentsIds.length : 0}</Text> 
             </TouchableOpacity>
             </View>
-      
             </View> 
           ))}
          <View style={styles.commentsContainer}> 
@@ -312,7 +308,7 @@ const PostInformation = ({ route }) => {
                     ) : (
                       <Ionicons name="person-outline" size={20} color="gray" style={styles.profileIcon} />
                     )}
-                    <Text style={styles.commentAuthor}> u/{comment.replyAuthor}</Text>
+                    <Text style={styles.commentAuthor}> {comment.replyAuthor}</Text>
                   </View>
                   {handleComment(comment)}
                 </View>
@@ -324,6 +320,21 @@ const PostInformation = ({ route }) => {
         </View>
       </ScrollView>
           <View style={styles.replyContainer}>
+          {isKeyboardActive && (
+          <>
+            {replyEnabled ? (
+            <View style={{marginBottom: 8, flexDirection: 'row', alignItems: 'center',justifyContent: 'space-between'}}>
+              <Text> Replying to <Text style={{ fontWeight: 'bold' }}>{replyingTo}</Text></Text>
+              <TouchableOpacity
+                  style={{...styles.cancelButton}}
+                  onPress={() => setReplyEnabled(false)}
+                >
+                  <Text style={{color: 'gray', padding: 5}}>Cancel</Text>
+                </TouchableOpacity>
+                </View>
+                ) : null}
+              </>
+            )}
           <TextInput
             style={styles.replyInput}
             placeholder="Add a comment"
@@ -333,23 +344,27 @@ const PostInformation = ({ route }) => {
             onBlur={() => setIsKeyboardActive(false)}
             multiline
           />  
-          { isKeyboardActive && replyEnabled ? (
-          <TouchableOpacity
-            style={{...styles.replyButton, backgroundColor: 'red'}}
-            onPress={() => [handleReply(params.postId), setReplyEnabled(false)]}
-            disabled={!replyText}
-          >
-            <Text style={styles.replyButtonText}>Reply</Text>
-          </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-            style={{...styles.replyButton, backgroundColor: 'blue'}}
-            onPress={() => handleReply(params.postId)}
-            disabled={!replyText}
-          >
-            <Text style={styles.replyButtonText}>Send</Text>
-          </TouchableOpacity>
-          )}
+        {replyText.length > 0 && isKeyboardActive && (
+          <>
+            {replyEnabled ? (
+              <>
+                <TouchableOpacity
+                  style={{ ...styles.replyButton, backgroundColor: 'red' }}
+                  onPress={() => [handleReply(params.postId), setReplyEnabled(false)]}
+                >
+                  <Text style={styles.replyButtonText}>Reply</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <TouchableOpacity
+                style={{ ...styles.replyButton, backgroundColor: 'blue' }}
+                onPress={() => handleReply(params.postId)}
+              >
+                <Text style={styles.replyButtonText}>Send</Text>
+              </TouchableOpacity>
+            )}
+          </>
+        )}
         </View>
     </View>
   );
@@ -423,9 +438,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   replyInput: {
-    height: 50,
+    height: 40,
     padding: 5,
-    marginBottom: 10,
+    marginBottom: 4,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
@@ -467,24 +482,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-
-
   interactionBar: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
     marginTop: 10, // You can adjust this value
   },
-  
   interactionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: 15, // Space between the like and comment buttons
   },
-  
   interactionText: {
     marginLeft: 5, // Space between the icon and its text
     fontSize: 14,
   },
-
 });

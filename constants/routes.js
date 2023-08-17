@@ -25,11 +25,13 @@ export default {
     BOTTOM_DRAWER: 'Add tasks',   //make sure that routes names are similar to name of the screen -> remember Add tasks example
 
     // Community screens
-    NOTICE_SCREEN: 'Notice Screen',
     ADD_POST_SCREEN: 'Add Post',
     EDIT_POST_SCREEN: 'Edit Post',
 
     // Todo screens
     TODO_INFORMATION: 'Todo Information',
     MEMO_SCREEN: 'Edit Memo',
+
+    //All todos
+    TODO_LIST: 'Todo List',
   };

@@ -5,7 +5,7 @@ import { FIREBASE_AUTH, FIREBASE_DB } from '../../config/firebase';
 import { COLORS, ROUTES } from '../../constants';
 import { doc, setDoc } from 'firebase/firestore';
 import { Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Register = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -73,6 +73,7 @@ const Register = ({ navigation }) => {
     keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
   >
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <SafeAreaView style={{ flex: 1 }}>
     <View style={styles.container}>
       <Text style={styles.inputLabel}>Name
         <Text style={styles.mandatoryApostrophe}>*</Text>
@@ -135,7 +136,7 @@ const Register = ({ navigation }) => {
             <Text style={styles.checkBoxTick}>✓</Text>
           )}
         </TouchableOpacity>
-        <Text style={styles.checkBoxLabel}>I agree to the terms and conditions</Text>
+        <Text>I agree to the <Text style={{textDecorationLine: 'underline'}}>Terms and Conditions</Text> </Text>
       </View>
 
       <TouchableOpacity style={styles.button} onPress={signUp}>
@@ -149,6 +150,7 @@ const Register = ({ navigation }) => {
         </TouchableOpacity>
       </View>
     </View>
+    </SafeAreaView>
     </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
@@ -160,7 +162,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
-    bottom: 70,
+    bottom: 10,
   },
   header: {
     fontSize: 24,

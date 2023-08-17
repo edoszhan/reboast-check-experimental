@@ -9,13 +9,31 @@ import { ActivityIndicator } from 'react-native-paper';
 
 const TimerLogs = () => {
   const [sessions, setSessions] = useState([]);
-  const [selectedSession, setSelectedSession] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const uid = FIREBASE_AUTH.currentUser.uid;
 
+  const getCategoryDisplayName = (category) => {
+    switch (category) {
+      case 'Morning Routine':
+        return '☀️ Morning Routine';
+      case 'Sport':
+        return '🏃 Sport';
+      case 'Learning':
+        return '📚 Learning';
+      default:
+        return category; // 'All' or any other category that doesn't have a specific emoji
+    }
+  };
+  
+
   // Category state
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const categories = ['All', 'Morning Routine', 'Sport', 'Learning'];
+  const categories = [
+    'All',
+    'Morning Routine',
+    'Sport',
+    'Learning'
+  ];
 
   const fetchSessions = async () => {
     const q = query(
@@ -81,7 +99,7 @@ const TimerLogs = () => {
           style={[styles.categoryButton, selectedCategory === category && styles.selectedCategory]}
           onPress={() => setSelectedCategory(category)}
         >
-          <Text style={styles.categoryButtonText}>{category}</Text>
+          <Text style={styles.categoryButtonText}>{getCategoryDisplayName(category)}</Text>
         </TouchableOpacity>
       ))}
     </ScrollView>
@@ -102,7 +120,7 @@ const TimerLogs = () => {
         <Entypo name="dots-three-vertical" size={24} color="black" />
       </MenuTrigger>
       <MenuOptions customStyles={{ optionsContainer: styles.menuOptions }}>
-        <MenuOption onSelect={() => editSession(session.sessionId)} text='Edit' />
+        {/* <MenuOption onSelect={() => editSession(session.sessionId)} text='Edit' /> */}
         <MenuOption onSelect={() => deleteSession(session.sessionId)} text='Delete' />
       </MenuOptions>
     </Menu>

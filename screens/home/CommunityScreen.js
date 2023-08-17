@@ -255,7 +255,7 @@ const CommunityScreen = () => {
                 ) : (
                   <Ionicons name="person-outline" size={20} color="gray" style={styles.profileIcon} />
                 )}
-                <Text style={{ fontSize: 16 }}> u/{session.postAuthor ? session.postAuthor : 'No name'}</Text>
+                <Text style={{ fontSize: 16 }}> {session.postAuthor ? session.postAuthor : 'No name'}</Text>
               </View>
               {handlePost(session)}
             </View>
@@ -273,7 +273,7 @@ const CommunityScreen = () => {
               </View>
               <View style={{alignItems: 'center'}}>
                 {session.postFile ? (
-                  <Image source={{ uri: session.postFile }} style={{ width: 200, height: 200}} />
+                  <Image source={{ uri: session.postFile }} style={ {width: "100%", height: 200}} />
                 ) : null}
               </View>
             </TouchableOpacity>

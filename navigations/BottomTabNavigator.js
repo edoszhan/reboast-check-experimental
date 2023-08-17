@@ -13,7 +13,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import uuid from 'react-native-uuid';
 import { FIREBASE_DB } from '../config/firebase';
 import { FIREBASE_AUTH } from '../config/firebase';
-import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { setDoc, doc, serverTimestamp, getDoc } from 'firebase/firestore';
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
 const TimerStack = createStackNavigator();
@@ -190,16 +190,29 @@ function MainComponent() {
     setIsPopupVisible(!isPopupVisible);
   };
 
+  const fetchCategoryColor = async (categoryName) => {
+    const categoryDocRef = doc(FIREBASE_DB, 'constants', categoryName);
+
+    try {
+        const categoryDocSnapshot = await getDoc(categoryDocRef);
+        if (categoryDocSnapshot.exists()) {
+            return categoryDocSnapshot.data().color;
+        } else {
+            return 'beige';
+        }
+    } catch (error) {
+        console.log('Error getting document:', error);
+    }
+};
+
+
   const handleTaskNameChange = (text) => {
     setTaskName(text);
   };
 
-  const handleColorSelect = (color) => {
+  const handleColorSelect = async (category) => {
+    const color = await fetchCategoryColor(category);
     setSelectedColor(color);
-  };
-
-  const handleCategorySelect = (category) => {
-    setSelectedCategory(category);
   };
 
   const handleDayPress = (index) => {
@@ -330,7 +343,7 @@ function MainComponent() {
             parentId: parentId,
             createdAt: serverTimestamp(),
           };
-    
+          
           // Store under the categoryName path
           await setDoc(doc(FIREBASE_DB, 'todo-list', uid, categoryName, uniqueId), childData);
         }
@@ -438,19 +451,13 @@ function MainComponent() {
                 onChangeText={handleTaskNameChange}
               >
               </Input>
-              <Text style={styles.popupText}>Color</Text>  
-              <Input
-                style={{ borderColor: 'black', borderWidth: 1, borderRadius: 5, marginLeft: -10 }}
-                placeholder=" Enter color name"
-                onChangeText={handleColorSelect}
-              >
-              </Input>
               <Text style={styles.popupText}>Category</Text>
               <Dropdown
                 labelField="label"
                 valueField="value"
                 onChange={(item) => {
                   setSelectedCategory(item.label);
+                  handleColorSelect(item.label);
                 }}
                 value={selectedCategory}
                 placeholder=" Select category"

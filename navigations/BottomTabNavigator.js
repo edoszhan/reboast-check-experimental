@@ -185,6 +185,7 @@ function MainComponent() {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [dailyPressed, setDailyPressed] = useState(false);
 
+
   const togglePopup = () => {
     setSelectedDays([]); 
     setIsPopupVisible(!isPopupVisible);
@@ -204,8 +205,6 @@ function MainComponent() {
         console.log('Error getting document:', error);
     }
 };
-
-
   const handleTaskNameChange = (text) => {
     setTaskName(text);
   };
@@ -359,10 +358,17 @@ function MainComponent() {
 
   const handleSave = () => {  
     // Save the session details to the database
+    if (!canSave()) return;
     togglePopup(); // Close the popup
     sendData();
     setSelectedDays([]); 
   };
+
+  const canSave = () => {
+    const isDaySelected = checkboxes.some(checkbox => checkbox.checked);
+    return isDaySelected && taskName.trim() !== '';
+  };
+  
 
 
   return (
@@ -466,7 +472,11 @@ function MainComponent() {
               />
               <TouchableOpacity style={styles.closeButton} onPress={togglePopup}>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+              <TouchableOpacity 
+                style={[styles.saveButton, !canSave() && styles.disabledSaveButton]} 
+                onPress={handleSave} 
+                disabled={!canSave()}
+              >
                 <Text style={styles.saveButtonText}>Save</Text>
               </TouchableOpacity>
             </View>
@@ -569,8 +579,10 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     marginLeft: 4,
-    
   },
+  disabledSaveButton: {
+    backgroundColor: '#ccc',
+  }
 });
 
 export default BottomTabNavigator;

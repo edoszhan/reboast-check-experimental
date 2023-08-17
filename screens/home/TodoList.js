@@ -6,6 +6,7 @@ import { FIREBASE_AUTH } from '../../config/firebase';
 import { getDoc } from 'firebase/firestore';
 import { deleteDoc } from 'firebase/firestore';
 import { Alert } from 'react-native';
+import { orderBy } from 'firebase/firestore';
 
 
 export default function TodoList() {

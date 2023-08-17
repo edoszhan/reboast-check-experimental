@@ -133,13 +133,13 @@ const AddPost = () => {
           <View style={styles.imageContainer}>
             <Image style={styles.imagePreview} source={{ uri: postFile }} />
             <TouchableOpacity style={styles.deleteButton} onPress={removeImage}>
-              <Text style={styles.deleteButtonText}>x</Text>
+              <Text style={styles.deleteButtonText}>X</Text>
             </TouchableOpacity>
           </View>
         )}
         <TouchableOpacity style={styles.imagePickerButton} onPress={ImagePicker}>
           <Icon name="image" size={30} color="#007AFF" />
-          <Text style={styles.imagePickerText}>Share an image</Text>
+          {/* <Text style={styles.imagePickerText}>Share an image</Text> */}
         </TouchableOpacity>
       </View>
       <TouchableOpacity
@@ -204,9 +204,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'relative',
     marginTop: 10,
+    marginBottom: 10,
   },
   imagePreview: {
-    height: 100,
+    height: 200, //change this to change the image height
     width: '100%',
     resizeMode: 'contain',
   },

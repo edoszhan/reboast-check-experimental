@@ -111,7 +111,7 @@ const PostInformation = ({ route }) => {
     );
   };
   const handleComment = (comment) => {
-    const postAuthorName = `u/${comment.replyAuthor} `;
+    const postAuthorName = `${comment.replyAuthor} `;
     if (FIREBASE_AUTH.currentUser.uid !== comment.userId) {
       return (
         <Menu>
@@ -259,7 +259,7 @@ const PostInformation = ({ route }) => {
                   ) : (
                     <Ionicons name="person-outline" size={20} color="gray" style={styles.profileIcon} />
                   )}
-                  <Text style={{ fontSize: 16 }}>  u/{session.postAuthor}</Text>
+                  <Text style={{ fontSize: 16 }}>  {session.postAuthor}</Text>
                 </View>
                 {handlePost(session)} 
               </View>
@@ -274,7 +274,7 @@ const PostInformation = ({ route }) => {
               </View>
               <View style={{alignItems: 'center'}}>
               {session.postFile ? (
-                <Image source={{ uri: session.postFile }} style={{ width: 200, height: 200 }} />
+                <Image source={{ uri: session.postFile }} style={{ width: "100%", height: 200 }} />
               ) : null}
               </View>
 
@@ -312,7 +312,7 @@ const PostInformation = ({ route }) => {
                     ) : (
                       <Ionicons name="person-outline" size={20} color="gray" style={styles.profileIcon} />
                     )}
-                    <Text style={styles.commentAuthor}> u/{comment.replyAuthor}</Text>
+                    <Text style={styles.commentAuthor}> {comment.replyAuthor}</Text>
                   </View>
                   {handleComment(comment)}
                 </View>
@@ -324,7 +324,7 @@ const PostInformation = ({ route }) => {
         </View>
       </ScrollView>
           <View style={styles.replyContainer}>
-          {replyText.length > 0 && isKeyboardActive && (
+          {isKeyboardActive && (
           <>
             {replyEnabled ? (
             <View style={{marginBottom: 8, flexDirection: 'row', alignItems: 'center',justifyContent: 'space-between'}}>
@@ -442,9 +442,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   replyInput: {
-    height: 50,
+    height: 40,
     padding: 5,
-    marginBottom: 10,
+    marginBottom: 4,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,

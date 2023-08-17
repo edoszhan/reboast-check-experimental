@@ -256,7 +256,6 @@ function MainComponent() {
     }
   }, [isPopupVisible]);
 
-  const category_random_Id= uuid.v4();
   const auth = FIREBASE_AUTH;
   const uid = auth.currentUser.uid;
 

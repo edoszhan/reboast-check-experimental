@@ -11,7 +11,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { onSnapshot, query } from 'firebase/firestore';
 
 const TimerScreen = () => {
- 
+  const [isActivePage, setIsActivePage] = useState(false);
   const auth = FIREBASE_AUTH;
   const uid = auth.currentUser.uid;
   const session_random = uuid.v4();
@@ -67,7 +67,6 @@ const TimerScreen = () => {
   const [taskData, setTaskData] = useState([]);
   const [selectedTodo, setSelectedTodo] = useState(null);
 
-
   useEffect(() => {
     const user = auth.currentUser;
     if (selectedCategory) {
@@ -84,7 +83,7 @@ const TimerScreen = () => {
           }); 
         }
         });
-        if (tasksForCategory.length === 0) {
+        if (isActivePage && tasksForCategory.length === 0) {
           Alert.alert("Warning", "No tasks for this category");
         }  
         setTaskData(tasksForCategory);

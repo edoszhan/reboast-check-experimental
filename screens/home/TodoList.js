@@ -4,6 +4,8 @@ import { collection, query, getDocs, doc, where } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { FIREBASE_AUTH } from '../../config/firebase';
 import { getDoc } from 'firebase/firestore';
+import { deleteDoc } from 'firebase/firestore';
+import { Alert } from 'react-native';
 
 
 export default function TodoList() {
@@ -82,16 +84,53 @@ export default function TodoList() {
         </ScrollView>
     );
 
+    const handleDeleteTodo = async (categoryId, category) => {
+        // Confirmation alert
+        Alert.alert(
+            "Delete Todo",
+            "Are you sure you want to delete this todo and its instances?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "Yes", onPress: async () => {
+                        // Delete the todo
+                        await deleteDoc(doc(FIREBASE_DB, 'todo-list', uid, 'All', categoryId));
+                        // Delete its instances
+                        const q = query(collection(FIREBASE_DB, 'todo-list', uid, category), where("parentId", "==", categoryId));
+                        const querySnapshot = await getDocs(q);
+                        for (const docSnap of querySnapshot.docs) {
+                            await deleteDoc(doc(FIREBASE_DB, 'todo-list', uid, category, docSnap.id));
+                        }
+                        // Refresh the todos list
+                        fetchTodos();
+                    }
+                }
+            ]
+        );
+    };
+
     return (
         <View style={styles.container}>
+            <Text>You can freely delete todo items from your list. </Text>
+            <Text>Plese note that it will delete all todo item instances.</Text>
             {renderCategoryFilter()}
             <ScrollView style={styles.todoList}>
-                {todos.map((todo, index) => (
+            {
+                todos.length === 0
+                ? <Text style={styles.noTodosText}>There are no todos created.</Text>
+                : todos.map((todo, index) => (
                     <View key={index} style={{ ...styles.todoContainer, backgroundColor: todo.color }}>
+                        <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteTodo(todo.categoryId, todo.categoryName)}>
+                            <Text style={styles.deleteButtonText}>X</Text>
+                        </TouchableOpacity>
                         <Text style={styles.todoText}>{todo.categoryItems}</Text>
                     </View>
-                ))}
-            </ScrollView>
+                ))
+            }
+        </ScrollView>
         </View>
     );
 }
@@ -135,5 +174,25 @@ const styles = StyleSheet.create({
     },
     todoText: {
         fontSize: 16,
+    },
+    deleteButton: {
+        position: 'absolute',
+        right: 8,
+        top: '40%',
+        padding: 5,
+        backgroundColor: 'red',
+        borderRadius: 4,
+        zIndex: 1,
+    },
+    deleteButtonText: {
+        color: 'white',
+        fontSize: 12
+    },
+    noTodosText: {
+        fontSize: 18,
+        color: '#888',
+        textAlign: 'center',
+        marginTop: 20,
+        fontStyle: 'italic',
     },
 });

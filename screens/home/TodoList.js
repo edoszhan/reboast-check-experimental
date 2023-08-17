@@ -115,8 +115,6 @@ export default function TodoList() {
 
     return (
         <View style={styles.container}>
-            <Text>You can freely delete todo items from your list. </Text>
-            <Text>Plese note that it will delete all todo item instances.</Text>
             {renderCategoryFilter()}
             <ScrollView style={styles.todoList}>
             {
@@ -127,11 +125,17 @@ export default function TodoList() {
                         <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteTodo(todo.categoryId, todo.categoryName)}>
                             <Text style={styles.deleteButtonText}>X</Text>
                         </TouchableOpacity>
-                        <Text style={styles.todoText}>{todo.categoryItems}</Text>
+                        <Text style={styles.todoText}>{todo.categoryItems} ({todo.categoryDays})</Text>
                     </View>
                 ))
             }
-        </ScrollView>
+            </ScrollView>  
+            <View style={styles.informationContainer}>
+                <Text style={styles.informationText}>
+                    You can freely delete todo items from the list.
+                    Please note that it will delete all todo item instances.
+                </Text>
+            </View> 
         </View>
     );
 }
@@ -195,5 +199,26 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginTop: 20,
         fontStyle: 'italic',
+    },
+    informationContainer: {
+        backgroundColor: '#f9f9f9',  
+        padding: 15,                
+        borderRadius: 10,           
+        marginBottom: 20,           
+        shadowColor: "#000",       
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2.2,
+        elevation: 3,
+    },
+    
+    informationText: {
+        fontSize: 16,      
+        fontWeight: '600', 
+        marginBottom: 10,   
+        color: '#333'      
     },
 });

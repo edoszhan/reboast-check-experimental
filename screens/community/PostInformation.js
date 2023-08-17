@@ -2,8 +2,7 @@ import React from 'react';
 import { SafeAreaView, StyleSheet, Text, View, TextInput, Image} from 'react-native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
-import { useEffect } from 'react';
-import { useState } from 'react';
+import { useEffect, useState} from 'react';
 import { collection, query, getDocs, orderBy, onSnapshot, deleteDoc, doc, getDoc, updateDoc, arrayRemove, setDoc, serverTimestamp} from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { ROUTES } from '../../constants';
@@ -11,8 +10,6 @@ import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-m
 import { FIREBASE_AUTH } from '../../config/firebase';
 import { Ionicons, Entypo, AntDesign } from '@expo/vector-icons';
 import uuid from 'react-native-uuid';
-
-
 
 const PostInformation = ({ route }) => {
   const params = route.params ? route.params : 'no post';
@@ -26,6 +23,7 @@ const PostInformation = ({ route }) => {
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
 
   const [replyingTo, setReplyingTo] = useState('');
+
 
   postId = params.postId;
   const fetchUserName = async (userId) => {
@@ -274,10 +272,9 @@ const PostInformation = ({ route }) => {
               </View>
               <View style={{alignItems: 'center'}}>
               {session.postFile ? (
-                <Image source={{ uri: session.postFile }} style={{ width: "100%", height: 200 }} />
-              ) : null}
+              <Image source={{ uri: session.postFile }} style={{ width: "100%", height: 200 }} />
+          ) : null}
               </View>
-
             <View style={styles.interactionBar}>
             <TouchableOpacity style={styles.interactionButton} onPress={() => handleLike(session.id, session)}>
             {session.isLiked.includes(FIREBASE_AUTH.currentUser.uid) ? (
@@ -293,7 +290,6 @@ const PostInformation = ({ route }) => {
               <Text style={styles.interactionText}>{session.commentsIds ? session.commentsIds.length : 0}</Text> 
             </TouchableOpacity>
             </View>
-      
             </View> 
           ))}
          <View style={styles.commentsContainer}> 

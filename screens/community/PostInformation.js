@@ -25,9 +25,9 @@ const PostInformation = ({ route }) => {
   const [replyEnabled, setReplyEnabled] = useState(false);
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
 
+  const [replyingTo, setReplyingTo] = useState('');
+
   postId = params.postId;
-
-
   const fetchUserName = async (userId) => {
     try {
       const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId)); 
@@ -111,7 +111,7 @@ const PostInformation = ({ route }) => {
     );
   };
   const handleComment = (comment) => {
-    const postAuthorName = `@${comment.replyAuthor} `;
+    const postAuthorName = `u/${comment.replyAuthor} `;
     if (FIREBASE_AUTH.currentUser.uid !== comment.userId) {
       return (
         <Menu>
@@ -119,7 +119,7 @@ const PostInformation = ({ route }) => {
             <Entypo name="dots-three-vertical" size={24} color="black" />
           </MenuTrigger>
           <MenuOptions>
-            <MenuOption onSelect={() => [setReplyEnabled(true), setReplyText(postAuthorName)]} onPress={() => setReplyEnabled(false)} >
+            <MenuOption onSelect={() => [setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => setReplyEnabled(false)} >
               <Text style={{ color: 'blue' }}>Reply</Text>
             </MenuOption>
           </MenuOptions>
@@ -133,7 +133,7 @@ const PostInformation = ({ route }) => {
             <Entypo name="dots-three-vertical" size={24} color="black" />
           </MenuTrigger>
           <MenuOptions>
-          <MenuOption onSelect={() => [setReplyEnabled(true), setReplyText(postAuthorName)]} onPress={() => setReplyEnabled(false)}>
+          <MenuOption onSelect={() => [setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => setReplyEnabled(false)}>
               <Text style={{ color: 'blue' }}>Reply</Text>
             </MenuOption>
             <MenuOption onSelect={() => navigation.navigate(ROUTES.EDIT_POST_SCREEN, {postId: comment.postId, postContent: comment.replyContent, parentId: comment.parentId})} text="Edit" />
@@ -324,6 +324,21 @@ const PostInformation = ({ route }) => {
         </View>
       </ScrollView>
           <View style={styles.replyContainer}>
+          {replyText.length > 0 && isKeyboardActive && (
+          <>
+            {replyEnabled ? (
+            <View style={{marginBottom: 8, flexDirection: 'row', alignItems: 'center',justifyContent: 'space-between'}}>
+              <Text> Replying to <Text style={{ fontWeight: 'bold' }}>{replyingTo}</Text></Text>
+              <TouchableOpacity
+                  style={{...styles.cancelButton}}
+                  onPress={() => setReplyEnabled(false)}
+                >
+                  <Text style={{color: 'gray', padding: 5}}>Cancel</Text>
+                </TouchableOpacity>
+                </View>
+                ) : null}
+              </>
+            )}
           <TextInput
             style={styles.replyInput}
             placeholder="Add a comment"
@@ -333,23 +348,27 @@ const PostInformation = ({ route }) => {
             onBlur={() => setIsKeyboardActive(false)}
             multiline
           />  
-          { isKeyboardActive && replyEnabled ? (
-          <TouchableOpacity
-            style={{...styles.replyButton, backgroundColor: 'red'}}
-            onPress={() => [handleReply(params.postId), setReplyEnabled(false)]}
-            disabled={!replyText}
-          >
-            <Text style={styles.replyButtonText}>Reply</Text>
-          </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-            style={{...styles.replyButton, backgroundColor: 'blue'}}
-            onPress={() => handleReply(params.postId)}
-            disabled={!replyText}
-          >
-            <Text style={styles.replyButtonText}>Send</Text>
-          </TouchableOpacity>
-          )}
+        {replyText.length > 0 && isKeyboardActive && (
+          <>
+            {replyEnabled ? (
+              <>
+                <TouchableOpacity
+                  style={{ ...styles.replyButton, backgroundColor: 'red' }}
+                  onPress={() => [handleReply(params.postId), setReplyEnabled(false)]}
+                >
+                  <Text style={styles.replyButtonText}>Reply</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <TouchableOpacity
+                style={{ ...styles.replyButton, backgroundColor: 'blue' }}
+                onPress={() => handleReply(params.postId)}
+              >
+                <Text style={styles.replyButtonText}>Send</Text>
+              </TouchableOpacity>
+            )}
+          </>
+        )}
         </View>
     </View>
   );
@@ -467,24 +486,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-
-
   interactionBar: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
     marginTop: 10, // You can adjust this value
   },
-  
   interactionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: 15, // Space between the like and comment buttons
   },
-  
   interactionText: {
     marginLeft: 5, // Space between the icon and its text
     fontSize: 14,
   },
-
 });

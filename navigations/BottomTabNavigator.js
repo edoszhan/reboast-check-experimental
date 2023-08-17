@@ -430,7 +430,7 @@ function MainComponent() {
                 onChangeText={handleColorSelect}
               >
               </Input>
-              <Text style={styles.popupText} numberOfLines={1}>Category</Text>
+              <Text style={styles.popupText}>Category</Text>
               <Dropdown
                 labelField="label"
                 valueField="value"
@@ -439,7 +439,7 @@ function MainComponent() {
                 }}
                 value={selectedCategory}
                 placeholder=" Select category"
-                style={{ width: 330, borderColor: 'black', borderWidth: 1, borderRadius: 10 }}
+                style={{ width: 300, borderColor: 'black', borderWidth: 1, borderRadius: 10 }}
                 data={data}
               />
               <TouchableOpacity style={styles.closeButton} onPress={togglePopup}>
@@ -464,7 +464,7 @@ const styles = StyleSheet.create({
   },
   popup: {
     backgroundColor: 'white',
-    padding: 20,
+    padding: 15,
     borderRadius: 10,
     position: 'absolute',
     left: 0,

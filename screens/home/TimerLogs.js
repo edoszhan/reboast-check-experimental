@@ -102,7 +102,7 @@ const TimerLogs = () => {
         <Entypo name="dots-three-vertical" size={24} color="black" />
       </MenuTrigger>
       <MenuOptions customStyles={{ optionsContainer: styles.menuOptions }}>
-        <MenuOption onSelect={() => editSession(session.sessionId)} text='Edit' />
+        {/* <MenuOption onSelect={() => editSession(session.sessionId)} text='Edit' /> */}
         <MenuOption onSelect={() => deleteSession(session.sessionId)} text='Delete' />
       </MenuOptions>
     </Menu>

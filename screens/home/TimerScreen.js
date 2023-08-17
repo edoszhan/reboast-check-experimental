@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Modal } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, Alert } from "react-native";
 import { ROUTES } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 
@@ -72,16 +72,21 @@ const TimerScreen = () => {
     const user = auth.currentUser;
     if (selectedCategory) {
       console.log(selectedCategory);
-      const tasksRef = collection(FIREBASE_DB, 'todo-list', user.uid, selectedCategory);
+      const tasksRef = collection(FIREBASE_DB, 'todo-list', user.uid, 'All');
       const q = query(tasksRef);
       const unsubscribe = onSnapshot(q, (snapshot) => {
         const tasksForCategory = [];
         snapshot.forEach((doc) => {
+          if (doc.data().categoryName === selectedCategory) {
           tasksForCategory.push({
             label: doc.data().categoryItems,  
             value: doc.id  
           }); 
+        }
         });
+        if (tasksForCategory.length === 0) {
+          Alert.alert("Warning", "No tasks for this category");
+        }  
         setTaskData(tasksForCategory);
       });
   

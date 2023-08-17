@@ -7,21 +7,10 @@ import BottomTabNavigator from "./BottomTabNavigator";
 import COLORS from "../constants/colors";
 import { User } from "../config/firebase"
 import { FIREBASE_AUTH } from "../config/firebase";
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect} from "react";
 import { onAuthStateChanged } from "firebase/auth";
 
 const Stack = createStackNavigator();
-
-// const InsideStack = createNativeStackNavigator();
-
-// function InsideLayout () {
-//   return (
-//     <InsideStack.Navigator>
-//       <InsideStack.Screen name={ROUTES.TIMER} component={Timer} />
-//     </InsideStack.Navigator>
-//   );
-// }
 
 function AuthNavigator() {
     const [user, setUser] = useState(User);
@@ -44,7 +33,6 @@ function AuthNavigator() {
     }
     } >
       {user ? (
-        // <Stack.Screen name={ROUTES.LOGIN}  component={Login} options={{headerShown: true }}/>
         <Stack.Screen name={ROUTES.HOME} component={BottomTabNavigator} options={{headerShown: false }}  />
       ) : (
         <>
@@ -54,6 +42,9 @@ function AuthNavigator() {
                   }) }
         />
         <Stack.Screen name={ROUTES.REGISTER} component={Register}
+        options={ ({route}) => ({
+          title: " ",
+      }) }
         />
         </>
       )} 

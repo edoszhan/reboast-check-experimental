@@ -455,7 +455,7 @@ function MainComponent() {
               <Text style={styles.popupText}>Task</Text>
               <Input
                 style={{ borderColor: 'black', borderWidth: 1, borderRadius: 5, marginLeft: -10 }}
-                placeholder=" Enter task name"
+                placeholder=" Enter task name"  
                 onChangeText={handleTaskNameChange}
               >
               </Input>
@@ -506,7 +506,7 @@ const styles = StyleSheet.create({
     right: 0,
   },
   popupText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     marginRight: 240,
     marginBottom: 10,

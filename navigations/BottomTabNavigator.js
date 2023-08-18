@@ -27,6 +27,7 @@ import CommunityScreen from '../screens/home/CommunityScreen';
 import { ActivityIndicator } from 'react-native-paper';
 import HomeScreen from '../screens/home/HomeScreen';
 import { useNavigation } from '@react-navigation/native';
+import { set } from 'react-native-reanimated';
 
 const CalendarStackScreen = () => {
   const navigation = useNavigation();
@@ -188,6 +189,7 @@ function MainComponent() {
 
   const togglePopup = () => {
     setSelectedDays([]); 
+    setSelectedCategory('');
     setIsPopupVisible(!isPopupVisible);
   };
 
@@ -462,11 +464,12 @@ function MainComponent() {
                 labelField="label"
                 valueField="value"
                 onChange={(item) => {
+                  console.log(item.label)
                   setSelectedCategory(item.label);
                   handleColorSelect(item.label);
                 }}
                 value={selectedCategory}
-                placeholder=" Select category"
+                placeholder={selectedCategory ? selectedCategory: "Select a category"}
                 style={{ width: 300, borderColor: 'black', borderWidth: 1, borderRadius: 10 }}
                 data={data}
               />

@@ -7,12 +7,13 @@ import { getDoc } from 'firebase/firestore';
 import { deleteDoc } from 'firebase/firestore';
 import { Alert } from 'react-native';
 import { orderBy } from 'firebase/firestore';
-
+import { ActivityIndicator } from 'react-native-paper';
 
 export default function TodoList() {
     const [todos, setTodos] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('All');
     const uid = FIREBASE_AUTH.currentUser.uid;
+    const [isLoading, setIsLoading] = useState(true);
 
     const categories = [
         'All',
@@ -20,7 +21,6 @@ export default function TodoList() {
         'Sport',
         'Learning'
     ];
-
     const getCategoryDisplayName = (category) => {
         switch (category) {
             case 'Morning Routine':
@@ -58,8 +58,8 @@ export default function TodoList() {
                 console.log('Error fetching category document:', error);
             }
         }
-
         setTodos(todosData);
+        setIsLoading(false);
     };
 
     useEffect(() => {
@@ -85,6 +85,7 @@ export default function TodoList() {
         </ScrollView>
     );
 
+    
     const handleDeleteTodo = async (categoryId, category) => {
         // Confirmation alert
         Alert.alert(
@@ -112,6 +113,15 @@ export default function TodoList() {
             ]
         );
     };
+
+    if (isLoading) {
+        return (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
+            <ActivityIndicator size="small" color="blue" />
+            <Text style={{ marginTop: 10 }}>Loading list...</Text>
+          </View>
+        );
+    }
 
     return (
         <View style={styles.container}>

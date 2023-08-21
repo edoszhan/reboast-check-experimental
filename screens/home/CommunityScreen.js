@@ -218,9 +218,6 @@ const CommunityScreen = () => {
         containerStyle={{backgroundColor: 'green', borderColor: 'white', borderWidth: 1, borderRadius: 5 }}
         inputContainerStyle={{backgroundColor: 'white', borderColor: 'white', borderWidth: 1, borderRadius: 5 }}
       />
-      {/* <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate(ROUTES.ADD_POST_SCREEN)}>
-        <Text style={styles.deleteButtonText}>Add post</Text>
-      </TouchableOpacity> */}
       <View style={styles.container}>
         {sessions.filter(session => {
             const searchTerm = search.toLowerCase();
@@ -231,16 +228,6 @@ const CommunityScreen = () => {
           })
         .map((session, index) => (
           <View key={index} style={styles.sessionContainer}>
-            {/* <View style={styles.likeContainer}>
-            <TouchableOpacity onPress={() => handleLike(session.id, session)}>
-            {session.isLiked.includes(FIREBASE_AUTH.currentUser.uid) ? (
-              <AntDesign name="like1" size={24} color="black" />
-            ) : (
-              <AntDesign name="like2" size={24} color="black" />
-            )}
-          </TouchableOpacity>
-              <Text style={styles.likeText}>{session.likesCount}</Text>
-            </View> */}
             <View style={styles.postContent}>
             <View style={styles.sessionHeader}>
               <View style={styles.sessionHeaderLeft}>

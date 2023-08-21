@@ -10,6 +10,8 @@ import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-m
 import { FIREBASE_AUTH } from '../../config/firebase';
 import { Ionicons, Entypo, AntDesign } from '@expo/vector-icons';
 import uuid from 'react-native-uuid';
+import Comment from '../test/Comment';
+import Reply from '../test/Reply';
 
 const PostInformation = ({ route }) => {
   const params = route.params ? route.params : 'no post';
@@ -292,7 +294,7 @@ const PostInformation = ({ route }) => {
             </View>
             </View> 
           ))}
-         <View style={styles.commentsContainer}> 
+         {/* <View style={styles.commentsContainer}> 
             {comments.map((comment) => (
               <View key={comment.id} style={styles.commentContainer}>
                 <View style={styles.commentHeader}>
@@ -316,8 +318,10 @@ const PostInformation = ({ route }) => {
                 <Text style={styles.commentContent}>{comment.replyContent}</Text>
               </View>
             ))}
-          </View>
+          </View> */}
+         <Comment></Comment>
         </View>
+        {/* <Comment></Comment> */}
       </ScrollView>
           <View style={styles.replyContainer}>
           {isKeyboardActive && (

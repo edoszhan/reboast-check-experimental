@@ -261,7 +261,6 @@ const TimerScreen = () => {
                 colorField = "color"
                 onChange={(item) => {
                   console.log(item);
-                  console.log("I am here, this is valueField ", item.value);
                   setSelectedTask(item.label);
                   setSelectedTaskParams(item.label);
                   setSelectedCategory(item.label);

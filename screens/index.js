@@ -23,6 +23,11 @@ export {default as MemoScreen} from './home/MemoScreen';
 //Todo List
 export {default as TodoList} from './home/TodoList';
 
+//testing
+
+export {default as Comment} from './test/Comment';
+export {default as Reply} from './test/Reply';
+
 
 
 

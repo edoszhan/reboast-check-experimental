@@ -6,86 +6,42 @@ import { StyleSheet } from 'react-native';
 import { useState, useEffect } from 'react';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
-import { getDoc, doc } from 'firebase/firestore';
 
 
 
-export default function Reply() {
-    const [comments, setComments] = useState([]);
-
-
-    const fetchUserName = async (userId) => {
-        try {
-          const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId)); 
-          return userDoc.data()?.displayName; 
-        } catch (error) {
-          console.log('Error fetching user name: ', error);
-        }
-      };
-    
-      const fetchUserPhoto = async (userId) => {
-        try {
-          const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId));
-          return userDoc.data()?.photoURL;
-        } catch (error) {
-          console.log('Error fetching user photo: ', error);
-        }
-      };
-
-    const fetchComments = async () => { 
-        const q = query(collection(FIREBASE_DB, 'community-comment', postId, 'comments'), orderBy('createdAt', 'desc')); //PREVIOUSLY ASC
-        const unsubscribe = onSnapshot(q, async (snapshot) => {
-          const commentsData = [];
-          for (const doc of snapshot.docs) {
-            const data = doc.data();
-            data.replyAuthor = await fetchUserName(data.userId);
-            data.photoURL = await fetchUserPhoto(data.userId);
-            commentsData.push({ id: doc.id, ...data });
-          }
-          setComments(commentsData);
-        });
-    
-        return unsubscribe; // Return the unsubscribe function for cleanup
-      };
+export default function Reply({postId, parentId}) {
+    const [replies, setReplies] = useState([]);
 
     useEffect(() => {
-    const fetchComments = async () => {
-        const q = query(collection(FIREBASE_DB, 'community-comment', postId, 'comments'), orderBy('createdAt', 'desc'));
-        const unsubscribe = onSnapshot(q, snapshot => {
-        const commentData = [];
-        snapshot.docs.forEach(doc => {
-            commentData.push({ id: doc.id, ...doc.data() });
-        });
-        setComments(commentData);
-        });
-        return unsubscribe;
-    };
+      const fetchReplies = async () => {
+          const q = query(collection(FIREBASE_DB, 'community-comment', postId, 'comments', parentId, 'replies'));
+          console.log(q);
+          const unsubscribe = onSnapshot(q, snapshot => {
+          const replyData = [];
+          snapshot.docs.forEach(doc => {  
+            replyData.push({ id: doc.id, ...doc.data() });
+          });
+          console.log(replyData);
+          setReplies(replyData);
+          });
+          return unsubscribe;
+      };
     
-    fetchComments();
-    }, [postId]);
+      fetchReplies();
+    }, [postId, parentId]);
 
     return (
         <View style={styles.commentsContainer}>
-        {comments.map((comment) => (
-            <View key={comment.id} style={styles.commentContainer}>
+        {replies && replies.map((reply) => (
+            <View key={reply.id} style={styles.commentContainer}>
               <View style={styles.commentHeader}>
                 <View style={styles.commentHeaderLeft}>
-                  {comment.photoURL ? (
-                    <Image
-                      source={{ uri: comment.photoURL }}
-                      width={24}
-                      height={24}
-                      borderRadius={12}
-                      style={styles.mr7}
-                    />
-                  ) : (
                     <Ionicons name="person-outline" size={20} color="gray" style={styles.profileIcon} />
-                  )}
-                  <Text style={styles.commentAuthor}> {comment.replyAuthor}</Text>
+                  <Text style={styles.commentAuthor}> {reply.replyAuthor}</Text>
                 </View>
               </View>
-              <Text style={{ color: 'grey', fontSize: 10 }}>{comment.timeShown}</Text>
-              <Text style={styles.commentContent}>{comment.replyContent}</Text>
+              <Text style={{ color: 'grey', fontSize: 10 }}>{reply.timeShown}</Text>
+              <Text style={styles.commentContent}>{reply.replyContent}</Text>
             </View>    
           ))}
            </View>

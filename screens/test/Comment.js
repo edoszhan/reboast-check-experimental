@@ -8,11 +8,21 @@ import { useState, useEffect } from 'react';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { getDoc, doc } from 'firebase/firestore';
-
+import { deleteDoc, updateDoc, arrayRemove } from 'firebase/firestore';
+import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
+import { FIREBASE_AUTH } from '../../config/firebase';
+import { Entypo } from '@expo/vector-icons';
+import { ROUTES } from '../../constants/routes';
+import { useNavigation } from '@react-navigation/native';
 
 
 export default function Comment() {
+    const navigation = useNavigation();
     const [comments, setComments] = useState([]);
+    const [replyEnabled, setReplyEnabled] = useState(false);
+    const [replyingTo, setReplyingTo] = useState('');
+
+    
 
 
     const fetchUserName = async (userId) => {
@@ -33,21 +43,6 @@ export default function Comment() {
         }
       };
 
-    const fetchComments = async () => { 
-        const q = query(collection(FIREBASE_DB, 'community-comment', postId, 'comments'), orderBy('createdAt', 'desc')); //PREVIOUSLY ASC
-        const unsubscribe = onSnapshot(q, async (snapshot) => {
-          const commentsData = [];
-          for (const doc of snapshot.docs) {
-            const data = doc.data();
-            data.replyAuthor = await fetchUserName(data.userId);
-            data.photoURL = await fetchUserPhoto(data.userId);
-            commentsData.push({ id: doc.id, ...data });
-          }
-          setComments(commentsData);
-        });
-    
-        return unsubscribe; // Return the unsubscribe function for cleanup
-      };
 
     useEffect(() => {
     const fetchComments = async () => {
@@ -64,6 +59,65 @@ export default function Comment() {
     
     fetchComments();
     }, [postId]);
+
+    const handleComment = (comment) => {
+      const postAuthorName = `${comment.replyAuthor} `;
+      if (FIREBASE_AUTH.currentUser.uid !== comment.userId) {
+        return (
+          <Menu>
+            <MenuTrigger>
+              <Entypo name="dots-three-vertical" size={24} color="black" />
+            </MenuTrigger>
+            <MenuOptions>
+              <MenuOption onSelect={() => [setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => setReplyEnabled(false)} >
+                <Text style={{ color: 'blue' }}>Reply</Text>
+              </MenuOption>
+            </MenuOptions>
+          </Menu>
+        );
+      }
+      if (FIREBASE_AUTH.currentUser.uid == comment.userId) {
+        return (
+          <Menu>
+            <MenuTrigger>
+              <Entypo name="dots-three-vertical" size={24} color="black" />
+            </MenuTrigger>
+            <MenuOptions>
+            <MenuOption onSelect={() => [setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => setReplyEnabled(false)}>
+                <Text style={{ color: 'blue' }}>Reply</Text>
+              </MenuOption>
+              <MenuOption onSelect={() => navigation.navigate(ROUTES.EDIT_POST_SCREEN, {postId: comment.postId, postContent: comment.replyContent, parentId: comment.parentId})} text="Edit" />
+              <MenuOption onSelect={() => deleteSession(comment.id, comment.userId)}>
+                <Text style={{ color: 'red' }}>Delete</Text>
+              </MenuOption>
+            </MenuOptions>
+          </Menu>
+        );
+      }
+    };
+  
+    const deleteSession = async (postId, userId) => {
+      try {
+        if (FIREBASE_AUTH.currentUser.uid !== userId) {
+          return;
+        }
+        // Delete the document from 'community-chat'
+        await deleteDoc(doc(FIREBASE_DB, 'community-chat', postId));
+            
+        // Remove the postId from the commentsIds array in 'community-chat'
+        const communityChatRef = doc(FIREBASE_DB, 'community-chat', params.postId);
+        await updateDoc(communityChatRef, {
+          commentsIds: arrayRemove(postId)
+        });
+  
+        // Delete the document from 'community-comment'
+        await deleteDoc(doc(FIREBASE_DB, 'community-comment', parentId, 'comments', postId));
+  
+        await fetchSessions();
+      } catch (error) {
+        console.log('Error deleting document: ', error);
+      }
+    };
 
     return (
         <View style={styles.commentsContainer}>
@@ -85,11 +139,12 @@ export default function Comment() {
                   )}
                   <Text style={styles.commentAuthor}> {comment.replyAuthor}</Text>
                 </View>
+                {handleComment(comment)}
               </View>
               <Text style={{ color: 'grey', fontSize: 10 }}>{comment.timeShown}</Text>
               <Text style={styles.commentContent}>{comment.replyContent}</Text>
             </View>  
-            <Reply postId={postId} />
+            <Reply postId={comment.parentId} parentId={comment.postId}/>
             </View>   
           ))}
            </View>

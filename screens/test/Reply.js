@@ -7,10 +7,16 @@ import { useState, useEffect } from 'react';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
 import { getDoc, doc } from 'firebase/firestore';
-
+import { FIREBASE_AUTH } from '../../config/firebase';
+import { Entypo } from '@expo/vector-icons';
+import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
+import { updateDoc, deleteDoc, arrayRemove } from 'firebase/firestore';
 
 export default function Reply({postId, parentId}) {
     const [replies, setReplies] = useState([]);
+    const [replyEnabled, setReplyEnabled] = useState(false);
+    const [replyToComment, setReplyToComment] = useState('');
+
     
 
     const fetchUserName = async (userId) => {
@@ -47,6 +53,62 @@ export default function Reply({postId, parentId}) {
       fetchReplies();
     }, [postId, parentId]);
 
+    const handleComment = (comment) => {
+      const postAuthorName = `${comment.replyAuthor} `;
+      if (FIREBASE_AUTH.currentUser.uid !== comment.userId) {
+        return (
+          <Menu>
+            <MenuTrigger>
+              <Entypo name="dots-three-vertical" size={24} color="black" />
+            </MenuTrigger>
+            <MenuOptions>
+            </MenuOptions>
+          </Menu>
+        );
+      }
+      if (FIREBASE_AUTH.currentUser.uid == comment.userId) {
+        return (
+          <Menu>
+            <MenuTrigger>
+              <Entypo name="dots-three-vertical" size={24} color="black" />
+            </MenuTrigger>
+            <MenuOptions>
+            <MenuOption onSelect={() => [setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => setReplyEnabled(false)}>
+                <Text style={{ color: 'blue' }}>Reply</Text>
+              </MenuOption>
+              <MenuOption onSelect={() => navigation.navigate(ROUTES.EDIT_POST_SCREEN, {postId: comment.postId, postContent: comment.replyContent, parentId: comment.parentId})} text="Edit" />
+              <MenuOption onSelect={() => deleteSession(comment.id, comment.userId)}>
+                <Text style={{ color: 'red' }}>Delete</Text>
+              </MenuOption>
+            </MenuOptions>
+          </Menu>
+        );
+      }
+    };
+  
+    const deleteSession = async (postId, userId) => {
+      try {
+        if (FIREBASE_AUTH.currentUser.uid !== userId) {
+          return;
+        }
+        // Delete the document from 'community-chat'
+        await deleteDoc(doc(FIREBASE_DB, 'community-chat', postId));
+            
+        // Remove the postId from the commentsIds array in 'community-chat'
+        const communityChatRef = doc(FIREBASE_DB, 'community-chat', params.postId);
+        await updateDoc(communityChatRef, {
+          commentsIds: arrayRemove(postId)
+        });
+  
+        // Delete the document from 'community-comment'
+        await deleteDoc(doc(FIREBASE_DB, 'community-comment', parentId, 'comments', postId));
+  
+        await fetchSessions();
+      } catch (error) {
+        console.log('Error deleting document: ', error);
+      }
+    };
+
     return (
         <View style={styles.commentsContainer}>
         {replies && replies.map((reply) => (
@@ -66,6 +128,7 @@ export default function Reply({postId, parentId}) {
                   )}
                   <Text style={styles.commentAuthor}> {reply.replyAuthor}</Text>
                 </View>
+                {handleComment(reply)}
               </View>
               <Text style={{ color: 'grey', fontSize: 10 }}>{reply.timeShown}</Text>
               <Text style={styles.commentContent}>{reply.replyContent}</Text>

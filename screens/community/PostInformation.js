@@ -25,6 +25,8 @@ const PostInformation = ({ route }) => {
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
 
   const [replyingTo, setReplyingTo] = useState('');
+  const [commentId, setCommentId] = useState('');
+
 
 
   postId = params.postId;
@@ -119,7 +121,7 @@ const PostInformation = ({ route }) => {
             <Entypo name="dots-three-vertical" size={24} color="black" />
           </MenuTrigger>
           <MenuOptions>
-            <MenuOption onSelect={() => [setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => setReplyEnabled(false)} >
+            <MenuOption onSelect={() => [setCommentId(comment.postId), setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => [setReplyEnabled(false)]} >
               <Text style={{ color: 'blue' }}>Reply</Text>
             </MenuOption>
           </MenuOptions>
@@ -133,7 +135,7 @@ const PostInformation = ({ route }) => {
             <Entypo name="dots-three-vertical" size={24} color="black" />
           </MenuTrigger>
           <MenuOptions>
-          <MenuOption onSelect={() => [setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => setReplyEnabled(false)}>
+          <MenuOption onSelect={() => [setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => [setReplyEnabled(true),setReplyingTo(postAuthorName), setReplyEnabled(false)]}>
               <Text style={{ color: 'blue' }}>Reply</Text>
             </MenuOption>
             <MenuOption onSelect={() => navigation.navigate(ROUTES.EDIT_POST_SCREEN, {postId: comment.postId, postContent: comment.replyContent, parentId: comment.parentId})} text="Edit" />
@@ -217,6 +219,49 @@ const PostInformation = ({ route }) => {
       }
   };
 
+  const handleReplyToSave = async (commentId) => {
+    randomId = FIREBASE_AUTH.currentUser.displayName + "-" + uuid.v4();
+    console.log(commentId);
+    try {
+      await setDoc(doc(FIREBASE_DB, 'community-comment', parentId, 'comments', commentId, 'replies', randomId), {
+        parentId: params.postId,
+        postId: parentId,
+        replyId: randomId,
+        replyAuthor: FIREBASE_AUTH.currentUser.displayName,
+        replyContent: replyText,
+        createdAt: serverTimestamp(),
+        timeShown: commentCreatedDateTime,
+        userId: FIREBASE_AUTH.currentUser.uid,
+        photoURL: FIREBASE_AUTH.currentUser.photoURL,
+      });
+      console.log('Document successfully written!');
+      setReplyText('');
+      await fetchSessions();
+    } catch (error) {
+      console.log('Error writing document: ', error);
+    }
+
+    try {
+      const docRef = doc(FIREBASE_DB, 'community-chat', parentId);
+      const docSnapshot = await getDoc(docRef);
+  
+      if (docSnapshot.exists()) {
+          const data = docSnapshot.data();
+          let commentsIds = data.commentsIds || []; // Ensure it's an array, even if the field doesn't exist yet
+          
+          // Check if postId is not already in the array, then push it
+          if (!commentsIds.includes(randomId)) {
+              commentsIds.push(randomId);
+          }
+  
+          // Update the document with the new array
+          await updateDoc(docRef, { commentsIds: commentsIds });
+      }
+      } catch (error) {
+          console.log('Error updating commentIds: ', error);
+      }
+  }
+
   const handleLike = async (postId, session) => {
     const uid = FIREBASE_AUTH.currentUser.uid;
     const sessionToUpdate = sessions.find((session) => session.id === postId);
@@ -294,8 +339,13 @@ const PostInformation = ({ route }) => {
             </View>
             </View> 
           ))}
-         {/* <View style={styles.commentsContainer}> 
+         <View style={styles.commentsContainer}> 
             {comments.map((comment) => (
+               <View style={{
+                borderWidth: 1,
+                borderColor: '#ccc',
+                padding: 10,
+                borderRadius: 5, marginBottom: 10}}>
               <View key={comment.id} style={styles.commentContainer}>
                 <View style={styles.commentHeader}>
                   <View style={styles.commentHeaderLeft}>
@@ -317,11 +367,11 @@ const PostInformation = ({ route }) => {
                 <Text style={{ color: 'grey', fontSize: 10 }}>{comment.timeShown}</Text>
                 <Text style={styles.commentContent}>{comment.replyContent}</Text>
               </View>
+               <Reply postId={comment.parentId} parentId={comment.postId}/>
+              </View>
             ))}
-          </View> */}
-         <Comment></Comment>
+          </View>
         </View>
-        {/* <Comment></Comment> */}
       </ScrollView>
           <View style={styles.replyContainer}>
           {isKeyboardActive && (
@@ -354,7 +404,7 @@ const PostInformation = ({ route }) => {
               <>
                 <TouchableOpacity
                   style={{ ...styles.replyButton, backgroundColor: 'red' }}
-                  onPress={() => [handleReply(params.postId), setReplyEnabled(false)]}
+                  onPress={() => [handleReplyToSave(commentId), setReplyEnabled(false)]}
                 >
                   <Text style={styles.replyButtonText}>Reply</Text>
                 </TouchableOpacity>

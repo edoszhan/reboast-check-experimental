@@ -6,22 +6,39 @@ import { StyleSheet } from 'react-native';
 import { useState, useEffect } from 'react';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebase';
-
+import { getDoc, doc } from 'firebase/firestore';
 
 
 export default function Reply({postId, parentId}) {
     const [replies, setReplies] = useState([]);
+    
+
+    const fetchUserName = async (userId) => {
+      try {
+        const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId)); 
+        return userDoc.data()?.displayName; 
+      } catch (error) {
+        console.log('Error fetching user name: ', error);
+      }
+    };
+  
+    const fetchUserPhoto = async (userId) => {
+      try {
+        const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId));
+        return userDoc.data()?.photoURL;
+      } catch (error) {
+        console.log('Error fetching user photo: ', error);
+      }
+    };
 
     useEffect(() => {
       const fetchReplies = async () => {
-          const q = query(collection(FIREBASE_DB, 'community-comment', postId, 'comments', parentId, 'replies'));
-          console.log(q);
+          const q = query(collection(FIREBASE_DB, 'community-comment', postId, 'comments', parentId, 'replies'), orderBy('createdAt', 'asc'));
           const unsubscribe = onSnapshot(q, snapshot => {
           const replyData = [];
           snapshot.docs.forEach(doc => {  
             replyData.push({ id: doc.id, ...doc.data() });
           });
-          console.log(replyData);
           setReplies(replyData);
           });
           return unsubscribe;
@@ -36,7 +53,17 @@ export default function Reply({postId, parentId}) {
             <View key={reply.id} style={styles.commentContainer}>
               <View style={styles.commentHeader}>
                 <View style={styles.commentHeaderLeft}>
+                {reply.photoURL ? (
+                    <Image
+                      source={{ uri: reply.photoURL }}
+                      width={24}
+                      height={24}
+                      borderRadius={12}
+                      style={styles.mr7}
+                    />
+                  ) : (
                     <Ionicons name="person-outline" size={20} color="gray" style={styles.profileIcon} />
+                  )}
                   <Text style={styles.commentAuthor}> {reply.replyAuthor}</Text>
                 </View>
               </View>
@@ -131,9 +158,6 @@ const styles = StyleSheet.create({
     replyButtonText: {
       color: 'white',
       fontWeight: 'bold',
-    },
-    commentsContainer: {
-      marginTop: 10,
     },
     commentContainer: {
       marginBottom: 10,

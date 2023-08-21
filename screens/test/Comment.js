@@ -122,7 +122,11 @@ export default function Comment() {
     return (
         <View style={styles.commentsContainer}>
         {comments.map((comment) => (
-            <View style={{borderWidth: 10, borderColor: 'white', padding: 0}}>
+            <View style={{
+              borderWidth: 1,
+              borderColor: '#ccc',
+              padding: 10,
+              borderRadius: 5, marginBottom: 10}}>
             <View key={comment.id} style={styles.commentContainer}>
               <View style={styles.commentHeader}>
                 <View style={styles.commentHeaderLeft}>

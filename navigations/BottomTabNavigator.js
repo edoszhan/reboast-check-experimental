@@ -27,8 +27,6 @@ import CommunityScreen from '../screens/home/CommunityScreen';
 import { ActivityIndicator } from 'react-native-paper';
 import HomeScreen from '../screens/home/HomeScreen';
 import { useNavigation } from '@react-navigation/native';
-import { set } from 'react-native-reanimated';
-
 const CalendarStackScreen = () => {
   const navigation = useNavigation();
   return (
@@ -374,8 +372,8 @@ function MainComponent() {
 
 
   return (
-    <View style={{ flex: 1 }}>
-      <Tab.Navigator
+    <View style={{ flex: 1}}>
+      <Tab.Navigator 
         screenOptions={({ route }) => ({
           headerShown: false,
           tabBarActiveTintColor: 'green',
@@ -410,7 +408,7 @@ function MainComponent() {
           },
         })}
       >
-        <Tab.Screen component={HomeStackScreen} name={ROUTES.HOME_TAB} />
+        <Tab.Screen component={HomeStackScreen} name={ROUTES.HOME_TAB}/>
         <Tab.Screen name={ROUTES.TIMER} component={TimerStackScreen} />
         <Tab.Screen
           name={ROUTES.BOTTOM_DRAWER}
@@ -487,6 +485,7 @@ function MainComponent() {
         </Modal>
       )}
     </View>
+
   );
 }
 

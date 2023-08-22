@@ -18,6 +18,12 @@ const Register = ({ navigation }) => {
 
 
   const [name, setName] = useState('');
+
+  const isPasswordValid = (password) => {
+    const regex = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{8,}$/;
+    return regex.test(password);
+  }
+
   const create = async (uid, name) => {
     console.log("uid", uid);
     try {
@@ -36,6 +42,11 @@ const Register = ({ navigation }) => {
   const signUp = async () => {
     if (password !== repeatPassword) {
       Alert.alert('Passwords do not match');
+      return;
+    }
+
+    if (!isPasswordValid(password)) {
+      Alert.alert('Password should be at least 8 characters long, include at least 1 number, 1 character, and 1 letter.');
       return;
     }
 

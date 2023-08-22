@@ -10,6 +10,8 @@ import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-m
 import { FIREBASE_AUTH } from '../../config/firebase';
 import { Ionicons, Entypo, AntDesign } from '@expo/vector-icons';
 import uuid from 'react-native-uuid';
+import Comment from '../test/Comment';
+import Reply from '../test/Reply';
 
 const PostInformation = ({ route }) => {
   const params = route.params ? route.params : 'no post';
@@ -23,6 +25,8 @@ const PostInformation = ({ route }) => {
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
 
   const [replyingTo, setReplyingTo] = useState('');
+  const [commentId, setCommentId] = useState('');
+
 
 
   postId = params.postId;
@@ -38,7 +42,7 @@ const PostInformation = ({ route }) => {
   const fetchUserPhoto = async (userId) => {
     try {
       const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId));
-      return userDoc.data()?.photoURL;
+      return userDoc.data()?.photoURL || null;
     } catch (error) {
       console.log('Error fetching user photo: ', error);
     }
@@ -117,7 +121,7 @@ const PostInformation = ({ route }) => {
             <Entypo name="dots-three-vertical" size={24} color="black" />
           </MenuTrigger>
           <MenuOptions>
-            <MenuOption onSelect={() => [setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => setReplyEnabled(false)} >
+            <MenuOption onSelect={() => [setCommentId(comment.postId), setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => [setReplyEnabled(false)]} >
               <Text style={{ color: 'blue' }}>Reply</Text>
             </MenuOption>
           </MenuOptions>
@@ -131,9 +135,9 @@ const PostInformation = ({ route }) => {
             <Entypo name="dots-three-vertical" size={24} color="black" />
           </MenuTrigger>
           <MenuOptions>
-          <MenuOption onSelect={() => [setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => setReplyEnabled(false)}>
+          {/* <MenuOption onSelect={() => [setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => [setReplyEnabled(true),setReplyingTo(postAuthorName), setReplyEnabled(false)]}>
               <Text style={{ color: 'blue' }}>Reply</Text>
-            </MenuOption>
+            </MenuOption> */}
             <MenuOption onSelect={() => navigation.navigate(ROUTES.EDIT_POST_SCREEN, {postId: comment.postId, postContent: comment.replyContent, parentId: comment.parentId})} text="Edit" />
             <MenuOption onSelect={() => deleteSession(comment.id, comment.userId)}>
               <Text style={{ color: 'red' }}>Delete</Text>
@@ -162,6 +166,7 @@ const PostInformation = ({ route }) => {
       await deleteDoc(doc(FIREBASE_DB, 'community-comment', parentId, 'comments', postId));
 
       await fetchSessions();
+      await fetchComments();
     } catch (error) {
       console.log('Error deleting document: ', error);
     }
@@ -172,7 +177,7 @@ const PostInformation = ({ route }) => {
   const currentTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
   const commentCreatedDateTime = currentDay + ' ' + currentTime;
-
+ // this is used to post a comment (not reply to a comment)
   const handleReply = async (postId) => {
     randomId = FIREBASE_AUTH.currentUser.displayName + "-" + uuid.v4();
     try {
@@ -189,7 +194,6 @@ const PostInformation = ({ route }) => {
       });
       console.log('Document successfully written!');
       setReplyText('');
-      await fetchSessions();
     } catch (error) {
       console.log('Error writing document: ', error);
     }
@@ -209,11 +213,58 @@ const PostInformation = ({ route }) => {
   
           // Update the document with the new array
           await updateDoc(docRef, { commentsIds: commentsIds });
+          await fetchSessions();
       }
       } catch (error) {
           console.log('Error updating commentIds: ', error);
       }
   };
+// this is used to post a reply to a comment (not to post a comment)
+  const handleReplyToSave = async (commentId) => {
+    console.log("response is ", commentId);
+    randomId = FIREBASE_AUTH.currentUser.displayName + "-" + uuid.v4();
+    console.log(commentId);
+    try {
+      await setDoc(doc(FIREBASE_DB, 'community-comment', parentId, 'comments', commentId, 'replies', randomId), {
+        parentId: params.postId,
+        postId: parentId,
+        replyId: randomId,
+        replyAuthor: FIREBASE_AUTH.currentUser.displayName,
+        replyContent: replyText,
+        createdAt: serverTimestamp(),
+        timeShown: commentCreatedDateTime,
+        userId: FIREBASE_AUTH.currentUser.uid,
+        photoURL: FIREBASE_AUTH.currentUser.photoURL,
+      });
+      console.log('Document successfully written!');
+      setReplyText('');
+      await fetchSessions();
+
+    } catch (error) {
+      console.log('Error writing document: ', error);
+    }
+
+    try {
+      const docRef = doc(FIREBASE_DB, 'community-chat', parentId);
+      const docSnapshot = await getDoc(docRef);
+  
+      if (docSnapshot.exists()) {
+          const data = docSnapshot.data();
+          let commentsIds = data.commentsIds || []; // Ensure it's an array, even if the field doesn't exist yet
+          
+          // Check if postId is not already in the array, then push it
+          if (!commentsIds.includes(randomId)) {
+              commentsIds.push(randomId);
+          }
+  
+          // Update the document with the new array
+          await updateDoc(docRef, { commentsIds: commentsIds });
+          await fetchSessions();
+      }
+      } catch (error) {
+          console.log('Error updating commentIds: ', error);
+      }
+  }
 
   const handleLike = async (postId, session) => {
     const uid = FIREBASE_AUTH.currentUser.uid;
@@ -294,7 +345,12 @@ const PostInformation = ({ route }) => {
           ))}
          <View style={styles.commentsContainer}> 
             {comments.map((comment) => (
-              <View key={comment.id} style={styles.commentContainer}>
+               <View key={comment.id}  style={{
+                borderWidth: 1,
+                borderColor: '#ccc',
+                padding: 10,
+                borderRadius: 5, marginBottom: 10}}>
+              <View style={styles.commentContainer}>
                 <View style={styles.commentHeader}>
                   <View style={styles.commentHeaderLeft}>
                     {comment.photoURL ? (
@@ -314,6 +370,8 @@ const PostInformation = ({ route }) => {
                 </View>
                 <Text style={{ color: 'grey', fontSize: 10 }}>{comment.timeShown}</Text>
                 <Text style={styles.commentContent}>{comment.replyContent}</Text>
+              </View>
+               <Reply postId={comment.parentId} parentId={comment.postId}/>
               </View>
             ))}
           </View>
@@ -350,7 +408,7 @@ const PostInformation = ({ route }) => {
               <>
                 <TouchableOpacity
                   style={{ ...styles.replyButton, backgroundColor: 'red' }}
-                  onPress={() => [handleReply(params.postId), setReplyEnabled(false)]}
+                  onPress={() => [handleReplyToSave(commentId), setReplyEnabled(false)]}
                 >
                   <Text style={styles.replyButtonText}>Reply</Text>
                 </TouchableOpacity>

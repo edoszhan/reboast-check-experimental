@@ -85,7 +85,7 @@ const UserProfile = ({ route }) => {
       <View style={styles.acknowledgements}>
         <Text style={styles.grayText}>The app is developed by </Text>
         <Text style={styles.githubName} onPress={openGitHubProfile}>Yersultan Doszhan</Text>
-        <Text style={styles.grayText}>DataUS ReBoast Team</Text>
+        <Text style={styles.grayText}>DataUs ReBoast Team</Text>
       </View>
     </SafeAreaView>
   );

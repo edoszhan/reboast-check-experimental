@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ROUTES } from '../constants';
-import { Home, Timer, Calendar, UserProfile, AddPost, PostInformation, TodoInformation, Settings, EditPost, MemoScreen, TodoList} from '../screens';
+import { Home, Timer, Calendar, UserProfile, AddPost, PostInformation, TodoInformation, Settings, EditPost, MemoScreen, TodoList, Reply} from '../screens';
 import { Ionicons, MaterialCommunityIcons, } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import TimerLogs from '../screens/home/TimerLogs';
@@ -27,7 +27,6 @@ import CommunityScreen from '../screens/home/CommunityScreen';
 import { ActivityIndicator } from 'react-native-paper';
 import HomeScreen from '../screens/home/HomeScreen';
 import { useNavigation } from '@react-navigation/native';
-
 const CalendarStackScreen = () => {
   const navigation = useNavigation();
   return (
@@ -95,6 +94,7 @@ const CommunityStackScreen = () => {
       options={{
         headerTitleAlign: 'center',
       }} />
+      <ProfileStack.Screen name={ROUTES.REPLY} component={Reply}  />
     </ProfileStack.Navigator>
   );
 };
@@ -188,6 +188,7 @@ function MainComponent() {
 
   const togglePopup = () => {
     setSelectedDays([]); 
+    setSelectedCategory('');
     setIsPopupVisible(!isPopupVisible);
   };
 
@@ -372,8 +373,8 @@ function MainComponent() {
 
 
   return (
-    <View style={{ flex: 1 }}>
-      <Tab.Navigator
+    <View style={{ flex: 1}}>
+      <Tab.Navigator 
         screenOptions={({ route }) => ({
           headerShown: false,
           tabBarActiveTintColor: 'green',
@@ -408,7 +409,7 @@ function MainComponent() {
           },
         })}
       >
-        <Tab.Screen component={HomeStackScreen} name={ROUTES.HOME_TAB} />
+        <Tab.Screen component={HomeStackScreen} name={ROUTES.HOME_TAB}/>
         <Tab.Screen name={ROUTES.TIMER} component={TimerStackScreen} />
         <Tab.Screen
           name={ROUTES.BOTTOM_DRAWER}
@@ -453,7 +454,7 @@ function MainComponent() {
               <Text style={styles.popupText}>Task</Text>
               <Input
                 style={{ borderColor: 'black', borderWidth: 1, borderRadius: 5, marginLeft: -10 }}
-                placeholder=" Enter task name"
+                placeholder=" Enter task name"  
                 onChangeText={handleTaskNameChange}
               >
               </Input>
@@ -462,11 +463,12 @@ function MainComponent() {
                 labelField="label"
                 valueField="value"
                 onChange={(item) => {
+                  console.log(item.label)
                   setSelectedCategory(item.label);
                   handleColorSelect(item.label);
                 }}
                 value={selectedCategory}
-                placeholder=" Select category"
+                placeholder={selectedCategory ? selectedCategory: "Select a category"}
                 style={{ width: 300, borderColor: 'black', borderWidth: 1, borderRadius: 10 }}
                 data={data}
               />
@@ -484,6 +486,7 @@ function MainComponent() {
         </Modal>
       )}
     </View>
+
   );
 }
 
@@ -503,7 +506,6 @@ const styles = StyleSheet.create({
     right: 0,
   },
   popupText: {
-    fontSize: 20,
     fontWeight: 'bold',
     marginRight: 240,
     marginBottom: 10,

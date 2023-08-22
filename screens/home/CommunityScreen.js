@@ -59,6 +59,7 @@ const CommunityScreen = () => {
     return unsubscribe;
   };
 
+
   useEffect(() => {
     const loadData = async () => {
       try {

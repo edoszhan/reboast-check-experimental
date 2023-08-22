@@ -21,6 +21,7 @@ export default function Comment() {
     const [comments, setComments] = useState([]);
     const [replyEnabled, setReplyEnabled] = useState(false);
     const [replyingTo, setReplyingTo] = useState('');
+    const [replyToComment, setReplyToComment] = useState(''); //REPLY TO COMMENT
 
     
 
@@ -69,7 +70,7 @@ export default function Comment() {
               <Entypo name="dots-three-vertical" size={24} color="black" />
             </MenuTrigger>
             <MenuOptions>
-              <MenuOption onSelect={() => [setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => setReplyEnabled(false)} >
+              <MenuOption onSelect={() => [setReplyEnabled(true), setReplyToComment(comment.postId), setReplyingTo(postAuthorName)]} onPress={() => setReplyEnabled(false)} >
                 <Text style={{ color: 'blue' }}>Reply</Text>
               </MenuOption>
             </MenuOptions>

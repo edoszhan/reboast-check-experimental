@@ -62,6 +62,9 @@ export default function Reply({postId, parentId}) {
               <Entypo name="dots-three-vertical" size={24} color="black" />
             </MenuTrigger>
             <MenuOptions>
+              <MenuOption onSelect={() => [setReplyEnabled(true), setReplyToComment(comment.postId), setReplyingTo(postAuthorName)]} onPress={() => setReplyEnabled(false)} >
+                <Text style={{ color: 'blue' }}>Reply</Text>
+              </MenuOption>
             </MenuOptions>
           </Menu>
         );
@@ -86,24 +89,21 @@ export default function Reply({postId, parentId}) {
       }
     };
   
-    const deleteSession = async (postId, userId) => {
+    const deleteSession = async (replyId, userId) => {
       try {
         if (FIREBASE_AUTH.currentUser.uid !== userId) {
           return;
         }
-        // Delete the document from 'community-chat'
-        await deleteDoc(doc(FIREBASE_DB, 'community-chat', postId));
             
         // Remove the postId from the commentsIds array in 'community-chat'
-        const communityChatRef = doc(FIREBASE_DB, 'community-chat', params.postId);
+        const communityChatRef = doc(FIREBASE_DB, 'community-chat', postId);
         await updateDoc(communityChatRef, {
-          commentsIds: arrayRemove(postId)
+          commentsIds: arrayRemove(replyId)
         });
   
         // Delete the document from 'community-comment'
-        await deleteDoc(doc(FIREBASE_DB, 'community-comment', parentId, 'comments', postId));
-  
-        await fetchSessions();
+        await deleteDoc(doc(FIREBASE_DB, 'community-comment', postId, 'comments', parentId, 'replies', replyId));
+        // await fetchReplies();
       } catch (error) {
         console.log('Error deleting document: ', error);
       }

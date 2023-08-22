@@ -11,47 +11,71 @@ import { FIREBASE_AUTH } from '../../config/firebase';
 import { Entypo } from '@expo/vector-icons';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu';
 import { updateDoc, deleteDoc, arrayRemove } from 'firebase/firestore';
+import { Alert } from 'react-native';
+import { ROUTES } from '../../constants/routes';
+import { getDocs } from 'firebase/firestore';
+import { useNavigation } from '@react-navigation/native';
+
 
 export default function Reply({postId, parentId}) {
+    const navigation = useNavigation();
     const [replies, setReplies] = useState([]);
     const [replyEnabled, setReplyEnabled] = useState(false);
     const [replyToComment, setReplyToComment] = useState('');
 
-    
-
     const fetchUserName = async (userId) => {
       try {
-        const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId)); 
-        return userDoc.data()?.displayName; 
+        const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId));
+        return userDoc.data()?.displayName;
       } catch (error) {
         console.log('Error fetching user name: ', error);
       }
     };
-  
+    
     const fetchUserPhoto = async (userId) => {
       try {
         const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId));
-        return userDoc.data()?.photoURL;
+        return userDoc.data()?.photoURL || null;
       } catch (error) {
         console.log('Error fetching user photo: ', error);
       }
     };
-
-    useEffect(() => {
-      const fetchReplies = async () => {
-          const q = query(collection(FIREBASE_DB, 'community-comment', postId, 'comments', parentId, 'replies'), orderBy('createdAt', 'asc'));
-          const unsubscribe = onSnapshot(q, snapshot => {
-          const replyData = [];
-          snapshot.docs.forEach(doc => {  
-            replyData.push({ id: doc.id, ...doc.data() });
-          });
-          setReplies(replyData);
-          });
-          return unsubscribe;
-      };
     
+    const fetchReplies = async () => {
+      try {
+        const q = query(
+          collection(FIREBASE_DB, 'community-comment', postId, 'comments', parentId, 'replies'),
+          orderBy('createdAt', 'asc')
+        );
+    
+        const snapshot = await getDocs(q);
+        const replyDataPromises = snapshot.docs.map(async doc => {
+          const data = doc.data();
+          const displayName = await fetchUserName(data.userId);
+          const photoURL = await fetchUserPhoto(data.userId);
+          return { id: doc.id, ...data, displayName, photoURL };
+        });
+    
+        const replyData = await Promise.all(replyDataPromises);
+        setReplies(replyData);
+      } catch (error) {
+        console.log('Error fetching replies: ', error);
+      }
+    };
+    
+    useEffect(() => {
       fetchReplies();
+      const q = query(
+        collection(FIREBASE_DB, 'community-comment', postId, 'comments', parentId, 'replies'),
+        orderBy('createdAt', 'asc')
+      );
+    
+      const unsubscribe = onSnapshot(q, snapshot => {
+        fetchReplies(); // This will update replies whenever there's a change in the data
+      });
+      return unsubscribe;
     }, [postId, parentId]);
+    
 
     const handleComment = (comment) => {
       const postAuthorName = `${comment.replyAuthor} `;
@@ -91,23 +115,45 @@ export default function Reply({postId, parentId}) {
   
     const deleteSession = async (replyId, userId) => {
       try {
-        if (FIREBASE_AUTH.currentUser.uid !== userId) {
-          return;
-        }
-            
-        // Remove the postId from the commentsIds array in 'community-chat'
-        const communityChatRef = doc(FIREBASE_DB, 'community-chat', postId);
-        await updateDoc(communityChatRef, {
-          commentsIds: arrayRemove(replyId)
-        });
-  
-        // Delete the document from 'community-comment'
-        await deleteDoc(doc(FIREBASE_DB, 'community-comment', postId, 'comments', parentId, 'replies', replyId));
-        // await fetchReplies();
+          if (FIREBASE_AUTH.currentUser.uid !== userId) {
+              return;
+          }
+          
+          // Alert for Confirmation
+          Alert.alert(
+              'Confirm Deletion',
+              'Are you sure you want to delete this reply?',
+              [
+                  {
+                      text: 'Cancel',
+                      style: 'cancel',
+                  },
+                  {
+                      text: 'Delete',
+                      onPress: async () => {
+                          try {
+                              // Remove the postId from the commentsIds array in 'community-chat'
+                              const communityChatRef = doc(FIREBASE_DB, 'community-chat', postId);
+                              await updateDoc(communityChatRef, { commentsIds: arrayRemove(replyId) });
+                              
+                              // Delete the document from 'community-comment'
+                              await deleteDoc(doc(FIREBASE_DB, 'community-comment', postId, 'comments', parentId, 'replies', replyId));
+                              
+                              // Uncomment the below if you want to fetch replies after deletion
+                              // await fetchReplies();
+                          } catch (error) {
+                              console.log('Error deleting document: ', error);
+                          }
+                      },
+                      style: 'destructive',
+                  },
+              ]
+          );
       } catch (error) {
-        console.log('Error deleting document: ', error);
+          console.log('Error deleting document: ', error);
       }
-    };
+  };
+  
 
     return (
         <View style={styles.commentsContainer}>

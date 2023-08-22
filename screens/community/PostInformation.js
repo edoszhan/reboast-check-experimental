@@ -341,12 +341,12 @@ const PostInformation = ({ route }) => {
           ))}
          <View style={styles.commentsContainer}> 
             {comments.map((comment) => (
-               <View style={{
+               <View key={comment.id}  style={{
                 borderWidth: 1,
                 borderColor: '#ccc',
                 padding: 10,
                 borderRadius: 5, marginBottom: 10}}>
-              <View key={comment.id} style={styles.commentContainer}>
+              <View style={styles.commentContainer}>
                 <View style={styles.commentHeader}>
                   <View style={styles.commentHeaderLeft}>
                     {comment.photoURL ? (

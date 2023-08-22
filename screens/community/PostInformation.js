@@ -42,7 +42,7 @@ const PostInformation = ({ route }) => {
   const fetchUserPhoto = async (userId) => {
     try {
       const userDoc = await getDoc(doc(FIREBASE_DB, 'users-info', userId));
-      return userDoc.data()?.photoURL;
+      return userDoc.data()?.photoURL || null;
     } catch (error) {
       console.log('Error fetching user photo: ', error);
     }
@@ -135,9 +135,9 @@ const PostInformation = ({ route }) => {
             <Entypo name="dots-three-vertical" size={24} color="black" />
           </MenuTrigger>
           <MenuOptions>
-          <MenuOption onSelect={() => [setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => [setReplyEnabled(true),setReplyingTo(postAuthorName), setReplyEnabled(false)]}>
+          {/* <MenuOption onSelect={() => [setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => [setReplyEnabled(true),setReplyingTo(postAuthorName), setReplyEnabled(false)]}>
               <Text style={{ color: 'blue' }}>Reply</Text>
-            </MenuOption>
+            </MenuOption> */}
             <MenuOption onSelect={() => navigation.navigate(ROUTES.EDIT_POST_SCREEN, {postId: comment.postId, postContent: comment.replyContent, parentId: comment.parentId})} text="Edit" />
             <MenuOption onSelect={() => deleteSession(comment.id, comment.userId)}>
               <Text style={{ color: 'red' }}>Delete</Text>
@@ -221,6 +221,7 @@ const PostInformation = ({ route }) => {
   };
 // this is used to post a reply to a comment (not to post a comment)
   const handleReplyToSave = async (commentId) => {
+    console.log("response is ", commentId);
     randomId = FIREBASE_AUTH.currentUser.displayName + "-" + uuid.v4();
     console.log(commentId);
     try {
@@ -238,6 +239,7 @@ const PostInformation = ({ route }) => {
       console.log('Document successfully written!');
       setReplyText('');
       await fetchSessions();
+
     } catch (error) {
       console.log('Error writing document: ', error);
     }
@@ -257,6 +259,7 @@ const PostInformation = ({ route }) => {
   
           // Update the document with the new array
           await updateDoc(docRef, { commentsIds: commentsIds });
+          await fetchSessions();
       }
       } catch (error) {
           console.log('Error updating commentIds: ', error);

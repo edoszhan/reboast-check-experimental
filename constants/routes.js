@@ -34,4 +34,5 @@ export default {
 
     //All todos
     TODO_LIST: 'Todo List',
+    REPLY: 'Reply',
   };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ROUTES } from '../constants';
-import { Home, Timer, Calendar, UserProfile, AddPost, PostInformation, TodoInformation, Settings, EditPost, MemoScreen, TodoList} from '../screens';
+import { Home, Timer, Calendar, UserProfile, AddPost, PostInformation, TodoInformation, Settings, EditPost, MemoScreen, TodoList, Reply} from '../screens';
 import { Ionicons, MaterialCommunityIcons, } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import TimerLogs from '../screens/home/TimerLogs';
@@ -94,6 +94,7 @@ const CommunityStackScreen = () => {
       options={{
         headerTitleAlign: 'center',
       }} />
+      <ProfileStack.Screen name={ROUTES.REPLY} component={Reply}  />
     </ProfileStack.Navigator>
   );
 };
@@ -505,7 +506,6 @@ const styles = StyleSheet.create({
     right: 0,
   },
   popupText: {
-    fontSize: 18,
     fontWeight: 'bold',
     marginRight: 240,
     marginBottom: 10,

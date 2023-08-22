@@ -18,10 +18,10 @@ import { useNavigation } from '@react-navigation/native';
 
 
 export default function Reply({postId, parentId}) {
-    const navigation = useNavigation();
     const [replies, setReplies] = useState([]);
     const [replyEnabled, setReplyEnabled] = useState(false);
     const [replyToComment, setReplyToComment] = useState('');
+    const [replyingTo, setReplyingTo] = useState('');
 
     const fetchUserName = async (userId) => {
       try {
@@ -79,20 +79,20 @@ export default function Reply({postId, parentId}) {
 
     const handleComment = (comment) => {
       const postAuthorName = `${comment.replyAuthor} `;
-      if (FIREBASE_AUTH.currentUser.uid !== comment.userId) {
-        return (
-          <Menu>
-            <MenuTrigger>
-              <Entypo name="dots-three-vertical" size={24} color="black" />
-            </MenuTrigger>
-            <MenuOptions>
-              <MenuOption onSelect={() => [setReplyEnabled(true), setReplyToComment(comment.postId), setReplyingTo(postAuthorName)]} onPress={() => setReplyEnabled(false)} >
-                <Text style={{ color: 'blue' }}>Reply</Text>
-              </MenuOption>
-            </MenuOptions>
-          </Menu>
-        );
-      }
+      // if (FIREBASE_AUTH.currentUser.uid !== comment.userId) {
+      //   return (
+      //     <Menu> 
+      //       <MenuTrigger>
+      //         <Entypo name="dots-three-vertical" size={24} color="black" />
+      //       </MenuTrigger>
+      //       <MenuOptions>
+      //         {/* <MenuOption onSelect={() => [setReplyEnabled(true), setReplyToComment(comment.postId), setReplyingTo(postAuthorName)]} onPress={() => setReplyEnabled(false)} >
+      //           <Text style={{ color: 'blue' }}>Reply</Text>
+      //         </MenuOption> */}
+      //       </MenuOptions>
+      //     </Menu>
+      //   );
+      // }
       if (FIREBASE_AUTH.currentUser.uid == comment.userId) {
         return (
           <Menu>
@@ -100,10 +100,10 @@ export default function Reply({postId, parentId}) {
               <Entypo name="dots-three-vertical" size={24} color="black" />
             </MenuTrigger>
             <MenuOptions>
-            <MenuOption onSelect={() => [setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => setReplyEnabled(false)}>
+            {/* <MenuOption onSelect={() => [setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => setReplyEnabled(false)}>
                 <Text style={{ color: 'blue' }}>Reply</Text>
-              </MenuOption>
-              <MenuOption onSelect={() => navigation.navigate(ROUTES.EDIT_POST_SCREEN, {postId: comment.postId, postContent: comment.replyContent, parentId: comment.parentId})} text="Edit" />
+              </MenuOption> */}
+              {/* <MenuOption onSelect={() => navigation.navigate(ROUTES.EDIT_POST_SCREEN, {postId: comment.postId, postContent: comment.replyContent, parentId: comment.parentId})} text="Edit" /> */}
               <MenuOption onSelect={() => deleteSession(comment.id, comment.userId)}>
                 <Text style={{ color: 'red' }}>Delete</Text>
               </MenuOption>

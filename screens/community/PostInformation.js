@@ -166,6 +166,7 @@ const PostInformation = ({ route }) => {
       await deleteDoc(doc(FIREBASE_DB, 'community-comment', parentId, 'comments', postId));
 
       await fetchSessions();
+      await fetchComments();
     } catch (error) {
       console.log('Error deleting document: ', error);
     }
@@ -176,7 +177,7 @@ const PostInformation = ({ route }) => {
   const currentTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
   const commentCreatedDateTime = currentDay + ' ' + currentTime;
-
+ // this is used to post a comment (not reply to a comment)
   const handleReply = async (postId) => {
     randomId = FIREBASE_AUTH.currentUser.displayName + "-" + uuid.v4();
     try {
@@ -193,7 +194,6 @@ const PostInformation = ({ route }) => {
       });
       console.log('Document successfully written!');
       setReplyText('');
-      await fetchSessions();
     } catch (error) {
       console.log('Error writing document: ', error);
     }
@@ -213,12 +213,13 @@ const PostInformation = ({ route }) => {
   
           // Update the document with the new array
           await updateDoc(docRef, { commentsIds: commentsIds });
+          await fetchSessions();
       }
       } catch (error) {
           console.log('Error updating commentIds: ', error);
       }
   };
-
+// this is used to post a reply to a comment (not to post a comment)
   const handleReplyToSave = async (commentId) => {
     randomId = FIREBASE_AUTH.currentUser.displayName + "-" + uuid.v4();
     console.log(commentId);

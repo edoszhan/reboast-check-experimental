@@ -11,6 +11,7 @@ export {default as TodoInformation} from './home/TodoInformation';
 // Auth Screens
 export {default as Login} from './auth/Login';
 export {default as Register} from './auth/Register';
+export {default as Register2} from './auth/Register2';
 export {default as ForgotPassword} from './auth/ForgotPassword';
 
 // Community Screens

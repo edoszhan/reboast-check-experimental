@@ -1,6 +1,7 @@
 export default {
     LOGIN: 'Login',
     REGISTER: 'Register',
+    REGISTER2: 'Register2',
     FORGOT_PASSWORD: 'Forgot Password',
   
     HOME: 'Main Screen',

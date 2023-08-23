@@ -11,9 +11,9 @@ import { getStorage } from "firebase/storage";
 // require('dotenv').config();
 // console.log(process.env);
 
-
+//this should be hiden in the .env file, you can create your own firebase project and get the config from there
 const firebaseConfig = {
-  apiKey: "AIzaSyBWVoPYPaslSEqKti8whKwRDcUk_P49nao",
+  apiKey: "AIzaSyBWVoPYPaslSEqKti8whKwRDcUk_P49nao", 
 //   apiKey: process.env.REACT_APP_API_KEY,
   authDomain: "rough-app-70eeb.firebaseapp.com",
   projectId: "rough-app-70eeb",

@@ -12,11 +12,11 @@ import { Ionicons, Entypo, AntDesign } from '@expo/vector-icons';
 import uuid from 'react-native-uuid';
 import Comment from '../test/Comment';
 import Reply from '../test/Reply';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const PostInformation = ({ route }) => {
   const params = route.params ? route.params : 'no post';
   const navigation = useNavigation(); 
-  // const nav = navigation.getParent()?.setOptions({ tabBarBUtton: () => null }); //SOLELY TO REMOVE TABS ON THIS PAGE
   const [sessions, setSessions] = useState([]);
   const [replyText, setReplyText] = useState('');
   const [comments, setComments] = useState([]);
@@ -26,8 +26,7 @@ const PostInformation = ({ route }) => {
 
   const [replyingTo, setReplyingTo] = useState('');
   const [commentId, setCommentId] = useState('');
-
-
+  const [showTextInput, setShowTextInput] = useState(false);
 
   postId = params.postId;
   const fetchUserName = async (userId) => {
@@ -121,7 +120,7 @@ const PostInformation = ({ route }) => {
             <Entypo name="dots-three-vertical" size={24} color="black" />
           </MenuTrigger>
           <MenuOptions>
-            <MenuOption onSelect={() => [setCommentId(comment.postId), setReplyEnabled(true), setReplyingTo(postAuthorName)]} onPress={() => [setReplyEnabled(false)]} >
+            <MenuOption onSelect={() => [setCommentId(comment.postId), setReplyEnabled(true), setReplyingTo(postAuthorName), setShowTextInput(true)]} onPress={() => [setReplyEnabled(false)]} >
               <Text style={{ color: 'blue' }}>Reply</Text>
             </MenuOption>
           </MenuOptions>
@@ -323,7 +322,7 @@ const PostInformation = ({ route }) => {
               </View>
               <View style={{alignItems: 'center'}}>
               {session.postFile ? (
-              <Image source={{ uri: session.postFile }} style={{ width: "100%", height: 200 }} />
+              <Image source={{ uri: session.postFile }} style={{ width: "100%", height: 200 }}  resizeMode="contain"/>
           ) : null}
               </View>
             <View style={styles.interactionBar}>
@@ -347,7 +346,7 @@ const PostInformation = ({ route }) => {
             {comments.map((comment) => (
                <View key={comment.id}  style={{
                 borderWidth: 1,
-                borderColor: '#ccc',
+                borderColor: 'gray',
                 padding: 10,
                 borderRadius: 5, marginBottom: 10}}>
               <View style={styles.commentContainer}>
@@ -377,53 +376,71 @@ const PostInformation = ({ route }) => {
           </View>
         </View>
       </ScrollView>
-          <View style={styles.replyContainer}>
-          {isKeyboardActive && (
-          <>
-            {replyEnabled ? (
+      {showTextInput ? (
+    // This block is the existing TextInput and related components
+    <View style={styles.replyContainer}>
+      {isKeyboardActive && (
+        <>
+          {replyEnabled ? (
             <View style={{marginBottom: 8, flexDirection: 'row', alignItems: 'center',justifyContent: 'space-between'}}>
               <Text> Replying to <Text style={{ fontWeight: 'bold' }}>{replyingTo}</Text></Text>
               <TouchableOpacity
-                  style={{...styles.cancelButton}}
-                  onPress={() => setReplyEnabled(false)}
-                >
-                  <Text style={{color: 'gray', padding: 5}}>Cancel</Text>
-                </TouchableOpacity>
-                </View>
-                ) : null}
-              </>
-            )}
-          <TextInput
-            style={styles.replyInput}
-            placeholder="Add a comment"
-            value={replyText}
-            onChangeText={setReplyText}
-            onFocus={() => setIsKeyboardActive(true)}
-            onBlur={() => setIsKeyboardActive(false)}
-            multiline
-          />  
-        {replyText.length > 0 && isKeyboardActive && (
-          <>
-            {replyEnabled ? (
-              <>
-                <TouchableOpacity
-                  style={{ ...styles.replyButton, backgroundColor: 'red' }}
-                  onPress={() => [handleReplyToSave(commentId), setReplyEnabled(false)]}
-                >
-                  <Text style={styles.replyButtonText}>Reply</Text>
-                </TouchableOpacity>
-              </>
-            ) : (
-              <TouchableOpacity
-                style={{ ...styles.replyButton, backgroundColor: 'blue' }}
-                onPress={() => handleReply(params.postId)}
+                style={{...styles.cancelButton}}
+                onPress={() => {
+                    setReplyEnabled(false);
+                    setShowTextInput(false); // Added this line to close the input if cancel is pressed
+                }}
               >
-                <Text style={styles.replyButtonText}>Send</Text>
+                <Text style={{color: 'gray', padding: 5}}>Cancel</Text>
               </TouchableOpacity>
-            )}
-          </>
-        )}
-        </View>
+            </View>
+          ) : null}
+        </>
+      )}
+      <TextInput
+        style={styles.replyInput}
+        placeholder="Add a comment"
+        value={replyText}
+        onChangeText={setReplyText}
+        onFocus={() => setIsKeyboardActive(true)}
+        onBlur={() => setIsKeyboardActive(false)}
+        multiline
+      />
+      {replyText.length > 0 && isKeyboardActive && (
+        <>
+          {replyEnabled ? (
+            <TouchableOpacity
+              style={{ ...styles.replyButton, backgroundColor: 'red' }}
+              onPress={() => {
+                  handleReplyToSave(commentId);
+                  setReplyEnabled(false);
+                  setShowTextInput(false);
+              }}
+            >
+              <Text style={styles.replyButtonText}>Reply</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={{ ...styles.replyButton, backgroundColor: 'blue' }}
+              onPress={() => [handleReply(params.postId), setShowTextInput(false)]}
+            >
+              <Text style={styles.replyButtonText}>Send</Text>
+            </TouchableOpacity>
+          )}
+        </>
+      )}
+    </View>
+) : (
+    // This block is the FAB (floating action button) to open the text input
+    <View style={{alignItems: 'flex-end'}}>
+    <TouchableOpacity 
+        style={styles.fab} 
+        onPress={() =>[setShowTextInput(true), console.log("pressed")]}
+    >
+        <MaterialIcons name="edit" size={30} color="white" />
+    </TouchableOpacity>
+    </View>
+)}
     </View>
   );
 };
@@ -554,5 +571,21 @@ const styles = StyleSheet.create({
   interactionText: {
     marginLeft: 5, // Space between the icon and its text
     fontSize: 14,
+  },
+  fab: {
+    // position: 'absolute',
+    bottom: 20, // Position from the bottom
+    right: 20, // Position from the right
+    width: 50, // Width of the button
+    height: 50, // Height of the button
+    borderRadius: 30, // Makes it round
+    backgroundColor: 'green', // Color of the button
+    justifyContent: 'center', // To horizontally center the icon
+    alignItems: 'center', // To vertically center the icon
+    elevation: 5, // Shadow for Android
+    shadowOffset: { width: 1, height: 2 }, // Shadow for iOS
+    shadowColor: '#000', // Shadow color for iOS
+    shadowOpacity: 0.3, // Shadow opacity for iOS
+    shadowRadius: 2, // Shadow blur for iOS
   },
 });

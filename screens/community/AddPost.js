@@ -111,7 +111,7 @@ const AddPost = () => {
     setPostFile(null);
   };
 
-  const isPostButtonDisabled = !(postTopic);
+  const isPostButtonDisabled = !(postTopic && postContent);
 
   return (
     <SafeAreaView style={styles.container}>

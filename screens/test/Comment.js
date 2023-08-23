@@ -15,7 +15,7 @@ import { Entypo } from '@expo/vector-icons';
 import { ROUTES } from '../../constants/routes';
 import { useNavigation } from '@react-navigation/native';
 
-
+  
 export default function Comment() {
     const navigation = useNavigation();
     const [comments, setComments] = useState([]);

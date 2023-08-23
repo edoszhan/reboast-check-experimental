@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'reac
 import { COLORS, ROUTES } from '../../constants';
 import { Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { FIREBASE_AUTH } from '../../config/firebase';
 
 const Register = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -13,6 +14,15 @@ const Register = ({ navigation }) => {
       Alert.alert('Please fill in all the fields.');
       return;
     }
+    if (name.trim().length < 6) {
+      Alert.alert('Name should be at least 6 characters.');
+      return;
+    }
+    if (!email.includes('@')) {
+      Alert.alert('Please enter a valid email address.');
+      return;
+    }
+    
     navigation.navigate(ROUTES.REGISTER2, { name, email });
   };
 

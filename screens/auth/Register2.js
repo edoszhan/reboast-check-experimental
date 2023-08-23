@@ -72,7 +72,11 @@ const Register2 = ({ route, navigation }) => {
       navigation.replace(ROUTES.HOME);
     } catch (error) {
       console.log(error);
-      Alert.alert('Registration Failed');
+      if (error.code === "auth/email-already-in-use") {
+        Alert.alert('The email address is already in use.');
+      } else {
+        Alert.alert('Registration Failed');
+      }
     }
   };
 

@@ -414,6 +414,7 @@ const PostInformation = ({ route }) => {
               onPress={() => {
                   handleReplyToSave(commentId);
                   setReplyEnabled(false);
+                  setShowTextInput(false);
               }}
             >
               <Text style={styles.replyButtonText}>Reply</Text>
@@ -421,7 +422,7 @@ const PostInformation = ({ route }) => {
           ) : (
             <TouchableOpacity
               style={{ ...styles.replyButton, backgroundColor: 'blue' }}
-              onPress={() => handleReply(params.postId)}
+              onPress={() => [handleReply(params.postId), setShowTextInput(false)]}
             >
               <Text style={styles.replyButtonText}>Send</Text>
             </TouchableOpacity>

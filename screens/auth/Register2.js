@@ -81,11 +81,10 @@ const Register2 = ({ route, navigation }) => {
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={{ flex: 1 }} 
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
-    >
+    // <KeyboardAvoidingView 
+    //   style={{ flex: 1 }} 
+    //   behavior={Platform.OS === "ios" ? "padding" : "height"}
+    //   keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <SafeAreaView style={{ flex: 1 }}>
           <View style={styles.container}>
@@ -139,7 +138,7 @@ const Register2 = ({ route, navigation }) => {
           </View>
         </SafeAreaView>
       </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+    // </KeyboardAvoidingView>
   );
 };
 

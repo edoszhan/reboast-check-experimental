@@ -19,7 +19,7 @@ const RegisterStackNavigator = () => {
       initialRouteName="Register Step1"
       screenOptions={{ headerShown: false }} // Assuming you want to hide the header, adjust as necessary
     >
-      <RegisterStack.Screen name="Register" component={Register} />
+      <RegisterStack.Screen name="Register1" component={Register} />
       <RegisterStack.Screen name="Register2" component={Register2} />
     </RegisterStack.Navigator>
   );

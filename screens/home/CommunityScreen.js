@@ -261,7 +261,7 @@ const CommunityScreen = () => {
               </View>
               <View style={{alignItems: 'center'}}>
                 {session.postFile ? (
-                  <Image source={{ uri: session.postFile }} style={ {width: "100%", height: 200}} />
+                  <Image source={{ uri: session.postFile }} style={ {width: "100%", height: 200}} resizeMode="contain" />
                 ) : null}
               </View>
             </TouchableOpacity>

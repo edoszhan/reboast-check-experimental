@@ -347,7 +347,7 @@ const PostInformation = ({ route }) => {
             {comments.map((comment) => (
                <View key={comment.id}  style={{
                 borderWidth: 1,
-                borderColor: '#ccc',
+                borderColor: 'gray',
                 padding: 10,
                 borderRadius: 5, marginBottom: 10}}>
               <View style={styles.commentContainer}>
